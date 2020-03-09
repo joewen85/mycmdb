@@ -302,19 +302,14 @@ class AssetFuncsView(View):
 
             # 执行ansible playbook
             runningjob = AnsibleApi_v2()
-            if jobpath == CONFIG.PLAYBOOKPATH + "/roles/zabbix_client/zabbix_client.yml":
-                runningjob.playbookrun(playbook_path=[jobpath], domain=device_obj.hostname, hostip=device_obj.ipaddress,
-                                       group=env_name, port=device_obj.sshport,
-                                       sshuser=device_obj.sshuser, password=device_obj.sshpassword, phpbin=phpbin,
-                                       webpath=device_obj.websitepath,
-                                       download_vers=download_vers, mysql_user=device_obj.mysqluser,
-                                       mysql_password=device_obj.mysqlpassword, mysql_address=device_obj.mysqladdress)
-            else:
-                runningjob.playbookrun(playbook_path=[jobpath], domain=device_obj.hostname, hostip=device_obj.ipaddress,
-                                       group=env_name, port=device_obj.sshport,
-                                       sshuser=device_obj.sshuser, password=device_obj.sshpassword, phpbin=phpbin,
-                                       webpath=device_obj.websitepath,
-                                       download_vers=download_vers)
+
+            runningjob.playbookrun(playbook_path=[jobpath], domain=device_obj.hostname, hostip=device_obj.ipaddress,
+                                   group=env_name, port=device_obj.sshport,
+                                   sshuser=device_obj.sshuser, password=device_obj.sshpassword, phpbin=phpbin,
+                                   webpath=device_obj.websitepath,
+                                   download_vers=download_vers, mysql_user=device_obj.mysqluser,
+                                   mysql_password=device_obj.mysqlpassword, mysql_address=device_obj.mysqladdress)
+
             data = runningjob.get_playbook_result()
 
             if jobpath == CONFIG.PLAYBOOKPATH + "/cronjob_queue.yml" and data['unreachable'] != {} and data[
