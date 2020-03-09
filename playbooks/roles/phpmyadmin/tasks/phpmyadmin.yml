@@ -1,0 +1,15 @@
+- name: install depend
+  yum: name=expect state=present
+- name: download mysql
+  get_url: url=https://downloads.yunzmall.com/dbm.tgz dest={{ webpath }} timeout=5
+- name: unarchive mysql-server
+  unarchive: src={{ webpath }}/dbm.tgz dest={{ webpath }} mode=770 owner=www group=www copy=no
+- name: create random word
+  shell: mkpasswd -l 8 -s 0
+  register: result
+- name: modify name
+  shell: mv {{ webpath }}/dbm {{ webpath }}/{{ result.stdout }}
+- name: delete dbm package
+  file: path={{ webpath }}/dbm.tgz state=absent
+- debug:
+    msg: "phpmyadmin address https://{{ domain }}/{{ result.stdout }}"
