@@ -312,12 +312,10 @@ class AssetFuncsView(View):
 
             data = runningjob.get_playbook_result()
 
-            if jobpath == CONFIG.PLAYBOOKPATH + "/cronjob_queue.yml" and data['unreachable'] != {} and data[
-                'failed'] != {}:
+            if jobpath == "/data/apps/mycmdb/playbooks/cronjob_queue.yml":
                 """部署队列和计划任务成功后计数"""
                 Device.objects.filter(hostname=device_obj.hostname).update(deploy_times=F('deploy_times') + 1)
-            elif jobpath == CONFIG.PLAYBOOKPATH + "/roles/zabbix_client/zabbix_client.yml" and data[
-                'unreachable'] != {} and data['failed'] != {}:
+            elif jobpath == "/data/apps/mycmdb/playbooks/roles/zabbix_client/zabbix_client.yml":
                 zabbix_url = CONFIG.ZABBIX_URL
                 zabbix_user = CONFIG.ZABBIX_USER
                 zabbix_passwd = CONFIG.ZABBIX_PASSWD
