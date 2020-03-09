@@ -19,18 +19,18 @@
     dest: /usr/local/
     remote_src: yes
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
-#- name: touch library file
-#  file:
-#    path: /etc/ld.so.conf.d/openssl.conf
-#    state: touch
-#- name: create library configure
-#  lineinfile:
-#    dest: /etc/ld.so.conf.d/openssl.conf
-#    state: present
-#    regexp: '^/usr/local/ssl/lib$'
-#    line: '/usr/local/ssl/lib'
-#- name: apply library
-#  shell: ldconfig
+- name: touch library file
+  file:
+    path: /etc/ld.so.conf.d/openssl.conf
+    state: touch
+- name: create library configure
+  lineinfile:
+    dest: /etc/ld.so.conf.d/openssl.conf
+    state: present
+    regexp: '^/usr/local/ssl/lib$'
+    line: '/usr/local/ssl/lib'
+- name: apply library
+  shell: ldconfig
 - name: get cacert
   get_url:
     url: http://downloads.yunzmall.com/cacert.pem

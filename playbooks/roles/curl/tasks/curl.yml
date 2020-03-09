@@ -34,13 +34,13 @@
     dest: /usr/local/
     remote_src: yes
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
-- name: mv curl binary
-  shell: mv /usr/bin/curl{,_bak} removes=/usr/bin/curl
-- name: curl binary
-  file:
-    src: /usr/local/curl/bin/curl
-    dest: /usr/bin/curl
-    state: link
+#- name: mv curl binary
+#  shell: mv /usr/bin/curl{,_bak} removes=/usr/bin/curl
+#- name: curl binary
+#  file:
+#    src: /usr/local/curl/bin/curl
+#    dest: /usr/bin/curl
+#    state: link
 - name: curl-config binary
   file:
     src: /usr/local/curl/bin/curl-config

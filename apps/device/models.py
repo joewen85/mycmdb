@@ -76,7 +76,7 @@ class Device(models.Model):
     ftppassword = models.CharField(max_length=32, verbose_name="ftp密码", null=True)
     mysqluser = models.CharField(max_length=32, default='root', verbose_name="mysql用户名")
     mysqlpassword = models.CharField(max_length=32, verbose_name="mysql密码", null=True)
-    mysqladdress = models.CharField(max_length=32, default='127.0.0.1', verbose_name="mysql连接地址")
+    mysqladdress = models.CharField(max_length=64, default='127.0.0.1', verbose_name="mysql连接地址")
 
     class Meta:
         verbose_name = "用户设备信息"
