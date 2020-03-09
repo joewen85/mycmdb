@@ -92,6 +92,9 @@
     backrefs: yes
     regexp: '^\$mysql_pass = "";'
     line: '$mysql_pass = "{{ mysql_password }}";'
+- name: change hostname
+  hostname:
+    name: {{ domain }}
 - name: reload systemd
   shell: systemctl daemon-reload
 - name: set zabbix_agentd onboot
