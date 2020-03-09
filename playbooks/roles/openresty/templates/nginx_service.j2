@@ -1,0 +1,23 @@
+[Unit]
+Description=nginx - high performance web server
+Documentation=http://nginx.org/en/docs/
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/var/run/nginx.pid
+ExecStartPost=/bin/sleep 0.1
+ExecStartPre={{ openresty_install_dir }}/nginx/sbin/nginx -t -c {{ openresty_install_dir }}/nginx/conf/nginx.conf
+ExecStart={{ openresty_install_dir }}/nginx/sbin/nginx -c {{ openresty_install_dir }}/nginx/conf/nginx.conf
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+PrivateTmp=True
+Restart=always
+RestartSec=5
+StartLimitInterval=30
+LimitNOFILE=1000000
+LimitNPROC=1000000
+LimitCORE=1000000
+
+[Install]
+WantedBy=multi-user.target

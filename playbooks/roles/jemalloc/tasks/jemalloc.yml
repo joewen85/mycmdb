@@ -1,0 +1,33 @@
+- name: install deploy package
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+     - unzip
+     - bzip2
+- name: unarchive jemalloc
+  unarchive:
+#    src: jemalloc-{{ jemalloc_ver }}.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/jemalloc/jemalloc-{{ jemalloc_ver }}.tgz"
+    dest: /usr/local/
+    remote_src: yes
+- name: link libray
+  file:
+    src: /usr/local/jemalloc/lib/libjemalloc.so.2
+    dest: /usr/lib64/libjemalloc.so.1
+    state: link
+- name: link all libray so
+  shell: ln -s /usr/local/jemalloc/lib/* /usr/local/lib/
+- name: touch library file
+  file:
+    path: /etc/ld.so.conf.d/jemalloc.conf
+    state: touch
+# - name: create library configure
+#   lineinfile:
+#     dest: /etc/ld.so.conf.d/jemalloc.conf
+#     state: present
+#     regexp: '^/usr/local/jemalloc/lib$'
+#     line: '/usr/local/jemalloc/lib'
+- name: apply library
+  shell: ldconfig

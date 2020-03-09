@@ -1,0 +1,6 @@
+---
+# Variable configuration
+# #
+# # # config tasks
+- include_tasks: redis.yml
+#- include_tasks: php-redis.yml

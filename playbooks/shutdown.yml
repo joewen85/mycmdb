@@ -1,0 +1,6 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  gather_facts: false
+  tasks:
+        - name: reboot
+          shell: /usr/sbin/init 0

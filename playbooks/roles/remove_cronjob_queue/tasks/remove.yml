@@ -1,0 +1,24 @@
+- name: remove cronjob 
+  #file: path=/var/spool/cron/www state=absent force=yes
+  cron: 
+    name: "{{ domain }}"
+    user: www
+    state: absent
+#- name: stop supervisord
+#  service: name=supervisord state=stopped
+- name: delete file
+  file: path=/etc/supervisord.d/{{ domain }}.ini state=absent force=yes
+  #file: path=/etc/supervisord.d state=absent force=yes
+#- name: remove supervisord program
+#  yum: 
+#    name: "supervisor"
+#    state: absent
+- name: delete old file
+  file: path=/etc/supervisord.d/laravel-worker.ini state=absent force=yes
+- name: delete onboot run artisan queue work process old function
+  lineinfile:
+        state: absent
+        dest: /etc/crontab
+        regexp: ".*artisan cron:run"
+- name: restart supervisord
+  service: name=supervisord state=restarted

@@ -1,0 +1,42 @@
+- name: add mysql user
+  user: name=mysql shell=/sbin/nologin
+- name: install dependen
+  yum: 
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+     - expect
+     - numactl-libs
+     - libaio
+     - libaio-devel
+- name: download mysql
+  #get_url: url=https://mirrors.tuna.tsinghua.edu.cn/mysql/downloads/MySQL-5.7/mysql-{{ mysql57_ver }}-linux-glibc2.12-x86_64.tar.gz dest=/usr/local/ timeout=5
+  get_url: url=https://downloads.yunzmall.com/mysql-{{ mysql57_ver }}-linux-glibc2.12-x86_64.tar.gz dest=/usr/local/ timeout=5
+- name: unarchive mysql-server
+  unarchive: src=/usr/local/mysql-{{ mysql57_ver }}-linux-glibc2.12-x86_64.tar.gz dest=/usr/local/ mode=770 owner=mysql group=mysql copy=no
+- name: modify name
+  shell: cp -r /usr/local/mysql-{{ mysql57_ver }}-linux-glibc2.12-x86_64 /usr/local/mysql
+- name: create passwd
+  shell: mkpasswd -l 16 -s 0
+  register: result
+- name: add passwd to tmpfile
+  shell: echo -e "{{ result.stdout }}" > /tmp/dbrootpassword
+- name: setup service start file
+  copy: src={{ mysql_install_dir }}/support-files/mysql.server dest=/etc/init.d/mysqld mode=770 owner=root group=root
+- name: create data folder
+  file: path=/data/mysql state=directory recurse=yes mode=770 owner=mysql group=mysql
+- name: setup service config
+  template: src=my.j2 dest=/etc/my.cnf
+- name: to script
+  template: src=setmysql.j2 dest=/tmp/setmysql.sh
+- name: run script
+  shell: sh /tmp/setmysql.sh
+- name: delete scrpt
+  file: path=/tmp/setmysql.sh state=absent
+- name: delete mysql source
+  file: path=/usr/local/mysql-{{ mysql57_ver }}-linux-glibc2.12-x86_64.tar.gz state=absent  
+- name: delete mysql source folder
+  file: path=/usr/local/mysql-{{ mysql57_ver }}-linux-glibc2.12-x86_64 state=absent
+- debug:
+    msg: "mysql root password: {{ result.stdout }}"

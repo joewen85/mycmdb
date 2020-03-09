@@ -1,0 +1,4 @@
+---
+phpbin: /usr/local/php/bin/php
+nginxbin: /usr/local/openresty/nginx/sbin/nginx
+mysqlbin: /usr/local/mysql/bin/mysql

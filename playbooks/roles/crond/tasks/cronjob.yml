@@ -1,0 +1,9 @@
+- name: jude artisan file exist or not
+  stat: path={{ webpath }}/artisan
+  register: artisan_result
+- cron: name="{{ domain }}" minute='*' hour='*' user='www' state=present job="{{ phpbin }} {{ webpath }}/addons/yun_shop/artisan cron:run > /dev/null 2>&1"
+  when: artisan_result.stat.exists == False
+- cron: name="{{ domain }}" minute='*' hour='*' user='www' state=present job="{{ phpbin }} {{ webpath }}/artisan cron:run > /dev/null 2>&1"  
+  when: artisan_result.stat.exists
+- name: add user www with home folder
+  file: path='/home/www' state=directory owner='www' group='www' recurse=yes

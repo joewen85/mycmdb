@@ -1,0 +1,12 @@
+#!/bin/bash
+# Author: Joe wen
+# Blog: https://www.joewen.net
+# Time: 2019-04-09 15:15:28
+# Name: general_key.sh
+# Version: v1.0
+# Description: This is a Script.
+
+. /etc/profile
+
+~/.acme.sh/acme.sh --install-cert -d {{ domain }} --key-file /usr/local/openresty/nginx/conf/ssl/{{ domain }}.key --fullchain-file /usr/local/openresty/nginx/conf/ssl/{{ domain }}.pem --reloadcmd "systemctl restart nginx"
+~/.acme.sh/acme.sh --upgrade --auto-upgrade

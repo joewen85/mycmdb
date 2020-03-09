@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% block title %}
+    客户管理系统 | 资产详情
+{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="/static/xterm/xterm.css"/>
+    <!-- <link rel="stylesheet" href="/static/xterm/style.css"/> -->
+    <link rel="stylesheet" href="/static/xterm/fullscreen.css"/>
+{% endblock %}
+{% block content %}
+    {{ block.super }}
+    {% if messages %}
+        <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+    {% endif %}
+    <div style="margin-top: 10px" id="form">
+{#    <form id="server_detail" action="" method="post" class="smart-green" role="form">#}
+    <form id="server_detail" method="post" class="smart-green">
+        {% for foo in asset_detail %}
+            <input type="hidden" class="smart-green" value="{{ foo.id }}" name="asset_id">
+            <label>
+                <span>客户名称 :</span>
+                <input type="text" value={{ foo.customer_name }} name="customer_name"/>
+            </label>
+            <label>
+                <span>域名 :</span>
+                <input type="text" value={{ foo.hostname }} name="domain"/>
+            </label>
+            <label>
+                <span>IP地址 :</span>
+                <input type="text" value={{ foo.ipaddress }} name="ipaddress" id="host"/>
+            </label>
+            <label>
+                <span>服务器连接端口 :</span>
+                <input type="text" value={{ foo.sshport }} name="port" id="port"/>
+            </label>
+            <label>
+                <span>服务器登录用户 :</span>
+                <input type="text" value={{ foo.sshuser }} name="username" id="user"/>
+            </label>
+            <label>
+                <span>服务器登录密码:</span>
+                <input class="password" value={{ foo.sshpassword }} name="password" id="password"/>
+            </label><br>
+            <label>
+                <span>网站位置 :</span>
+                <input type="text" value={{ foo.websitepath }} name="position"/>
+            </label>
+            <label>
+                <span>ftp用户名 :</span>
+                <input type="text" value={{ foo.ftpuser }} name="ftpuser"/>
+            </label>
+            <label>
+                <span>ftp密码 :</span>
+                <input type="text" value={{ foo.ftppassword }} name="ftppassword"/>
+            </label>
+            <label>
+                <span>mysql地址 :</span>
+                <input type="text" value={{ foo.mysqladdress }} name="mysqladdress"/>
+            </label>
+            <label>
+                <span>mysql用户 :</span>
+                <input type="text" value={{ foo.mysqluser }} name="mysqluser"/>
+            </label>
+            <label>
+                <span>mysql密码 :</span>
+                <input type="text" value={{ foo.mysqlpassword }} name="mysqlpassword"/>
+            </label>
+            <label>
+                <span>服务器环境 :</span>
+                <select name="select_env" id="select_env" class="form-control">
+                    {% for env in env_lists %}
+                        {% if env.describe == foo.envirment.describe %}
+                            <option value="{{ env.id }}"
+                                    selected="{{ foo.envirment.describe }}" name="env">{{ env.describe }}</option>
+                        {% else %}
+                            <option value="{{ env.id }}">{{ env.describe }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span>服务器运营商 :</span>
+                <select name="select_isp" id="select_isp" class="form-control">
+                    {% for cloudisp in cloudisp_list %}
+                        {% if cloudisp.describe == foo.cloudips.describe %}
+                            <option value="{{ cloudisp.id }}" selected="{{ foo.cloudips.describe }}"
+                                    name="cloudips">{{ cloudisp.describe }}</option>
+                        {% else %}
+                            <option value="{{ cloudisp.id }}">{{ cloudisp.describe }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span>其它 :</span>
+                <textarea name="others">{{ foo.others }}</textarea>
+            </label>
+            <span>是否收费版 : </span>
+            {% if foo.paid %}
+                <input type="checkbox" class="checkbox-inline" id="vers" value="{{ foo.paid }}" name="vers"
+                       checked="checked">
+            {% else %}
+                <input type="checkbox" class="checkbox-inline" id="vers" value="{{ foo.paid }}" name="vers">
+            {% endif %}
+            <script>
+                $("#vers").click(function () {
+                    if ($(this).is(":checked")) {
+                        $("[name=vers]:checkbox").prop("value", true)
+                    } else {
+                        $("[name=vers]:checkbox").prop("value", false)
+                    }
+                })
+            </script>
+
+            {% if foo.is_maintenance %}
+                <label>
+                    <span>维护期限 :</span>
+                    <input type="text" value={{ foo.maintenance_duration }} name="maintenance_duration" readonly/>
+                </label>
+            {% endif %}
+            <label>
+                <span>部署次数 :</span>
+                <input type="text" value={{ foo.deploy_times }} name="deploy_times" readonly/>
+            </label>
+        {% endfor %}
+        <div>
+            {% if deploy_records %}
+                <table width="450" border="1" cellspacing="0" cellpadding="0">
+                    <thead>
+                    <tr>
+                        <th>序号:</th>
+                        <th>操作员:</th>
+                        <th>操作IP地址:</th>
+                        <th>部署时间:</th>
+                        <th>部署说明:</th>
+                        <th>部署任务:</th>
+                        <th>结果:</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for deploy_record in deploy_records %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ deploy_record.operator }}</td>
+                            <td>{{ deploy_record.remote_ip }}</td>
+                            <td>{{ deploy_record.deploy_datetime }}</td>
+                            <td>{{ deploy_record.desc }}</td>
+                            <td>{{ deploy_record.jobname }}</td>
+                            <td>{{ deploy_record.result }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+        <div>
+            <label>
+                <span>任务 :</span>
+            </label>
+
+            <select name="select1" id="sel" class="form-control" onchange="Change(this)">
+                {% for job in task_list %}
+                    <option value={{ job.jid }}>{{ job.name }}</option>
+                {% endfor %}
+            </select>
+            <input id="desc" type="text" value="" name="desc" placeholder="请输入部署原因" style="display: none">
+        </div>
+        <button type="submit" name="deploy" class="btn btn-success">开始部署任务</button>
+        <button type="submit" name="assetupdate" class="btn btn-info">修改资产</button>
+        <button type="submit" name="assetdelete" class="btn btn-danger">删除资产</button>
+        <button type="button" class="btn btn-default" onclick="websocket()">SSH登陆</button>
+        <input type="hidden" value="{{ user }}" name="user">
+        {% csrf_token %}
+    </form>
+    </div>
+
+    <div id="django-webssh-terminal" class="hide">
+        <div id="terminal"></div>
+    </div>
+
+    <script src="/static/xterm/xterm.js"></script>
+    <script src="/static/xterm/fullscreen.js"></script>
+    <!-- <script src="/static/xterm/terminado.js"></script> -->
+    <script src="/static/js/webssh.js"></script>
+    <script src="/static/xterm/fit.js"></script>
+{% endblock %}
+

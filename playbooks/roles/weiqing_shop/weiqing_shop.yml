@@ -1,0 +1,6 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  roles:
+    - push_sshkey
+    - weiqing
+    - shop

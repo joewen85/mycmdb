@@ -1,0 +1,38 @@
+- name: unarchive redis-server
+  unarchive:
+#    src: redis_server-{{ redis_ver }}.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/redis_server/redis_server-{{ redis_ver }}.tgz"
+    dest: /usr/local/
+    remote_src: yes
+- name: copy config
+  template:
+    src: redis.j2
+    dest: "{{ redis_install_dir }}/etc/redis.conf"
+- name: add redis user
+  user:
+    name: redis
+    state: present
+    shell: /sbin/nologin
+- name: set redis privilege
+  file:
+    path: "{{ redis_install_dir }}"
+    owner: redis
+    group: redis
+    recurse: yes
+- name: cp redis-server.service file to os
+  copy:
+    src: redis-server.service
+    dest: /lib/systemd/system/redis-server.service
+- name: reload systemd
+  shell: systemctl daemon-reload
+- name: add redis-server binary
+  lineinfile:
+    dest: /etc/profile
+    state: present
+    regexp: "^export PATH=$PATH:{{ redis_install_dir }}/bin"
+    line: "export PATH=$PATH:{{ redis_install_dir }}/bin"
+- name: set redis-server onboot
+  service:
+    name: redis-server
+    enabled: yes
+    state: started

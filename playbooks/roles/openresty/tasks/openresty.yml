@@ -1,0 +1,67 @@
+# - name: install deploy package
+#   yum:
+#     name: "{{ packages }}"
+#     state: present
+#   vars:
+#     packages:
+#      - zlib-devel
+#      - glibc-devel
+- name: create web folder
+  file:
+    path: "/data/wwwroot"
+    state: directory
+- name: add web running user
+  user:
+    name: "{{ nginx_user }}"
+    state: present
+    shell: /sbin/nologin
+    home: /data/wwwroot
+    uid: 1000
+- name: unarchive openresty software
+  unarchive:
+#    src: openresty-{{ openresty_ver }}.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/openresty/openresty-{{ openresty_ver }}.tgz"
+    dest: /usr/local/
+    remote_src: yes
+- name: cp config
+  template:
+    src: nginx_conf.j2
+    dest: "{{ openresty_install_dir }}/nginx/conf/nginx.conf"
+- name: cp service file
+  template:
+    src: nginx_service.j2
+    dest: /lib/systemd/system/nginx.service
+- name: cp proxy config
+  copy:
+    src: proxy.conf
+    dest: "{{ openresty_install_dir }}/nginx/conf/proxy.conf"
+- name: cp nginx logrotate
+  copy:
+    src: nginx.logrotate
+    dest: /etc/logrotate.d/nginx
+- name: create log files
+  file:
+    path: "{{ wwwlogs_dir }}"
+    state: directory
+- name: create subdomain folder
+  file:
+    path: "{{ openresty_install_dir }}/nginx/conf/vhost"
+    state: directory
+- name: create ssl folder
+  file:
+    path: "{{ openresty_install_dir }}/nginx/conf/ssl"
+    state: directory
+- name: add nginx binary
+  lineinfile:
+    dest: /etc/profile
+    state: present
+    regexp: "^export PATH=$PATH:{{ openresty_install_dir }}/nginx/sbin"
+    line: "export PATH=$PATH:{{ openresty_install_dir }}/nginx/sbin"
+- name: reload envirment variables
+  shell: source /etc/profile
+- name: set temp file owner
+  shell: chown -R www {{ openresty_install_dir }}/nginx/*_temp
+- name: reload systemd
+  shell: systemctl daemon-reload
+- name: set nginx onboot
+  service: name=nginx enabled=yes state=started

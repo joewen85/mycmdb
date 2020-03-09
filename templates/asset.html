@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}
+    客户管理系统 | 资产录入
+{% endblock %}
+{% block content %}
+    {{ block.super }}
+    <form action="{% url 'assetadd' %}" method="post" class="smart-green">
+        {#        <h1>服务器信息#}
+        {#            <span>请填写你的信息.</span>#}
+        {#        </h1>#}
+        <label>
+            <span>客户名称 :</span>
+            <input id="customer_name" type="text" value="" name="customer_name" placeholder="请输入客户名称"/>
+            <div class="error-msg">{{ verify_form.customer_name.0 }}</div>
+        </label>
+        <label>
+            <span>域名 :</span>
+            <input id="domain" type="text" name="domain" class="error" placeholder="请输入域名"/>
+            <div class="error-msg">{% for error_message in verify_form.domain %}
+            {{ error_message }}
+            {% endfor %}
+            </div>
+        </label>
+
+        <label>
+            <span>IP地址 :</span>
+            <input id="ipaddress" type="text" value="" name="ipaddress" placeholder="请输入IP地址"/>
+            <div class="error-msg">{% for error_message in verify_form.ipaddress %}
+            {{ error_message }}
+            {% endfor %}
+            </div>
+        </label>
+
+        <label>
+            <span>服务器连接端口 :</span>
+            <input id="port" type="text" value="22" name="port"/>
+            <div class="error-msg">{% for error_message in verify_form.port %}
+            {{ error_message }}
+            {% endfor %}
+            </div>
+        </label>
+
+        <label>
+            <span>服务器登录用户 :</span>
+            <input id="username" type="text" value="root" name="username" placeholder="请输入服务器登录用户"/>
+            <div class="error-msg"></div>
+        </label>
+
+        <label>
+            <span>服务器登录密码 :</span>
+            <input id="password" type="password" value="" name="password" placeholder="请输入服务器登录密码"/>
+            <div class="error-msg">{{ verify_form.password.0 }}</div>
+        </label>
+        <label>
+            <span>网站位置 :</span>
+            <input id="position" type="text" value="" name="position" placeholder="请输入网站存放位置"/>
+            <div class="error-msg">{% for error_message in verify_form.position %}
+            {{ error_message }}
+            {% endfor %}
+            </div>
+        </label>
+        <label>
+            <span>服务器环境 :</span>
+            <select name="select1" class="form-control">
+                {% for env_data in env_datas %}
+                    <option value={{ env_data.id }}>{{ env_data.describe }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            <span>服务器运营商 :</span>
+            <select name="select2" class="form-control">
+                {% for cloudisp_data in cloudisp_datas %}
+                    <option value={{ cloudisp_data.id }}>{{ cloudisp_data.describe }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <span>是否收费版 : </span><input type="checkbox" class="checkbox-inline" id="vers" value="1" name="vers">
+        <label>
+            <span>其它 :</span>
+            <textarea id="others" name="others" placeholder="请输入"></textarea>
+            <div class="error-msg"></div>
+        </label>
+        <div class="success-msg"></div>
+        <label>
+            <span>&nbsp;</span>
+            <input type="submit" class="button" value="保存"/>
+        </label>
+        {% csrf_token %}
+    </form>
+{% endblock %}

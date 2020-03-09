@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}
+    客户管理系统 | 服务器信息
+{% endblock %}
+{% block content %}
+    {{ block.super }}
+    <form id="server_detail" action="{% url 'deploy' %}" method="post" class="smart-green" role="form">
+        {% for foo in search_field %}
+            <label>
+                <span>客户名称 :</span>
+                <input type="text" value={{ foo.customer_name }} name="customer_name" readonly/>
+            </label>
+            <label>
+                <span>域名 :</span>
+                <input type="text" value={{ foo.hostname }} name="domain" readonly/>
+            </label>
+            <label>
+                <span>IP地址 :</span>
+                <input type="text" value={{ foo.ipaddress }} name="ipaddress" readonly/>
+            </label>
+            <label>
+                <span>服务器连接端口 :</span>
+                <input type="text" value={{ foo.sshport }} name="port" readonly/>
+            </label>
+            <label>
+                <span>服务器登录用户 :</span>
+                <input type="text" value={{ foo.sshuser }} name="username" readonly/>
+            </label>
+            <label>
+                <span>服务器登录密码:</span>
+                <input class="password" value={{ foo.sshpassword }} name="password" readonly/>
+            </label><br>
+            <label>
+                <span>网站位置 :</span>
+                <input type="text" value={{ foo.websitepath }} name="position" readonly/>
+            </label>
+            <label>
+                <span>服务器环境 :</span>
+                <input type="text" value={{ foo.envirment }} name="env" readonly/>
+            </label>
+            <label>
+                <span>服务器运营商 :</span>
+                <input type="text" value={{ foo.cloudips }} name="cloudips" readonly/>
+            </label>
+            <label>
+                <span>其它 :</span>
+                <textarea name="others" readonly>{{ foo.others }}</textarea>
+            </label>
+            {% if foo.is_maintenance %}
+                <label>
+                    <span>维护期限 :</span>
+                    <input type="text" value={{ foo.maintenance_duration }} name="maintenance_duration" readonly/>
+                </label>
+            {% endif %}
+            <label>
+                <span>部署次数 :</span>
+                <input type="text" value={{ foo.deploy_times }} name="deploy_times" readonly/>
+            </label>
+        {% endfor %}
+        <div>
+            {% if deploy_records %}
+                <table width="450" border="1" cellspacing="0" cellpadding="0">
+                    <thead>
+                    <tr>
+                        <th>序号: </th>
+                        <th>部署时间: </th>
+                        <th>部署说明: </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for deploy_record in deploy_records %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ deploy_record.deploy_datetime }}</td>
+                            <td>{{ deploy_record.desc }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+        <div>
+            <label>
+                <span>任务 :</span>
+            </label>
+
+            <select name="select1" id="sel">
+                {% for job in jobs %}
+                    <option value={{ job.jid }}>{{ job.name }}</option>
+                {% endfor %}
+            </select>
+            <div style="display: block" class="aaa">
+                <input id="desc" type="text" value="" name="desc" placeholder="请输入部署原因">
+            </div>
+            <script>
+                $("#sel").change(function () {
+                    if ($("#sel").val() == 1) {
+                        $(".aaa").show()
+                    } else {
+                        $(".aaa").hide();
+                    }
+                })
+
+            </script>
+
+        </div>
+        <input type="submit" class="button" value="开始部署任务"/>
+        {% csrf_token %}
+    </form>
+{% endblock %}

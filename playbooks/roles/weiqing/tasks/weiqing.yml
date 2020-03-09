@@ -1,0 +1,12 @@
+- name: download weiqing
+  get_url: url=https://cdn.w7.cc/download/WeEngine-Laster-Online.zip dest={{ webpath }}/ timeout=5
+- name: unarchive weiqing
+  unarchive: src={{ webpath }}/WeEngine-Laster-Online.zip dest={{ webpath }} copy=no mode=777 owner=www group=www
+#- name: move install file
+#  command: mv {{ webpath }}/WeEngine-Laster-Online/install.php {{ webpath }}/
+- name: delete zip
+  file: path={{ webpath }}/WeEngine-Laster-Online.zip state=absent
+#- name: delete folder
+#  file: path={{ webpath }}/WeEngine-Laster-Online state=absent
+- debug:
+    msg: "weiqing install success!"

@@ -1,0 +1,4 @@
+---
+phpbin: /www/wdlinux/php/bin/php
+nginxbin: /www/wdlinux/nginx/sbin/nginx
+mysqlbin: /www/wdlinux/mysql/bin/mysql

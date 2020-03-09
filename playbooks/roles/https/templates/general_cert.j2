@@ -1,0 +1,13 @@
+#!/bin/bash
+# Author: Joe wen
+# Blog: https://www.joewen.net
+# Time: 2019-04-09 15:15:28
+# Name: general_cert.sh
+# Version: v1.0
+# Description: This is a Script.
+
+. /etc/profile
+pushd /root/acme > /dev/null
+./acme.sh --install
+rm -rf /root/acme
+~/.acme.sh/acme.sh --issue -d {{ domain }} -w {{ webpath }} --force

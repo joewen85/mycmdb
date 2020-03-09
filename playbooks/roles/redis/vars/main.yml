@@ -1,0 +1,5 @@
+#Mem: {{ ansible_memtotal_mb }}
+#THREAD: {{ ansible_processor_vcpus }}
+#
+redis_ver: 5.0.7
+redis_install_dir: /usr/local/redis
