@@ -129,7 +129,6 @@ hosts
 host
 hostname.yml
 hostname.retry
-queue*
 /log
 *.retry
 config.py
