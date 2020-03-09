@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018-12-13 16:16
 # @Author  : Joe
-# @Site    : 
+# @Site    :
 # @File    : zabbix_api.py
 # @Software: PyCharm
 # @function: xxxxx
@@ -115,9 +115,6 @@ class Zabbixapi:
 
 
 # if __name__ == '__main__':
-#     url = "xxxx"
-#     username = "xxxx"
-#     password = "xxxx"
 #     groupnames_list = [
 #         'yunzhong-env',
 #         'aliyun',
@@ -140,12 +137,13 @@ class Zabbixapi:
 #     print('authenticate id : %s' % authid)
 #     groupsid_list = []
 #     for groupname_list in groupnames_list:
-#         groupid = zb.get_groups(authid, groupname_list)
+#         groupid = zb.get_groups(url, authid, groupname_list)
 #         groupsid_list.append({"groupid": groupid})
 #
 #     templatesid_list = []
 #     for templatename_list in templatenames_list:
-#         templateid = zb.get_template(authid, templatename_list)
+#         templateid = zb.get_template(url, authid, templatename_list)
 #         templatesid_list.append({"templateid": templateid})
 #
-#     result = zb.create_host(authid=authid, hostname=hostname, ipaddress=ipaddress, groups=groupsid_list, templates=templatesid_list)
+#     result = zb.create_host(url=url, authid=authid, hostname=hostname, ipaddress=ipaddress, groups=groupsid_list, templates=templatesid_list)
+#
