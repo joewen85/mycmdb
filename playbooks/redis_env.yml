@@ -1,0 +1,6 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  roles:
+    - common
+    - jemalloc
+    - redis
