@@ -23,12 +23,14 @@
   file:
     path: /etc/ld.so.conf.d/openssl.conf
     state: touch
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
 - name: create library configure
   lineinfile:
     dest: /etc/ld.so.conf.d/openssl.conf
     state: present
     regexp: '^/usr/local/ssl/lib$'
     line: '/usr/local/ssl/lib'
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
 - name: apply library
   shell: ldconfig
 - name: get cacert
