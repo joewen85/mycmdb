@@ -31,22 +31,32 @@
   copy:
     src: getport.sh
     dest: /usr/local/zabbix/etc/getport.sh
+    mode: u+rwx
+    owner: zabbix
 - name: cp disk.sh
   copy:
     src: mount_disk_discovery.sh
     dest: /usr/local/zabbix/etc/mount_disk_discovery.sh
+    mode: u+rwx
+    owner: zabbix
 - name: cp mtr
   copy:
     src: mtr_check.sh
     dest: /usr/local/zabbix/etc/mtr_check.sh
+    mode: u+rwx
+    owner: zabbix
 - name: cp nginx
   copy:
     src: nginx_status.sh
     dest: /usr/local/zabbix/etc/nginx_status.sh
+    mode: u+rwx
+    owner: zabbix
 - name: cp php
   copy:
     src: php-fpm_status.sh
     dest: /usr/local/zabbix/etc/php-fpm_status.sh
+    mode: u+rwx
+    owner: zabbix
 - name: status file
   copy:
     src: status.conf
@@ -55,6 +65,8 @@
   copy:
     src: tcp_connections.sh
     dest: /usr/local/zabbix/etc/tcp_connections.sh
+    mode: u+rwx
+    owner: zabbix
 - name: check mysql
   copy:
     src: userparameter_percona_mysql.conf
@@ -63,14 +75,20 @@
   template:
     src: chk_mysql.j2
     dest: /usr/local/zabbix/etc/chk_mysql.sh
+    mode: u+rwx
+    owner: zabbix
 - name: get_mysql
   template:
     src: get_mysql_stats_wrapper.j2
     dest: /usr/local/zabbix/etc/get_mysql_stats_wrapper.sh
+    mode: u+rwx
+    owner: zabbix
 - name: ss_get_mysql
   copy:
     src: ss_get_mysql_stats.php
     dest: /usr/local/zabbix/etc/ss_get_mysql_stats.php
+    mode: u+rwx
+    owner: zabbix
 - name: set disk monitor
   lineinfile:
     dest: /etc/sudoers
