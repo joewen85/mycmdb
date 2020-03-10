@@ -116,3 +116,7 @@
   shell: systemctl daemon-reload
 - name: set zabbix_agentd onboot
   service: name=zabbix_agentd enabled=yes state=started
+- name: restart zabbix_agentd
+  service:
+    name: zabbix_agentd
+    state: restarted
