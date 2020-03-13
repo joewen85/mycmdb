@@ -538,7 +538,7 @@ def shop_download(request):
         remote_ip = request.META['HTTP_X_FORWARDED_FOR']
     else:
         remote_ip = request.META['REMOTE_ADDR']
-    file_path = '/etc/ansible/roles/shop/files/{}'.format(ver)
+    file_path = '/data/apps/mycmdb/playbooks/roles/shop/files/{}'.format(ver)
     try:
         file_size = os.path.getsize(file_path)
         response = HttpResponse()
