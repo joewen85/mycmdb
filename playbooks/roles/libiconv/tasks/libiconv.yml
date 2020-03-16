@@ -16,12 +16,17 @@
 #   file:
 #     path: /etc/ld.so.conf.d/libiconv.conf
 #     state: touch
+- name: jude artisan file exist or not
+  stat: /usr/local/lib/libiconv
+  register: lib_result
 - name: create library configure
 #   lineinfile:
 #     dest: /etc/ld.so.conf.d/libiconv.conf
 #     state: present
 #     regexp: '^/usr/local/libiconv/lib$'
 #     line: '/usr/local/libiconv/lib'
-  shell: ln -s /usr/local/libiconv/lib/* /usr/local/lib/
+  shell: ln -s /usr/local/libiconv/lib /usr/local/lib/libiconv
+  when: lib_result.stat.exists == False
 - name: apply library
   shell: ldconfig
+
