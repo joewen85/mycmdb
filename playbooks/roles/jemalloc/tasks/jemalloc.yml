@@ -22,6 +22,7 @@
   register: lib_result
 - name: link all libray so
   shell: ln -s /usr/local/jemalloc/lib /usr/local/lib/jemalloc
+  when: lib_result.stat.exists == False
 #- name: touch library file
 #  file:
 #    path: /etc/ld.so.conf.d/jemalloc.conf
