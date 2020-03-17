@@ -1,5 +1,5 @@
-#- name: delete old yum repo
-#  yum: name=yunzhong_repo state=absent
+- name: delete old yum repo
+  yum: name=yunzhong_repo state=absent
 #- name: delete yum repo key
 #  file: path=/etc/pki/rpm-gpg/RPM-GPG-KEY-yunzhong state=absent
 # - name: clean yum cache

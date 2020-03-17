@@ -17,7 +17,8 @@
 #     path: /etc/ld.so.conf.d/libiconv.conf
 #     state: touch
 - name: jude artisan file exist or not
-  stat: /usr/local/lib/libiconv
+  shell: ls /usr/local/lib/libiconv.so.2
+  ignore_errors: True
   register: lib_result
 - name: create library configure
 #   lineinfile:
@@ -25,8 +26,8 @@
 #     state: present
 #     regexp: '^/usr/local/libiconv/lib$'
 #     line: '/usr/local/libiconv/lib'
-  shell: ln -s /usr/local/libiconv/lib /usr/local/lib/libiconv
-  when: lib_result.stat.exists == False
+  shell: ln -s /usr/local/libiconv/lib/libiconv.so.2 /usr/local/lib/libiconv.so.2
+  when: lib_result.failed == true
 - name: apply library
   shell: ldconfig
 

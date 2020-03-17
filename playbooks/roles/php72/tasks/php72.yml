@@ -1,7 +1,7 @@
-- name: stop php-fpm services
-  service: name=php-fpm state=stopped
-- name: stop supervisor services
-  service: name=supervisord state=stopped
+#- name: stop php-fpm services
+#  shell: systemctl stop php-fpm
+#- name: stop supervisor services
+#  shell: systemctl stop supervisord
 - name: centos7 install deploy package
   yum:
     name: "{{ packages }}"
@@ -65,6 +65,9 @@
      - bzip2-devel
      - autoconf
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+- name: check user exist
+  shell: id -u www
+  register: user_exists
 - name: add web running user
   user:
     name: "www"
@@ -72,6 +75,7 @@
     shell: /sbin/nologin
     home: /data/wwwroot
     uid: 1000
+  when: user_exists.failed == true
 - name: centos7 unarchive php72
   unarchive:
 #    src: php-{{ php_ver }}_openssl{{ openssl_ver }}.tgz

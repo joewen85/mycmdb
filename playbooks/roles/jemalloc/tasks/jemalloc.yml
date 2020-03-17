@@ -17,12 +17,14 @@
     src: /usr/local/jemalloc/lib/libjemalloc.so.2
     dest: /usr/lib64/libjemalloc.so.1
     state: link
-- name: jude artisan file exist or not
-  stat: /usr/local/lib/jemalloc
+- name: jude jemalloc lib folder exist or not
+  shell: ls /usr/local/lib/jemalloc
+  ignore_errors: True
   register: lib_result
 - name: link all libray so
-  shell: ln -s /usr/local/jemalloc/lib /usr/local/lib/jemalloc
-  when: lib_result.stat.exists == False
+  shell: ln -s /usr/local/jemalloc/lib/* /usr/local/lib/
+  when: lib_result.failed == true
+#  when: lib_result is failure
 #- name: touch library file
 #  file:
 #    path: /etc/ld.so.conf.d/jemalloc.conf
