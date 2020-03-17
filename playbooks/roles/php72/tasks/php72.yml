@@ -67,6 +67,7 @@
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
 - name: check user exist
   shell: id -u www
+  ignore_errors: True
   register: user_exists
 - name: add web running user
   user:
