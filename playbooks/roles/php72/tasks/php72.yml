@@ -1,3 +1,7 @@
+- name: stop php-fpm services
+  service: name=php-fpm state=stopped
+- name: stop supervisor services
+  service: name=supervisord state=stopped
 - name: centos7 install deploy package
   yum:
     name: "{{ packages }}"
