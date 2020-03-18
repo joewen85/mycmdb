@@ -8,7 +8,7 @@
     state: present
     shell: /sbin/nologin
     uid: 8899
-  when: user_exist.failed == true
+  when: user_exists.failed == true
 - name: install dependen
   yum:
     name: "{{ packages }}"
