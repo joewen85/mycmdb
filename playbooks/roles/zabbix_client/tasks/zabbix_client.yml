@@ -1,9 +1,14 @@
+- name: check user exist
+  shell: id -u zabbix
+  ignore_errors: True
+  register: user_exists
 - name: add zabbix user
   user:
     name: "zabbix"
     state: present
     shell: /sbin/nologin
     uid: 8899
+  when user_exist.failed == true
 - name: install dependen
   yum:
     name: "{{ packages }}"
