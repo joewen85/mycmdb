@@ -38,7 +38,8 @@ class DomainView(APIView):
             runningjob.playbookrun(playbook_path=[CONFIG.PLAYBOOKPATH + "/roles/application_domain/app_doamin.yml"],
                                    domain=clean_domain['domain'], hostip=CONFIG.API_HOSTIP, group=CONFIG.API_GROUP,
                                    port=22, sshuser=CONFIG.API_SSHUSER, password=CONFIG.API_SSHPASSWORD, phpbin='/usr/local/php/bin/php',
-                                   webpath=CONFIG.API_WEBPATH, download_vers=1)
+                                   webpath=CONFIG.API_WEBPATH, download_vers=1, mysql_user="none",
+                                   mysql_password="none", mysql_address="none")
             playbook_result = runningjob.get_playbook_result()
 
             if playbook_result['ok'] and not playbook_result['failed'] and not playbook_result['unreachable']:
