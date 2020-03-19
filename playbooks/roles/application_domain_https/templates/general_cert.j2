@@ -1,0 +1,20 @@
+#!/bin/bash
+# Author: Joe wen
+# Blog: https://www.joewen.net
+# Time: 2019-10-14 11:15:28
+# Name: general_cert.sh
+# Version: v1.1
+# Description: This is a Script.
+
+. /etc/profile
+if [ ! -d ~/.acme.sh ];then
+	pushd /root/acme > /dev/null
+	./acme.sh --install
+	rm -rf /root/acme
+fi
+curl -I http://{{ domain }}|grep "200 OK"
+if [ $? -eq 0 ];then
+    ~/.acme.sh/acme.sh --issue -d {{ domain }} -w {{ webpath }} --force
+else
+    exit 1
+fi

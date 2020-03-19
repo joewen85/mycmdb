@@ -1,0 +1,26 @@
+#- name: install git
+#  yum: name=git state=present
+#- name: clone acme
+#  git:
+    #repo: https://github.com/Neilpang/acme.sh.git
+#    repo: http://git.yunzmall.com/apps/acme.git 
+#    dest: /root/acme 
+#- name: downloads acme
+#  get_url: url=https://downloads.yunzshop.com/acme.tgz dest=/root/acme.tgz
+#- name: unzip package
+  #shell: tar zxf acme.tgz && cd acme && ./acme.sh --install && cd .. && rm -rf acme && rm -rf acme.tgz
+  #shell: cd acme && ./acme.sh --install && cd .. && rm -rf acme && rm -rf acme.tgz
+#- name: general cert
+  #shell: ~/.acme.sh/acme.sh --issue -d {{ domain }} -w {{ webpath }}
+- name: cp general_cert
+  template: src=general_cert.j2 dest=/tmp/general_cert.sh mode=755
+- name: run general_cert
+  shell: sh /tmp/general_cert.sh
+- name: copy nginx config
+  template: src=https.j2 dest=/usr/local/openresty/nginx/conf/vhost/{{ domain }}.conf
+- name: cp general_key
+  template: src=general_key.j2 dest=/tmp/general_key.sh mode=755
+- name: general_key
+  shell: sh /tmp/general_key.sh
+#- name: upgrade program
+#  shell: ~/.acme.sh/acme.sh --upgrade --auto-upgrade
