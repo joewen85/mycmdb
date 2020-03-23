@@ -1,7 +1,9 @@
 - name: install acme not exist
-  ignore_errors: True
+  shell: "[ ! -d ~/.acme.sh ] && curl https://get.acme.sh | sh"
+#  ignore_errors: True
   #shell: "[ ! -d ~/.acme.sh ] && git clone http://git.yunzmall.com/apps/acme.git /root/acme && cd /root/acme && ./acme.sh --install && rm -rf /root/acme/"
-  shell: "[ ! -d ~/.acme.sh ] && git clone --depth=1 https://github.com/acmesh-official/acme.sh && cd ./acme.sh && ./acme.sh --install && rm -rf /root/acme.sh"
+#  shell: "[ ! -d ~/.acme.sh ] && git clone --depth=1 https://github.com/acmesh-official/acme.sh && cd ./acme.sh && ./acme.sh --install && rm -rf /root/acme.sh"
+
 - name: Check that you can connect (GET) to a page and it returns a status 200
   uri:
     url: http://{{ domain }}
