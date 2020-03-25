@@ -4,7 +4,7 @@ command={{ phpbin }} {{ webpath }}/artisan queue:work --sleep=5 --tries=1
 autostart=true
 autorestart=true
 user=www
-#numprocs={{ ansible_processor_vcpus }}
+numprocs={{ ansible_processor_vcpus }}
 redirect_stderr=true
 stdout_logfile_maxbytes=10MB
 stdout_logfile_backups=5
