@@ -34,15 +34,15 @@
     dest: /usr/local/
     remote_src: yes
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
-- name: mv curl binary
-  shell: mv /usr/bin/curl{,_bak} removes=/usr/bin/curl
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
-- name: curl binary
-  file:
-    src: /usr/local/curl/bin/curl
-    dest: /usr/bin/curl
-    state: link
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+#- name: mv curl binary
+#  shell: mv /usr/bin/curl{,_bak} removes=/usr/bin/curl
+#  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+#- name: curl binary
+#  file:
+#    src: /usr/local/curl/bin/curl
+#    dest: /usr/bin/curl
+#    state: link
+#  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
 - name: jude artisan file exist or not
   shell: ls /usr/bin/curl-config
   ignore_errors: True
