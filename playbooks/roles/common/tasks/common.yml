@@ -46,4 +46,35 @@
   #shell: "[ -z "`grep /usr/local/lib64 /etc/ld.so.conf.d/*.conf`" ] && echo '/usr/local/lib64' >> /etc/ld.so.conf.d/local.conf"
 - name: apply library
   shell: ldconfig
+- name: 修改日志记录条目
+  lineinfile:
+    dest: /etc/bashrc
+    state: present
+    regexp: '^export HISTSIZE=.*'
+    line: 'export HISTSIZE=4000'
+- name: 修改histor配置详细记录1
+  lineinfile:
+    dest: /etc/bashrc
+    insertafter: '^export HISTSIZE=.*'
+    line: "USER_IP=$(who -u am i 2>/dev/null| awk '{print $NF}'|sed -e 's/[()]//g')\n[ -z ${USER_IP} ] && USER_IP=$(hostname)"
+- name: 修改histor配置详细记录2
+  lineinfile:
+    dest: /etc/bashrc
+    state: present
+    regexp: '^export HISTTIMEFORMAT="%F %T.*'
+    line: 'export HISTTIMEFORMAT="%F %T ${USER_IP}:$(whoami) "'
+- name: 修改histor配置详细记录3
+  lineinfile:
+    dest: /etc/bashrc
+    state: present
+    regexp: '^export PROMPT_COMMAND=.*'
+    line: 'export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"'
+- name: 修改histor配置详细记录4
+  lineinfile:
+    dest: /etc/bashrc
+    state: present
+    regexp: '^unset HISTCONTROL'
+    line: 'unset HISTCONTROL'
+- name: 应用配置
+  shell: source /etc/bashrc
 
