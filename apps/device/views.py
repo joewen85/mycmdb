@@ -499,7 +499,7 @@ class AnsibleViewPublic(View):
             runningjob.playbookrun(playbook_path=[jobpath], domain=domain, hostip=ipaddr, group=env_name,
                                    port=port, sshuser=username, password=password, phpbin=phpbin,
                                    webpath=position, download_vers=download_vers, mysql_user=mysqluser,
-                                   mysqlpassword=mysqlpassword, mysql_address=mysqladdress)
+                                   mysql_password=mysqlpassword, mysql_address=mysqladdress)
 
             data = runningjob.get_playbook_result()
 

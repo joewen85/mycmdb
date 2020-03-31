@@ -67,6 +67,26 @@
             {% endif %}
         </label>
         <label>
+                <span>ftp用户名 :</span>
+                <input type="text" value=www name="ftpuser"/>
+            </label>
+            <label>
+                <span>ftp密码 :</span>
+                <input type="text" value=None name="ftppassword"/>
+            </label>
+            <label>
+                <span>mysql地址 :</span>
+                <input type="text" value=127.0.0.1 name="mysqladdress"/>
+            </label>
+            <label>
+                <span>mysql用户 :</span>
+                <input type="text" value=root name="mysqluser"/>
+            </label>
+            <label>
+                <span>mysql密码 :</span>
+                <input type="text" value=None name="mysqlpassword"/>
+            </label>
+        <label>
             <span>服务器环境 :</span>
             <select name="select1">
                 {% for env_data in env_datas %}
