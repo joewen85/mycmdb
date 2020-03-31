@@ -422,6 +422,9 @@ class AnsibleViewPublic(View):
             username = verify_form.cleaned_data.get('username')
             password = verify_form.cleaned_data.get('password')
             position = verify_form.cleaned_data.get('position')
+            mysqladdress = request.POST.get('mysqladdress', None)
+            mysqluser = request.POST.get('mysqluser', None)
+            mysqlpassword = request.POST.get('mysqlpassword', None)
             envirment = request.POST.get('select1', None)
             cloudips = request.POST.get('select2', None)
             customer_name = verify_form.cleaned_data.get('customer_name')
@@ -456,7 +459,8 @@ class AnsibleViewPublic(View):
                 'hostname': domain, 'ipaddress': ipaddr, 'sshuser': username, 'sshpassword': password,
                 'websitepath': position,
                 'envirment_id': envirment, 'cloudips_id': cloudips, 'customer_name': customer_name, 'sshport': port,
-                'others': others
+                'others': others, 'mysql_user': mysqluser, 'mysql_password': mysqlpassword,
+                'mysql_address': mysqladdress
             }
 
             # 公共部署判断服务器是否部署多次
@@ -494,7 +498,8 @@ class AnsibleViewPublic(View):
             runningjob = AnsibleApi_v2()
             runningjob.playbookrun(playbook_path=[jobpath], domain=domain, hostip=ipaddr, group=env_name,
                                    port=port, sshuser=username, password=password, phpbin=phpbin,
-                                   webpath=position, download_vers=download_vers)
+                                   webpath=position, download_vers=download_vers, mysql_user=mysqluser,
+                                   mysqlpassword=mysqlpassword, mysql_address=mysqladdress)
 
             data = runningjob.get_playbook_result()
 
@@ -516,12 +521,10 @@ class AnsibleViewPublic(View):
             elif data['unreachable']:
                 deploy_result = data['unreachable'].get('msg')
 
-            # 添加部署队列和计划任务记录
+            # 添加部署记录
             Deploy_record.objects.create(deploy_datetime=datetime.datetime.now(), hostname=custom_asset,
                                          operator=request.user.username, remote_ip=remote_ip, desc=deploy_desc,
                                          jobname=jobname, result=deploy_result)
-            print(request.user)
-            print(request.user.username)
             print(json.dumps(data, indent=4))
             return render(request, "deploy_result.html", {"data": data, "domain": domain})
         else:
