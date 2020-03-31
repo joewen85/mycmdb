@@ -422,6 +422,8 @@ class AnsibleViewPublic(View):
             username = verify_form.cleaned_data.get('username')
             password = verify_form.cleaned_data.get('password')
             position = verify_form.cleaned_data.get('position')
+            ftpuser = request.POST.get('ftpuser', None)
+            ftppassword = request.POST.get('ftppassword', None)
             mysqladdress = request.POST.get('mysqladdress', None)
             mysqluser = request.POST.get('mysqluser', None)
             mysqlpassword = request.POST.get('mysqlpassword', None)
@@ -459,8 +461,8 @@ class AnsibleViewPublic(View):
                 'hostname': domain, 'ipaddress': ipaddr, 'sshuser': username, 'sshpassword': password,
                 'websitepath': position,
                 'envirment_id': envirment, 'cloudips_id': cloudips, 'customer_name': customer_name, 'sshport': port,
-                'others': others, 'mysql_user': mysqluser, 'mysql_password': mysqlpassword,
-                'mysql_address': mysqladdress
+                'others': others, 'mysqluser': mysqluser, 'mysqlpassword': mysqlpassword,
+                'mysqladdress': mysqladdress, 'ftpuser': ftpuser, 'ftppassword': ftppassword
             }
 
             # 公共部署判断服务器是否部署多次
