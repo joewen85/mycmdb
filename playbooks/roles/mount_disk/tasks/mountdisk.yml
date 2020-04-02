@@ -1,0 +1,9 @@
+---
+- name: create folder
+  file: path=/data state=directory owner=root group=root mode=0755
+
+- name: format disk
+  filesystem: fstype=ext4 dev=/dev/vdb
+
+- name: mount datanode disk
+  mount: path=/data src=/dev/vdb fstype=ext4 opts="defaults" state=mounted
