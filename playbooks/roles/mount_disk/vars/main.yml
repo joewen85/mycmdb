@@ -1,0 +1,4 @@
+---
+
+disks:
+    /dev/vdb: /data
