@@ -22,6 +22,10 @@ server {
   ssl_session_timeout 10m;
   #if ($ssl_protocol = "") { return 307 https://$server_name$request_uri; }
 
+  location ~* ^/(attachment|upload)/.*\.(php|php5)$ {
+    deny all;
+        }
+
   location / {
         try_files $uri $uri/ /index.php?$query_string;
         }
