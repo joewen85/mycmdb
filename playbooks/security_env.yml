@@ -15,4 +15,4 @@
         regexp: 'disable_functions = exec,system,chroot,chgrp,chown,shell_exec,ini_alter,ini_restore,dl,openlog,syslog,readlink,symlink,popepassthru,stream_socket_server,fsocket,popen'
         line: 'disable_functions = exec,system,chroot,chgrp,chown,shell_exec,ini_alter,ini_restore,dl,openlog,syslog,readlink,symlink,popepassthru,stream_socket_server,fsocket,popen,eval'
     - name: "reload php-fpm"
-        service: name=php-fpm state=restarted
+      service: name=php-fpm state=restarted
