@@ -4,7 +4,11 @@ server {
   access_log /data/wwwlogs/{{ domain }}_nginx.log;
   index index.html index.htm index.php;
   root {{ webpath }};
-  
+
+  location ~* ^/(attachment|upload)/.*\.(php|php5)$ {
+    deny all;
+        }
+
   location / {
         try_files $uri $uri/ /index.php?$query_string;
         }
