@@ -27,6 +27,7 @@ class Envirment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="修改时间")
     phpbin = models.CharField(max_length=100, verbose_name="PHP环境路径", null=True)
+    vhost_path = models.CharField(max_length=100, verbose_name="网站虚拟目录路径", null=True)
 
     class Meta:
         verbose_name = "运行环境"
@@ -77,6 +78,7 @@ class Device(models.Model):
     mysqluser = models.CharField(max_length=32, default='root', verbose_name="mysql用户名")
     mysqlpassword = models.CharField(max_length=32, verbose_name="mysql密码", null=True)
     mysqladdress = models.CharField(max_length=64, default='127.0.0.1', verbose_name="mysql连接地址")
+
 
     class Meta:
         verbose_name = "用户设备信息"
