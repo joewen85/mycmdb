@@ -78,6 +78,8 @@ class Device(models.Model):
     mysqluser = models.CharField(max_length=32, default='root', verbose_name="mysql用户名")
     mysqlpassword = models.CharField(max_length=32, verbose_name="mysql密码", null=True)
     mysqladdress = models.CharField(max_length=64, default='127.0.0.1', verbose_name="mysql连接地址")
+    # 商城版本 0为独立版，1为微擎版
+    shop_version = models.BooleanField(verbose_name="商城版本", default=0)
 
 
     class Meta:
