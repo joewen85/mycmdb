@@ -4,9 +4,9 @@
     - name: "vhost security"
       lineinfile:
         dest: "/usr/local/openresty/nginx/conf/vhost/{{ domain }}.conf"
-        regexp: '  location ~* ^/(attachment|upload)/.*\.(php|php5)$ {'
+        regexp: '  location ~* ^/(attachment|static/upload)/.*\.(php|php5)$ {'
         insertafter: "#if"
-        line: '  location ~* ^/(attachment|upload)/.*\.(php|php5)$ {deny all;}'
+        line: '  location ~* ^/(attachment|static/upload)/.*\.(php|php5)$ {deny all;}'
     - name: "reload nginx"
       service: name=nginx state=restarted
     - name: "php config disable_function security"
