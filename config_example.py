@@ -60,4 +60,10 @@ class Config:
     # playbook path
     PLAYBOOKPATH = BASE_DIR + "/playbook"
 
+    # public_key
+    PUBLIC_KEY = ''''''
+
+    # private_key
+    PRIVATE_KEY = ''''''
+
 

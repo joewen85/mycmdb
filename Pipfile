@@ -26,6 +26,7 @@ django-import-export = "*"
 paramiko = "*"
 uwsgi = "*"
 celery = "*"
+pycryptodomex = "*"
 
 [requires]
 python_version = "3.7"

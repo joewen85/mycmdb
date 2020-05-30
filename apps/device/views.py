@@ -129,10 +129,13 @@ class AssetAdd(View):
                     redirect_url = reverse('assetlist') + '?page=1'
                     return redirect(redirect_url)
                 else:
-                    Device.objects.create(hostname=domain, ipaddress=ipaddr, sshuser=username, sshpassword=password,
+                    encrypt_sshpassword = RsaCrypto().encrypt(password)['message']
+                    device_obj, created = Device.objects.update_or_create(hostname=domain, ipaddress=ipaddr, sshuser=username,
                                           websitepath=position, sshport=port, is_maintenance=0, deploy_times=0,
                                           cloudips_id=cloudips, envirment_id=envirment, customer_name=customer_name,
                                           others=others, paid=paid)
+
+                    Password_record.objects.create(mysqlpassword='None', ftppassword='None', sshpassword=encrypt_sshpassword, ipaddress=device_obj)
                     messages.success(request, "保存资产成功")
                     redirect_url = reverse('assetlist') + '?page=1'
                     return redirect(redirect_url)
@@ -148,7 +151,12 @@ class AssetListView(View):
 
     def get(self, request):
         # all_asset_list = Device.objects.values('id', 'customer_name', 'hostname', 'ipaddress', 'created_at').order_by('-id', 'created_at')[:10]
-        all_asset_lists = Device.objects.all().order_by('-pk', 'created_at')
+        keyword = request.GET.get('keyword')
+        if keyword:
+            keyword = str(keyword).strip()
+            all_asset_lists = Device.objects.filter(Q(customer_name__icontains=keyword) | Q(hostname__icontains=keyword) | Q(ipaddress__icontains=keyword)).order_by('-pk', 'created_at')
+        else:
+            all_asset_lists = Device.objects.all().order_by('-pk', 'created_at')
         # 分页 每页10条数据
         paginator = Paginator(all_asset_lists, 10)
         # print(paginator.count, paginator.num_pages, paginator.page_range)
@@ -161,7 +169,7 @@ class AssetListView(View):
         try:
             current_page = int(request.GET.get('page'))
         except Exception as e:
-            messages.success(request, "请勿传入非法值")
+            # messages.success(request, "请勿传入非法值")
             current_page = 1
 
         try:
@@ -185,7 +193,7 @@ class AssetListView(View):
         return render(request, 'asset_list.html',
                       {'contacts': contacts, 'page_range': page_range, 'current_page': current_page,
                        'num_page': num_page, 'left_range': left_range, 'right_range': right_range,
-                       'left_has_more': leff_has_more, 'right_has_more': right_has_more, 'total': total, 'msg': ''})
+                       'left_has_more': leff_has_more, 'right_has_more': right_has_more, 'total': total, 'msg': '', 'keyword': keyword})
 
     def post(self, request):
         search_field = request.POST.get('searcher').strip()
@@ -224,14 +232,24 @@ class AssetFuncsView(View):
 
     def get(self, request, asset_id):
         if request.method == "GET":
-            asset_detail = Device.objects.filter(id=asset_id)
+            # asset_detail = Device.objects.filter(id=asset_id)
+            asset_detail = Device.objects.get(pk=asset_id)
+            try:
+                password_dict = list(asset_detail.PASSWORD.all().values())[0]
+            except Exception as err:
+                print(err)
+                password_dict = {
+                    'sshpassword': 'None',
+                    'ftppassword': 'None',
+                    'mysqlpassword': 'None'
+                }
             task_list = Jobs.objects.all()
             env_list = Envirment.objects.all()
             isp_list = Cloudips.objects.all()
             deployrec_list = Deploy_record.objects.filter(hostname=asset_id)
             # return JsonResponse({'code': 200, 'message': asset_id, 'data': asset_detail})
             return render(request, 'asset_detail.html',
-                          {'asset_detail': asset_detail, 'task_list': task_list, 'env_lists': env_list,
+                          {'asset_detail': asset_detail, 'password_records': password_dict, 'task_list': task_list, 'env_lists': env_list,
                            'cloudisp_list': isp_list, 'deploy_records': deployrec_list})
 
     def post(self, request, asset_id):
@@ -260,7 +278,21 @@ class AssetFuncsView(View):
             download_vers = 'paid'
         else:
             download_vers = 'free'
-        device_obj = Device.objects.get(id=asset_id)
+        shop_version = request.POST.get("shop_ver")
+        # print("商城版本: {}".format(shop_version))
+
+        try:
+            device_obj = Device.objects.get(id=asset_id)
+            encrypt_passwords = list(device_obj.PASSWORD.values())[0]
+            decrypt_sshpassword = RsaCrypto().decrypt(encrypt_passwords['sshpassword']).get('message')
+            decrypt_ftppassword = RsaCrypto().decrypt(encrypt_passwords['ftppassword']).get('message')
+            decrypt_mysqlpassword = RsaCrypto().decrypt(encrypt_passwords['mysqlpassword']).get('message')
+        except Exception as err:
+            print(err)
+            decrypt_ftppassword = 'None'
+            decrypt_mysqlpassword = 'None'
+
+
         operator = request.POST.get('user')
         if 'HTTP_X_FORWARDED_FOR' in request.META:
             remote_ip = request.META['HTTP_X_FORWARDED_FOR']
@@ -279,37 +311,26 @@ class AssetFuncsView(View):
         elif 'deploy' in request.POST:
             """接收post data，传入ansibleapi核心类，部署各个任务"""
             # 获取envname
-            # env_name = Envirment.objects.filter(id=envirment).values("envname").first()['envname']
-            # env_name = Envirment.objects.filter(describe=envirment).values("envname").first()['envname']
-            # envresult = Envirment.objects.get(id=envirment)
-            # envresult = Envirment.objects.get(id=device_obj.envirment__id)
             env_name = device_obj.envirment.envname
-
-            # cloudips_name = Cloudips.objects.get(pk=device_obj.cloudips__id).cloudipsname
             cloudips_name = device_obj.cloudips.cloudipsname
 
             # 获取任务路径
-            # j = Jobs.objects.filter(jid=job)
-            # jobinfo = Jobs.objects.filter(jid=job).values("path").first()['path']
             job_obj = Jobs.objects.get(pk=job)
             jobpath = job_obj.path
             jobname = job_obj.name
 
             # 获取php环境路径
-            # phpbin = Device.objects.filter(hostname=domain).values("envirment__phpbin").first()['envirment__phpbin']
-            # phpbin = envresult.phpbin
             phpbin = device_obj.envirment.phpbin
+            vhost_path = device_obj.envirment.vhost_path
 
             # 执行ansible playbook
             runningjob = AnsibleApi_v2()
-
             runningjob.playbookrun(playbook_path=[jobpath], domain=device_obj.hostname, hostip=device_obj.ipaddress,
                                    group=env_name, port=device_obj.sshport,
-                                   sshuser=device_obj.sshuser, password=device_obj.sshpassword, phpbin=phpbin,
+                                   sshuser=device_obj.sshuser, password=decrypt_sshpassword, phpbin=phpbin,
                                    webpath=device_obj.websitepath,
                                    download_vers=download_vers, mysql_user=device_obj.mysqluser,
-                                   mysql_password=device_obj.mysqlpassword, mysql_address=device_obj.mysqladdress)
-
+                                   mysql_password=decrypt_mysqlpassword, mysql_address=device_obj.mysqladdress, shop_version=shop_version, vhost_path=vhost_path)
             data = runningjob.get_playbook_result()
 
             if jobpath == "/data/apps/mycmdb/playbooks/cronjob_queue.yml":
@@ -361,13 +382,18 @@ class AssetFuncsView(View):
 
             if jobpath == CONFIG.PLAYBOOKPATH + "/envirment.yml" or jobpath == CONFIG.PLAYBOOKPATH + "/roles/ftp/ftp.yml":
                 # 写入ftp密码
-                device_obj.ftppassword = deploy_result
-                device_obj.save()
-                deploy_result = "ftp user: www ftp password: " + str(deploy_result)
+                # device_obj.ftppassword = deploy_result
+                encrypt_deploy_result = RsaCrypto().encrypt(deploy_result)['message']
+                device_obj.PASSWORD.update(ftppassword=encrypt_deploy_result)
+                # device_obj.save()
+                # deploy_result = "ftp user: www ftp password: " + str(deploy_result)
+                deploy_result = "ftp部署成功"
             elif jobpath == CONFIG.PLAYBOOKPATH + "/roles/mysql/mysql.yml":
-                device_obj.mysqlpassword = deploy_result
-                device_obj.save()
-                deploy_result = "mysql root password: " + str(deploy_result)
+                # device_obj.mysqlpassword = deploy_result
+                encrypt_deploy_result = RsaCrypto().encrypt(deploy_result)['message']
+                device_obj.PASSWORD.update(mysqlpassword=encrypt_deploy_result)
+                # device_obj.save()
+                deploy_result = "mysql部署成功"
 
             # 添加部署队列和计划任务记录
             Deploy_record.objects.create(deploy_datetime=datetime.datetime.now(), desc=deploy_desc,
@@ -379,17 +405,26 @@ class AssetFuncsView(View):
                           {"data": data, "ipaddress": device_obj.ipaddress, "domain": device_obj.hostname})
         else:
             """修改资产"""
+
             if 'assetupdate' in request.POST:
-                Device.objects.filter(id=asset_id).update(ipaddress=ipaddr, hostname=domain, sshuser=username,
-                                                          sshpassword=password, websitepath=position,
-                                                          envirment_id=envirment, cloudips_id=cloudips,
-                                                          customer_name=customer_name, sshport=port,
-                                                          others=others, paid=paid, updated_at=datetime.datetime.now(),
-                                                          ftpuser=ftpuser, ftppassword=ftppassword,
-                                                          mysqladdress=mysqladdress, mysqluser=mysqluser,
-                                                          mysqlpassword=mysqlpassword)
-                messages.success(request, "修改内容成功")
-                return redirect(reverse('assetdetail', kwargs={'asset_id': asset_id}))
+                encrypt_sshpassword = RsaCrypto().encrypt(password)['message']
+                encrypt_ftppassword = RsaCrypto().encrypt(ftppassword)['message']
+                encrypt_mysqlpassword = RsaCrypto().encrypt(mysqlpassword)['message']
+
+                try:
+                    Device.objects.filter(id=asset_id).update(ipaddress=ipaddr, hostname=domain, sshuser=username,
+                                                              websitepath=position,
+                                                              envirment_id=envirment, cloudips_id=cloudips,
+                                                              customer_name=customer_name, sshport=port,
+                                                              others=others, paid=paid, updated_at=datetime.datetime.now(),
+                                                              ftpuser=ftpuser, mysqladdress=mysqladdress, mysqluser=mysqluser,
+                                                              shop_version=shop_version)
+                    Password_record.objects.filter(ipaddress=asset_id).update(sshpassword=encrypt_sshpassword, ftppassword=encrypt_ftppassword, mysqlpassword=encrypt_mysqlpassword)
+
+                    messages.success(request, "修改内容成功")
+                    return redirect(reverse('assetdetail', kwargs={'asset_id': asset_id}))
+                except Exception as err:
+                    return HttpResponse("保存失败:{0}".format(err))
 
 
 class AnsibleViewPublic(View):
@@ -436,11 +471,16 @@ class AnsibleViewPublic(View):
             deploy_desc = request.POST.get('desc', None)
             # download_vers = request.POST.get('vers', 'free')
             download_vers = 'free'
+            shop_version = request.POST.get('shop_ver')
             operator = request.POST.get('user')
             if 'HTTP_X_FORWARDED_FOR' in request.META:
                 remote_ip = request.META['HTTP_X_FORWARDED_FOR']
             else:
                 remote_ip = request.META['REMOTE_ADDR']
+            # 加密
+            encrypt_sshpassword = RsaCrypto().encrypt(password)['message']
+            encrypt_ftppassword = RsaCrypto().encrypt(ftppassword)['message']
+            encrypt_mysqlpassword = RsaCrypto().encrypt(mysqlpassword)['message']
 
             # operator_id = User.objects.get(username=operator).id
 
@@ -456,14 +496,15 @@ class AnsibleViewPublic(View):
 
             # 获取php环境路径
             phpbin = envresult.phpbin
+            vhost_path = envresult.vhost_path
 
             data = {
-                'hostname': domain, 'ipaddress': ipaddr, 'sshuser': username, 'sshpassword': password,
-                'websitepath': position,
+                'hostname': domain, 'ipaddress': ipaddr, 'sshuser': username, 'websitepath': position,
                 'envirment_id': envirment, 'cloudips_id': cloudips, 'customer_name': customer_name, 'sshport': port,
-                'others': others, 'mysqluser': mysqluser, 'mysqlpassword': mysqlpassword,
-                'mysqladdress': mysqladdress, 'ftpuser': ftpuser, 'ftppassword': ftppassword
+                'others': others, 'mysqluser': mysqluser,
+                'mysqladdress': mysqladdress, 'ftpuser': ftpuser, "shop_version": shop_version
             }
+            # print(data)
 
             # 公共部署判断服务器是否部署多次
             asset_objs = Device.objects.filter(ipaddress=ipaddr)
@@ -473,6 +514,7 @@ class AnsibleViewPublic(View):
             # 判断数据库中是否有记录，没有则创建，有则修改
             try:
                 custom_asset, created = Device.objects.update_or_create(hostname=domain, defaults=data)
+                custom_asset.PASSWORD.update_or_create(ipaddress=custom_asset.pk, sshpassword=encrypt_sshpassword, ftppassword=encrypt_ftppassword, mysqlpassword=encrypt_mysqlpassword)
             except Exception as e:
                 print("数据异常！请联系管理员")
             if created is not True:
@@ -500,7 +542,7 @@ class AnsibleViewPublic(View):
             runningjob.playbookrun(playbook_path=[jobpath], domain=domain, hostip=ipaddr, group=env_name,
                                    port=port, sshuser=username, password=password, phpbin=phpbin,
                                    webpath=position, download_vers=download_vers, mysql_user=mysqluser,
-                                   mysql_password=mysqlpassword, mysql_address=mysqladdress)
+                                   mysql_password=mysqlpassword, mysql_address=mysqladdress, shop_version=shop_version, vhost_path=vhost_path)
 
             data = runningjob.get_playbook_result()
 
@@ -563,3 +605,41 @@ def shop_download(request):
         msg = " ".join([user, remote_ip, str(e)])
         collect_logger.info(msg)
         return HttpResponse(e)
+
+
+from .models import Password_record
+from utils.cryto import RsaCrypto
+def migrate_data(request):
+    device_objs = Device.objects.all()
+    for device_obj in device_objs:
+        old_data = {
+            'ftppassword': RsaCrypto().encrypt(device_obj.ftppassword)['message'],
+            'ipaddress': device_obj,
+            'sshpassword': RsaCrypto().encrypt(device_obj.sshpassword)['message'],
+            'mysqlpassword': RsaCrypto().encrypt(device_obj.mysqlpassword)['message']
+        }
+        # password_queryset = device_obj.PASSWORD.all()
+        Password_record.objects.create(**old_data)
+    return HttpResponse('ok')
+
+from django.contrib.auth.decorators import permission_required
+# @login_required
+@permission_required('device.decode_password', login_url='/login/', raise_exception="无权限操作，请联系管理员")
+def decryption(request):
+    asset_id = request.GET.get('assetid')
+    device_obj = Device.objects.get(pk=asset_id)
+    password_dict = list(device_obj.PASSWORD.values())[0]
+    sshpassword_decrypt = RsaCrypto().decrypt(password_dict['sshpassword'])
+    ftppassword_decrypt = RsaCrypto().decrypt(password_dict['ftppassword'])
+    mysqlpassword_decrypt = RsaCrypto().decrypt(password_dict['mysqlpassword'])
+    data = {
+        'sshpassword_state': sshpassword_decrypt['state'],
+        'ftppassword_state': ftppassword_decrypt['state'],
+        'mysqlpassword_state': mysqlpassword_decrypt['state'],
+
+        'sshpassword': sshpassword_decrypt['message'],
+        'ftppassword': ftppassword_decrypt['message'],
+        'mysqlpassword': mysqlpassword_decrypt['message']
+    }
+    return JsonResponse(data)
+
