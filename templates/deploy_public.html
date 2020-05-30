@@ -102,6 +102,14 @@
                 {% endfor %}
             </select>
         </label>
+        <div class="radio">
+                <div class="radio-inline">
+                    <label><input type="radio" name="shop_ver" value="0">独立版</label>
+                </div>
+                <div class="radio-inline">
+                    <label><input type="radio" name="shop_ver" value="1">微擎版</label>
+                </div>
+        </div>
         <span>任务 :</span>
         <select name="select3" id="sel" onchange="Change(this)">
             {% for job in jobs %}

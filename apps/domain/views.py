@@ -39,7 +39,7 @@ class DomainView(APIView):
                                    domain=clean_domain['domain'], hostip=CONFIG.API_HOSTIP, group=CONFIG.API_GROUP,
                                    port=22, sshuser=CONFIG.API_SSHUSER, password=CONFIG.API_SSHPASSWORD, phpbin='/usr/local/php/bin/php',
                                    webpath=CONFIG.API_WEBPATH, download_vers=1, mysql_user="none",
-                                   mysql_password="none", mysql_address="none")
+                                   mysql_password="none", mysql_address="none", shop_version=0, vhost_path="none")
             playbook_result = runningjob.get_playbook_result()
 
             if playbook_result['ok'] and not playbook_result['failed'] and not playbook_result['unreachable']:

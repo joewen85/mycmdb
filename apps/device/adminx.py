@@ -5,7 +5,7 @@
 import xadmin
 from xadmin import views
 
-from .models import Cloudips, Envirment, Device, Jobs, Deploy_record
+from .models import Cloudips, Envirment, Device, Jobs, Deploy_record, Password_record
 
 
 class GlobalSettings(object):
@@ -59,6 +59,12 @@ class Deploy_recordAdmin(object):
     model_icon = 'fa fa-archive fa-fw'
 
 
+class Password_recordAadmin(object):
+    list_display = ('ipaddress', 'sshpassword', 'ftppassword', 'mysqlpassword')
+    # search_fields = ('server_ip__iptabless')
+    list_per_page = 10
+
+
 xadmin.site.register(Cloudips, CloudipsAdmin)
 xadmin.site.register(Envirment, EnvirmentAdmin)
 xadmin.site.register(Device, DeviceAdmin)
@@ -66,3 +72,4 @@ xadmin.site.register(Jobs, JobAdmin)
 xadmin.site.register(views.BaseAdminView, BaseSetting)
 xadmin.site.register(views.CommAdminView, GlobalSettings)
 xadmin.site.register(Deploy_record, Deploy_recordAdmin)
+xadmin.site.register(Password_record, Password_recordAadmin)

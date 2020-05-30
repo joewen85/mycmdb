@@ -110,3 +110,25 @@ class Deploy_record(models.Model):
     def __str__(self):
         return "结果"
 
+
+class Password_record(models.Model):
+    """独立密码表"""
+    ipaddress = models.ForeignKey(Device, db_column="server_ip", related_name="PASSWORD", on_delete=models.CASCADE)
+    sshpassword = models.CharField(max_length=600, verbose_name="服务器登陆密码", null=False)
+    ftppassword = models.CharField(max_length=600, verbose_name="ftp密码", null=True)
+    mysqlpassword = models.CharField(max_length=600, verbose_name="mysql密码", null=True)
+
+    def __str__(self):
+        return "密码表"
+
+    class Meta:
+        verbose_name = "密码表"
+        verbose_name_plural = verbose_name
+
+        default_permissions = ()
+
+        permissions = (
+            ("select_table", "查看密码表"),
+            ("change_table", "修改密码表"),
+            ("decode_password", "解密加密密码")
+        )
