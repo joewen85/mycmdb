@@ -8,6 +8,7 @@ chkconfig --add mysqld
 chkconfig mysqld on
 {{ mysql_install_dir }}/bin/mysqld --initialize-insecure --user=mysql --basedir={{ mysql_install_dir }} --datadir={{ mysql_data_dir }}
 if [ $? -eq 0 ];then
+    ln -s /usr/local/jemalloc/lib/libjemalloc.so.2 /usr/local/lib/libjemalloc.so
     /etc/init.d/mysqld start
     [ -z "$(grep ^'export PATH=' /etc/profile)" ] && echo "export PATH={{ mysql_install_dir }}/bin:\$PATH" >> /etc/profile
       [ -n "$(grep ^'export PATH=' /etc/profile)" -a -z "$(grep {{ mysql_install_dir }} /etc/profile)" ] && sed -i "s@^export PATH=\(.*\)@export PATH={{ mysql_install_dir }}/bin:\1@" /etc/profile
