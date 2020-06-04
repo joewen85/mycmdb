@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/10/20 2:00 PM
 # @Author  : Joe
-# @Site    : 
+# @Site    :
 # @File    : forms.py.py
 # @Software: PyCharm
 # @function: verify form
@@ -42,6 +42,12 @@ class AddForm(GetError):
     position = forms.CharField(validators=[validators.RegexValidator(r'^\/\S+', message='路径格式错误')], strip=True,
                                error_messages={'required': '不能为空'})
     username = forms.CharField(required=True, strip=True)
+
+    def clean_ipaddress(self):
+        ipaddress = self.cleaned_data.get('ipaddress')
+        if ipaddress == '127.0.0.1':
+            raise forms.ValidationError(message="填入信息非法")
+        return ipaddress
 
     # def clean_domain(self):
     #     domain = self.cleaned_data.get('domain')
