@@ -8,7 +8,7 @@ allow_prereleases = false
 pylint = "*"
 
 [packages]
-django = "==2.2.9"
+django = "==2.2.13"
 ansible = "==2.9.5"
 mysqlclient = "*"
 channels = "*"
