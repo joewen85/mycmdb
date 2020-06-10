@@ -1,0 +1,8 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  gather_facts: false
+  tasks:
+       - name: repair db tables
+         shell: "{{ phpbin }} {{ webpath }}/addons/yun_shop/artisan migrate --force"
+       - name: change privileges
+         shell: chown -R www:www {{ webpath }}
