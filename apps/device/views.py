@@ -356,6 +356,7 @@ class AssetFuncsView(View):
                     'mtr active_mode',
                     'getsshport_active',
                     'Custom TCP Connect Stat_active',
+                    'Template App Redis_active',
                 ]
 
                 zb = Zabbixapi()
