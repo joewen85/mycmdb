@@ -76,6 +76,10 @@
   copy:
     src: userparameter_percona_mysql.conf
     dest: /usr/local/zabbix/etc/zabbix_agentd.conf.d/userparameter_percona_mysql.conf
+- name: check redis
+  copy:
+    src: userparameter_redis.conf
+    dest: /usr/local/zabbix/etc/zabbix_agentd.conf.d/userparameter_redis.conf
 - name: set check mysql
   template:
     src: chk_mysql.j2
