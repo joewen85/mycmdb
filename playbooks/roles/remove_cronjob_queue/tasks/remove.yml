@@ -1,7 +1,12 @@
-- name: remove cronjob 
+- name: remove cronjob
   #file: path=/var/spool/cron/www state=absent force=yes
-  cron: 
+  cron:
     name: "{{ domain }}"
+    user: www
+    state: absent
+- name: remove oldest cronjob
+  cron:
+    name: "laravel cronjob"
     user: www
     state: absent
 #- name: stop supervisord
@@ -10,7 +15,7 @@
   file: path=/etc/supervisord.d/{{ domain }}.ini state=absent force=yes
   #file: path=/etc/supervisord.d state=absent force=yes
 #- name: remove supervisord program
-#  yum: 
+#  yum:
 #    name: "supervisor"
 #    state: absent
 - name: delete old file
