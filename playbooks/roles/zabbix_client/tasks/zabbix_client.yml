@@ -119,8 +119,8 @@
     backrefs: yes
     regexp: '^\$mysql_pass = "";'
     line: '$mysql_pass = "{{ mysql_password }}";'
-- name: change redis privileges
-  shell: chmod 775 /usr/local/redis/bin/ && chmod 775 /usr/local/redis/bin/redis-cli
+- name: add zabbix user to redis group
+  shell: usermod -G redis zabbix
 - name: change hostname
   hostname: name="{{ domain }}"
 - name: reload systemd
