@@ -1,0 +1,6 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  roles:
+    - openssl
+    - php72
+    - modify_db_connect
