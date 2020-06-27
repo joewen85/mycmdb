@@ -1,0 +1,7 @@
+- name: yunzhong framework shop change db_connect
+  shell: sed -i "s#^\$config\['db'\]\['master'\]\['host'\].*;#\$config\['db'\]\['master'\]\['host'\] = '{{ mysql_address }}';#" {{ webpath }}/database/config.php
+  when: shop_version == "0"
+- name: weiqing framework shop change db_connect
+  shell: sed -i "s#^\$config\['db'\]\['master'\]\['host'\].*;#\$config\['db'\]\['master'\]\['host'\] = '{{ mysql_address }}';#" {{ webpath }}/data/config.php
+  when: shop_version == "1"
+
