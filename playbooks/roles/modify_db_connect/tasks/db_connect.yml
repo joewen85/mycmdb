@@ -16,4 +16,11 @@
     state: absent
     force: yes
   when: shop_version == "1"
-
+- name: reload php-fpm
+  service:
+    name: php-fpm
+    state: restarted
+- name: reload supervisord
+  service:
+    name: supervisord
+    state: restarted
