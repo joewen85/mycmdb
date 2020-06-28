@@ -1,14 +1,18 @@
 - name: yunzhong framework shop change db_connect
   shell: sed -i "s#^\$config\['db'\]\['master'\]\['host'\].*;#\$config\['db'\]\['master'\]\['host'\] = '{{ mysql_address }}';#" {{ webpath }}/database/config.php
-  file:
-    path: {{ webpath }}/bootstrap/cache/config.php
-    state: absent
-    force: yes
   when: shop_version == "0"
 - name: weiqing framework shop change db_connect
   shell: sed -i "s#^\$config\['db'\]\['master'\]\['host'\].*;#\$config\['db'\]\['master'\]\['host'\] = '{{ mysql_address }}';#" {{ webpath }}/data/config.php
+  when: shop_version == "1"
+- name: delete yunzhong framework cache file
   file:
-    path: {{ webpath }}/addons/yun_shop/bootstrap/cache/config.php
+    path: "{{ webpath }}/bootstrap/cache/config.php"
+    state: absent
+    force: yes
+  when: shop_version == "0"
+- name: delete weiqing framework cache file
+  file:
+    path: "{{ webpath }}/addons/yun_shop/bootstrap/cache/config.php"
     state: absent
     force: yes
   when: shop_version == "1"
