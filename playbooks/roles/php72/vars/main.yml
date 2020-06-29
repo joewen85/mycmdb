@@ -1,4 +1,2 @@
-php_ver: 7.2.26
-openssl_ver: 111d
-curl_ver: 7670
+php_ver: 7.2.31
 php_user: www

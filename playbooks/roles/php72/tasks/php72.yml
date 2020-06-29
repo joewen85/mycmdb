@@ -80,7 +80,7 @@
 - name: centos7 unarchive php72
   unarchive:
 #    src: php-{{ php_ver }}_openssl{{ openssl_ver }}.tgz
-    src: "https://downloads.yunzmall.com/playbook_source/php72/php-{{ php_ver }}_openssl{{ openssl_ver }}.tgz"
+    src: "https://downloads.yunzmall.com/playbook_source/php72/php-{{ php_ver }}.tgz"
     dest: /usr/local/
     remote_src: yes
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
