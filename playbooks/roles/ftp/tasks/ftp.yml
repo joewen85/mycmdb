@@ -38,6 +38,10 @@
   register: result
 - name: add passwd to tmpfile
   shell: echo -e "{{ result.stdout }}\n{{ result.stdout }}" > /usr/local/pureftpd/etc/passfile
+- name: delete old passwd file
+  file: path=/usr/local/pureftpd/etc/pureftpd.passwd state=absent
+- name: delete old db file
+  file: path=/usr/local/pureftpd/etc/pureftpd.pdb state=absent
 - name: create ftp user
   shell: /usr/local/pureftpd/bin/pure-pw useradd www -f /usr/local/pureftpd/etc/pureftpd.passwd -u www -g www -d /data/wwwroot/ -m < /usr/local/pureftpd/etc/passfile
 - name: change webpath mode
