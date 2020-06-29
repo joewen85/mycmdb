@@ -1,7 +1,4 @@
-pcre_ver: 8.42
-openresty_ver: 1.15.8.2
-openssl_ver: 1.0.2r
-nginx_ver: 1.15.8
+openresty_ver: 1.15.8.3
 openresty_install_dir: /usr/local/openresty
 wwwlogs_dir: /data/wwwlogs
 nginx_user: www

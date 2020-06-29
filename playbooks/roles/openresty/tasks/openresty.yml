@@ -22,12 +22,21 @@
     home: /data/wwwroot
     uid: 1000
   when: user_exists.failed == true
-- name: unarchive openresty software
+- name: centos7 unarchive openresty software
   unarchive:
 #    src: openresty-{{ openresty_ver }}.tgz
     src: "https://downloads.yunzmall.com/playbook_source/openresty/openresty-{{ openresty_ver }}.tgz"
     dest: /usr/local/
     remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: centos8 unarchive openresty software
+  unarchive:
+#    src: openresty-{{ openresty_ver }}.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/openresty/openresty-{{ openresty_ver }}_centos8.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+
 - name: cp config
   template:
     src: nginx_conf.j2
