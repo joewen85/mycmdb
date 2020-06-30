@@ -133,6 +133,7 @@ hostname.retry
 *.retry
 config.py
 /.vscode
+/.scannerwork
 /tmp
 *.sock
 *.pid
