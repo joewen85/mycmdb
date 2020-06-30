@@ -50,9 +50,10 @@ git clone https://github.com/joewen85/mycmdb.git
 2.安装python包
 ```bash
 pip install git+git://github.com/sshwsfc/xadmin.git@django2
+pip install pipenv
 ```
 ```bash
-pip install -r requirement.txt
+pipenv install
 ```
 
 3.创建数据库
@@ -73,26 +74,39 @@ utils.get_random_secret_key()
 ```
 
 ## 运行
-脚本运行方式：推荐使用supervisor来管理进程
+### 使用supervisor来管理进程
 
-1.运行项目
+1.运行项目,先安装supervisor进程管理
 ```bash
-uwsgi --ini uwsgi.ini
+# centos8
+dnf install supervisor
+
+# centos7
+yum install supervisor
 ```
 
 2.设置开机启动
-* 将start_cmdb.sh复制到/etc/init.d/cmdb,并修改里面的path为项目的路径，赋予执行权限
-```bash
-chmod +x /etc/init.d/cmdb
-chkconfig --add cmdb
-chkconfig cmdb on
+* 将cmdb.ini，channels.ini复制到/etc/supervisord.d/
+修改内容
+```ini
+# cmdb.ini
+directory = 项目存放目录
+command = uwsgi文件绝对路径 --ini 项目根目录下/uwsgi.ini
 
+stdout_logfile = cmdb输出日志文件路径
+stderr_logfile = cmdb输出错误日志文件路径
+```
+```ini
+# channels.ini
+command = 实际python执行文件的绝对路径 manage.py runserver xxxx:xxx
+stdout_logfile = channel输出日志文件路径
+stderr_logfile = channel输出错误日志文件路径
 ```
 
-3.使用supervisor管理
-```bash
-cmdb.ini: python核心进去启动配置
-channels.ini：使用asgi/channels实现websocket长连接进程
+3.使用supervisor管理说明
+```
+cmdb.ini: cmdb核心和任务执行通过uwsgi运行
+channels.ini：使用asgi/channels实现websocket长连接进程，主要webssh使用
 ```
 
 完成开启自启动
