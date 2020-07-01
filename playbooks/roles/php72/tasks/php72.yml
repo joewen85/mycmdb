@@ -35,6 +35,8 @@
      - bzip2-devel
      - autoconf
      - libnghttp2-devel
+     - libidn-devel
+     - libidn2-devel
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
 - name: centos8 install deploy package
   yum:
