@@ -16,6 +16,16 @@
     state: absent
     force: yes
   when: shop_version == "1"
+- name: judge curl
+  shell: ls /usr/local/curl
+  ignore_errors: True
+  register: result
+- name: get curl binary
+  unarchive:
+    src: "https://downloads.yunzmall.com/playbook_source/curl/curl-7.71.0.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: result is failed
 - name: reload php-fpm
   service:
     name: php-fpm
