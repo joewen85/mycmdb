@@ -5,8 +5,8 @@
 - name: add user www with home folder
   file: path='/home/www' state=directory owner='www' group='www' recurse=yes
 - name: add cronjob logrotate
-  template: src=framework_shop.j2 dest=/etc/logrotate.d/framework_shop
+  template: src=framework_shop.j2 dest=/etc/logrotate.d/{{ domain }}
   when: shop_version=="0"
 - name: add cronjob logrotate
-  template: src=weiqin_shop.j2 dest=/etc/logrotate.d/weiqin_shop
+  template: src=weiqin_shop.j2 dest=/etc/logrotate.d/{{ domain }}
   when: shop_version=="1"
