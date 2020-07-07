@@ -11,8 +11,8 @@
   template: src=weiqin_shop.j2 dest=/etc/logrotate.d/{{ domain }}
   when: shop_version=="1"
 - name: modify weiqin_shop logfolder privileges
-  file: path={{ webpath }}/addons/yun_shop/storage/logs owner=www group=root mode=770 recurse=yes state=directory
+  file: path={{ webpath }}/addons/yun_shop/storage/logs owner=www group=root mode=770 state=directory
   when: shop_version=="1"
 - name: modify framework_shop logfolder privileges
-  file: path={{ webpath }}/storage/logs owner=www group=root mode=770 recurse=yes state=directory
+  file: path={{ webpath }}/storage/logs owner=www group=root mode=770 state=directory
   when: shop_version=="0"
