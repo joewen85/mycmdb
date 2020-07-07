@@ -68,11 +68,9 @@ class Device(models.Model):
     # is_monitor = models.BooleanField(verbose_name="是否监控")
     is_maintenance = models.BooleanField(verbose_name="是否维护", default=0)
     maintenance_duration = models.CharField(max_length=25, verbose_name="维护期限", null=True, blank=True)
-    
     deploy_times = models.IntegerField(verbose_name="部署队列和计划任务次数", default=0)
     deploy_weiqingshop_times = models.SmallIntegerField(verbose_name="部署框架与商城次数", default=0)
     deploy_frameworkshop_times = models.SmallIntegerField(verbose_name="部署微擎与商城次数", default=0)
-    
     others = models.TextField(verbose_name="其他内容", null=True, blank=True)
     paid = models.BooleanField(verbose_name="商城收费客户", default=0)
     ftpuser = models.CharField(max_length=32, default='www', verbose_name="ftp用户名")
