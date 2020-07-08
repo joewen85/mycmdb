@@ -116,6 +116,7 @@ class AssetAdd(View):
                 customer_name = request.POST.get('customer_name', None)
                 port = form.cleaned_data.get('port')
                 others = request.POST.get('others', None)
+                shop_version = request.POST.get("shop_ver")
                 paid = request.POST.get('vers', 0)
                 if Device.objects.filter(hostname=domain).exists():
                     # if get_domain.exists():
@@ -123,7 +124,7 @@ class AssetAdd(View):
                                                                   sshpassword=password, websitepath=position,
                                                                   envirment_id=envirment, cloudips_id=cloudips,
                                                                   customer_name=customer_name, sshport=port,
-                                                                  others=others, paid=paid,
+                                                                  others=others, paid=paid, shop_version=shop_version,
                                                                   updated_at=datetime.datetime.now())
                     messages.success(request, "域名已存在，已保存其它内容")
                     redirect_url = reverse('assetlist') + '?page=1'
@@ -133,7 +134,7 @@ class AssetAdd(View):
                     device_obj, created = Device.objects.update_or_create(hostname=domain, ipaddress=ipaddr, sshuser=username,
                                           websitepath=position, sshport=port, is_maintenance=0, deploy_times=0,
                                           cloudips_id=cloudips, envirment_id=envirment, customer_name=customer_name,
-                                          others=others, paid=paid)
+                                          others=others, paid=paid, shop_version=shop_version)
 
                     Password_record.objects.create(mysqlpassword='None', ftppassword='None', sshpassword=encrypt_sshpassword, ipaddress=device_obj)
                     messages.success(request, "保存资产成功")
