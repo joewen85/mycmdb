@@ -131,4 +131,4 @@
 - name: reload systemd
   shell: systemctl daemon-reload
 - name: set php72 onboot
-  service: name=php-fpm enabled=yes state=started
+  service: name=php-fpm enabled=yes state=restarted
