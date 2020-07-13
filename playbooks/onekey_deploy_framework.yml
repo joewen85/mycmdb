@@ -1,0 +1,19 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  roles:
+    - common
+    - jemalloc
+    - openresty
+    - openssl
+    - curl
+    - libiconv
+    - php72
+    - redis
+    - ftp
+    - mysql
+    - vhosts
+    - framework_shop
+    - https
+    - crond
+    - queue
+    - zabbix_client
