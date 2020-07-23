@@ -1,9 +1,16 @@
 - name: unarchive redis-server
   unarchive:
 #    src: redis_server-{{ redis_ver }}.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/redis_server/redis_server-5.0.8.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+  unarchive:
+#    src: redis_server-{{ redis_ver }}.tgz
     src: "https://downloads.yunzmall.com/playbook_source/redis_server/redis_server-{{ redis_ver }}.tgz"
     dest: /usr/local/
     remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
 - name: copy config
   template:
     src: redis.j2

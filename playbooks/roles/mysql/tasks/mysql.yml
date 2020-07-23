@@ -10,6 +10,7 @@
      - numactl-libs
      - libaio
      - libaio-devel
+     - ncurses-compat-libs
 - name: download mysql
   #get_url: url=https://mirrors.tuna.tsinghua.edu.cn/mysql/downloads/MySQL-5.7/mysql-{{ mysql57_ver }}-linux-glibc2.12-x86_64.tar.gz dest=/usr/local/ timeout=5
   get_url: url=https://downloads.yunzmall.com/mysql-{{ mysql57_ver }}-linux-glibc2.12-x86_64.tar.gz dest=/usr/local/ timeout=5
