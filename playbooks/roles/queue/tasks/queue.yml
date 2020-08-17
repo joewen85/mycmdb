@@ -21,6 +21,17 @@
   when: shop_version == "0"
 - name: reload systemctl
   command: systemctl daemon-reload
+- name: change daemon.sh privleges with yunzhong framework
+  file:
+    path: "{{ webpath }}/daemon.sh"
+    mode: 0770
+  when: shop_version == "0"
+- name: change daemon.sh privleges with weiqin
+  file:
+    path: "{{ webpath }}/addons/yun_shop/daemon.sh"
+    mode: 0770
+  when: shop_version == "1"
+
 - name: start supervisord
   service: name=supervisord state=restarted enabled=yes
 - name: Check that you can connect (GET) to a page and it returns a status 200
