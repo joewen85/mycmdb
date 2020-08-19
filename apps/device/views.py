@@ -621,14 +621,19 @@ from utils.cryto import RsaCrypto
 def migrate_data(request):
     device_objs = Device.objects.all()
     for device_obj in device_objs:
-        old_data = {
-            'ftppassword': RsaCrypto().encrypt(device_obj.ftppassword)['message'],
-            'ipaddress': device_obj,
-            'sshpassword': RsaCrypto().encrypt(device_obj.sshpassword)['message'],
-            'mysqlpassword': RsaCrypto().encrypt(device_obj.mysqlpassword)['message']
-        }
+        # old_data = {
+        #     'ftppassword': RsaCrypto().encrypt(device_obj.ftppassword)['message'],
+        #     'ipaddress': device_obj,
+        #     'sshpassword': RsaCrypto().encrypt(device_obj.sshpassword)['message'],
+        #     'mysqlpassword': RsaCrypto().encrypt(device_obj.mysqlpassword)['message']
+        # }
         # password_queryset = device_obj.PASSWORD.all()
-        Password_record.objects.create(**old_data)
+        old_data = {
+            'domain': device_obj.hostname,
+            'is_blacklist': 0
+        }
+        # Password_record.objects.create(**old_data)
+        DomainDetail.objects.create(**old_data)
     return HttpResponse('ok')
 
 from django.contrib.auth.decorators import permission_required
