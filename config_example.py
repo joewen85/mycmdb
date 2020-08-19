@@ -66,4 +66,6 @@ class Config:
     # private_key
     PRIVATE_KEY = ''''''
 
+    # TOKEN
+    TOKEN = ''
 

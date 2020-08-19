@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from config import Config as CONFIG
+from domain.permissions import IsTokenOrReadOnly
 
 from domain.serializers import DomainSerializer, BlackListSerializer
 from device.ansibleapi import AnsibleApi_v2
@@ -74,10 +75,10 @@ class BlackListList(generics.ListCreateAPIView):
     """
     queryset = DomainDetail.objects.all()
     serializer_class = BlackListSerializer
+    permission_classes = (IsTokenOrReadOnly,)
 
 
 class BlackListDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = DomainDetail.objects.all()
     serializer_class = BlackListSerializer
-
-
+    permission_classes = (IsTokenOrReadOnly,)
