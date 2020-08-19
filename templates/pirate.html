@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    客户管理系统 | 任务执行结果
+{% endblock %}
+{% block content %}
+    <div><img src="{% static  "images/LOGO.png" %}"></div>
+    <div>
+        <span style="color: #ff0000; font-size: 2em">您使用的域名{{ domain }}已经被加入黑名单，如有疑问，</span>
+        <div style="font-size: 2em">请联系客服QQ3233244039</div>
+    </div>
+{% endblock %}
+{% block extend_js %}
+
+{% endblock %}

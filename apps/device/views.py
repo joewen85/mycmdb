@@ -18,6 +18,7 @@ from django.views.generic import View
 from device.ansibleapi import AnsibleApi_v2
 from device.forms import AddForm, LoginForm, CaptchaForm
 from device.models import Envirment, Device, Cloudips, Jobs, Deploy_record, User
+from domain.models import DomainDetail
 
 # from django.views.decorators.cache import cache_page
 try:
@@ -282,6 +283,9 @@ class AssetFuncsView(View):
         shop_version = request.POST.get("shop_ver")
         # print("商城版本: {}".format(shop_version))
 
+        # 判断是否盗版
+        if DomainDetail.objects.get(domain=domain).is_blacklist:
+            return render(request, 'pirate.html', {'domain': domain})
         try:
             device_obj = Device.objects.get(id=asset_id)
             encrypt_passwords = list(device_obj.PASSWORD.values())[0]
@@ -475,6 +479,9 @@ class AnsibleViewPublic(View):
             download_vers = 'free'
             shop_version = request.POST.get('shop_ver')
             operator = request.POST.get('user')
+            # 判断是否盗版
+            if DomainDetail.objects.get(domain=domain).is_blacklist:
+                return render(request, 'pirate.html', {'domain': domain})
             if 'HTTP_X_FORWARDED_FOR' in request.META:
                 remote_ip = request.META['HTTP_X_FORWARDED_FOR']
             else:

@@ -1,12 +1,15 @@
 import logging
 from django.http import JsonResponse
+from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from config import Config as CONFIG
 
-from domain.serializers import DomainSerializer
+from domain.serializers import DomainSerializer, BlackListSerializer
 from device.ansibleapi import AnsibleApi_v2
+
+from .models import DomainDetail
 
 logger = logging.getLogger(__name__)
 collect_logger = logging.getLogger('collect')
@@ -63,3 +66,18 @@ class DomainView(APIView):
         collect_logger.info(msg)
 
         return JsonResponse(ret)
+
+
+class BlackListList(generics.ListCreateAPIView):
+    """
+    blacklist list and create
+    """
+    queryset = DomainDetail.objects.all()
+    serializer_class = BlackListSerializer
+
+
+class BlackListDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = DomainDetail.objects.all()
+    serializer_class = BlackListSerializer
+
+
