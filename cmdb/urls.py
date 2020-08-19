@@ -40,6 +40,6 @@ urlpatterns = [
     path('shop/', shop_download, name='shop_download'),
     path('domain/', include('domain.urls')),
     # path('webssh/', include('webssh.urls')),
-    path('md/', migrate_data),
+    # path('md/', migrate_data),
     path('decryption/', decryption, name='decryption')
 ]

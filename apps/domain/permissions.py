@@ -23,7 +23,7 @@ except ImportError:
 
 
 class IsTokenOrReadOnly(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method is permissions.SAFE_METHODS:
-            return True
-        return request.META.get('HTTP_TOKEN') == CONFIG.TOKEN
+    def has_permission(self, request, view):
+        return bool(
+            request.method in permissions.SAFE_METHODS or request.META.get('HTTP_TOKEN') == CONFIG.TOKEN
+        )
