@@ -138,6 +138,10 @@ class AssetAdd(View):
                                           others=others, paid=paid, shop_version=shop_version)
 
                     Password_record.objects.create(mysqlpassword='None', ftppassword='None', sshpassword=encrypt_sshpassword, ipaddress=device_obj)
+                    try:
+                        DomainDetail.objects.update_or_create(domain=domain)
+                    except Exception as err:
+                        print(err)
                     messages.success(request, "保存资产成功")
                     redirect_url = reverse('assetlist') + '?page=1'
                     return redirect(redirect_url)
@@ -480,8 +484,11 @@ class AnsibleViewPublic(View):
             shop_version = request.POST.get('shop_ver')
             operator = request.POST.get('user')
             # 判断是否盗版
-            if DomainDetail.objects.get(domain=domain).is_blacklist:
-                return render(request, 'pirate.html', {'domain': domain})
+            try:
+                if DomainDetail.objects.get(domain=domain).is_blacklist:
+                    return render(request, 'pirate.html', {'domain': domain})
+            except Exception as e:
+                print(e)
             if 'HTTP_X_FORWARDED_FOR' in request.META:
                 remote_ip = request.META['HTTP_X_FORWARDED_FOR']
             else:
@@ -513,7 +520,6 @@ class AnsibleViewPublic(View):
                 'others': others, 'mysqluser': mysqluser,
                 'mysqladdress': mysqladdress, 'ftpuser': ftpuser, "shop_version": shop_version
             }
-            # print(data)
 
             # 公共部署判断服务器是否部署多次
             asset_objs = Device.objects.filter(ipaddress=ipaddr)
@@ -524,8 +530,10 @@ class AnsibleViewPublic(View):
             try:
                 custom_asset, created = Device.objects.update_or_create(hostname=domain, defaults=data)
                 custom_asset.PASSWORD.update_or_create(ipaddress=custom_asset.pk, sshpassword=encrypt_sshpassword, ftppassword=encrypt_ftppassword, mysqlpassword=encrypt_mysqlpassword)
+                DomainDetail.objects.update_or_create(domain=domain)
             except Exception as e:
                 print("数据异常！请联系管理员")
+
             if created is not True:
                 times = custom_asset.deploy_times
                 weiqingshop_times = custom_asset.deploy_weiqingshop_times
