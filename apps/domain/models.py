@@ -4,7 +4,7 @@ from device.models import Device
 
 
 class DomainDetail(models.Model):
-    domain = models.CharField(max_length=50, verbose_name="域名", db_index=True)
+    domain = models.CharField(max_length=50, verbose_name="域名", db_index=True, unique=True)
     # 黑名单为1，白名单为0
     is_blacklist = models.BooleanField(verbose_name="是否黑名单", default=0)
 
