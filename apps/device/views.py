@@ -288,8 +288,11 @@ class AssetFuncsView(View):
         # print("商城版本: {}".format(shop_version))
 
         # 判断是否盗版
-        if DomainDetail.objects.get(domain=domain).is_blacklist:
-            return render(request, 'pirate.html', {'domain': domain})
+        try:
+            if DomainDetail.objects.get(domain=domain).is_blacklist:
+                return render(request, 'pirate.html', {'domain': domain})
+        except Exception as err:
+            print(err)
         try:
             device_obj = Device.objects.get(id=asset_id)
             encrypt_passwords = list(device_obj.PASSWORD.values())[0]
@@ -430,7 +433,7 @@ class AssetFuncsView(View):
                                                               ftpuser=ftpuser, mysqladdress=mysqladdress, mysqluser=mysqluser,
                                                               shop_version=shop_version)
                     Password_record.objects.filter(ipaddress=asset_id).update(sshpassword=encrypt_sshpassword, ftppassword=encrypt_ftppassword, mysqlpassword=encrypt_mysqlpassword)
-
+                    DomainDetail.objects.update_or_create(domain=domain)
                     messages.success(request, "修改内容成功")
                     return redirect(reverse('assetdetail', kwargs={'asset_id': asset_id}))
                 except Exception as err:
