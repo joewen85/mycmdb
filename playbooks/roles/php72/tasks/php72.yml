@@ -106,6 +106,10 @@
   copy:
     src: ext-redis.ini
     dest: /usr/local/php/etc/php.d/
+- name: set ext-mongo config
+  copy:
+    src: ext-mongo.ini
+    dest: /usr/local/php/etc/php.d/
 - name: set logrotate config
   copy:
     src: php-fpm.logrotate

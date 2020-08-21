@@ -1,0 +1,53 @@
+- name: add mongodb user
+  user: name=mongodb shell=/sbin/nologin
+- name: centos install dependen
+  yum:
+    name: expect
+    state: present
+- name: centos install mongodb
+  unarchive:
+    src: "https://downloads.yunzmall.com/playbook_source/mongodb/mongodb-linux-x86_64-rhel{{ansible_distribution_major_version}}0-{{ mongodb_ver }}.tgz"
+    dest: /usr/local/
+    owner: mongodb
+    group: mongodb
+    remote_src: yes
+- name: create mongodb_install_dir
+  shell: mv /usr/local/mongodb-linux-x86_64-rhel{{ansible_distribution_major_version}}0-{{ mongodb_ver }} {{ mongodb_install_dir }}
+#   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+# - name: centos7 install mongodb
+#   unarchive:
+#     src: "https://downloads.yunzmall.com/playbook_source/mongodb/mongodb-linux-x86_64-rhel70-{{ mongodb_ver_centos7 }}.tgz"
+#     dest: {{ mongodb_install_dir }}
+#     owner: mongodb
+#     group: mongodb
+#     remote_src: yes
+#   when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: create mongo data
+  file:
+    path: "{{ mongo_data_dir }}"
+    state: directory
+    owner: mongodb
+    group: mongodb
+- name: set mongodb config file
+  template:
+    src: mongod.j2
+    dest: /etc/mongod.conf
+- name: set mongodb service file
+  template:
+    src: mongodb.service.j2
+    dest: /lib/systemd/system/mongodb.service
+- name: reload systemd
+  shell: systemctl daemon-reload
+- name: set mongodb service start and onboot
+  service:
+    name: mongodb
+    enabled: yes
+    state: restarted
+- name: create passwd
+  shell: mkpasswd -l 8 -s 0
+  register: result
+- name: set admin password
+  shell: echo {{ mongodb_install_dir }}/bin/mongo 127.0.0.1/admin --eval \"db.createUser\(\{user:\'root\',pwd:\'{{result.stdout}}\',roles:[\'userAdminAnyDatabase\']\}\)\" | bash
+- debug:
+    msg: "{{ result.stdout }}"
+

@@ -1,0 +1,5 @@
+---
+# Variable configuration
+# #
+# # # config tasks
+- include_tasks: mongodb.yml
