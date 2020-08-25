@@ -1,6 +1,6 @@
 [program:{{ domain }}]
 process_name=%(program_name)s_%(process_num)02d
-command={{ webpath }}/daemon.sh {{ phpbin }} queue:work
+command={{ webpath }}/daemon.sh {{ phpbin }}
 autostart=true
 autorestart=true
 user=www
