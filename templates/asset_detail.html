@@ -202,12 +202,16 @@
 
                 <div class="form-group">
                     <label for="select1">任务</label>
-                    <select name="select1" id="sel" class="form-control" onchange="Change(this)">
+{#                    <select name="select1" id="sel" class="form-control" onchange="Change(this)">#}
+                    <select name="select1" id="sel" class="form-control">
                         {% for job in task_list %}
                             <option value={{ job.jid }}>{{ job.name }}</option>
                         {% endfor %}
                     </select>
-                    <input id="desc" type="text" value="" name="desc" placeholder="请输入部署原因" style="display: none">
+                    <div id="dynSelectShow">
+                        <input id="desc" type="text" value="" name="desc" placeholder="请输入部署原因" style="display: none">
+                        <input id="subdomain" type="text" value="" name="desc" placeholder="二级域名" style="display: none">
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -315,6 +319,22 @@
                return false;
            }
         });
+
+        $(document).ready(function () {
+            $('#sel').change(function () {
+                const task_name = sel.options[sel.selectedIndex].text;
+                if (task_name === 'esign'){
+                    $('#subdomain').show();
+                    $('#desc').hide();
+                } else if(task_name === '部署队列和计划任务'){
+                    $('#desc').show();
+                    $('#subdomain').hide();
+                } else {
+                    $('#subdomain').hide();
+                    $('#desc').hide();
+                }
+            })
+        })
     </script>
 {% endblock %}
 
