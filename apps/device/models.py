@@ -80,7 +80,8 @@ class Device(models.Model):
     mysqladdress = models.CharField(max_length=64, default='127.0.0.1', verbose_name="mysql连接地址")
     # 商城版本 0为独立版，1为微擎版
     shop_version = models.BooleanField(verbose_name="商城版本", default=0)
-
+    mongodbuser = models.CharField(max_length=32, verbose_name='mongodb用户名', default='root')
+    mongodbaddress = models.CharField(max_length=64, verbose_name='mongodb连接地址', default='127.0.0.1')
 
     class Meta:
         verbose_name = "用户设备信息"
@@ -117,6 +118,7 @@ class Password_record(models.Model):
     sshpassword = models.CharField(max_length=600, verbose_name="服务器登陆密码", null=False)
     ftppassword = models.CharField(max_length=600, verbose_name="ftp密码", null=True)
     mysqlpassword = models.CharField(max_length=600, verbose_name="mysql密码", null=True)
+    mongodbpassword = models.CharField(max_length=600, verbose_name="mongodb密码", null=True)
 
     def __str__(self):
         return "密码表"

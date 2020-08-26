@@ -247,7 +247,8 @@ class AssetFuncsView(View):
                 password_dict = {
                     'sshpassword': 'None',
                     'ftppassword': 'None',
-                    'mysqlpassword': 'None'
+                    'mysqlpassword': 'None',
+                    'mongodbpassword': 'None'
                 }
             task_list = Jobs.objects.all()
             env_list = Envirment.objects.all()
@@ -279,6 +280,9 @@ class AssetFuncsView(View):
         job = request.POST.get('select1', None)
         others = request.POST.get('others', None)
         deploy_desc = request.POST.get('desc')
+        mongodbuser = request.POST.get('mongodbuser')
+        mongodbpassword = request.POST.get('mongodbpassword', None)
+        mongodbaddress = request.POST.get('mongodbaddress')
         paid = bool(request.POST.get('vers'))
         if paid:
             download_vers = 'paid'
@@ -299,11 +303,12 @@ class AssetFuncsView(View):
             decrypt_sshpassword = RsaCrypto().decrypt(encrypt_passwords['sshpassword']).get('message')
             decrypt_ftppassword = RsaCrypto().decrypt(encrypt_passwords['ftppassword']).get('message')
             decrypt_mysqlpassword = RsaCrypto().decrypt(encrypt_passwords['mysqlpassword']).get('message')
+            decrypt_mongodbpassword = RsaCrypto().decrypt(encrypt_passwords['mongodbpassword']).get('message')
         except Exception as err:
             print(err)
             decrypt_ftppassword = 'None'
             decrypt_mysqlpassword = 'None'
-
+            decrypt_mongodbpassword = 'None'
 
         operator = request.POST.get('user')
         if 'HTTP_X_FORWARDED_FOR' in request.META:
@@ -342,7 +347,7 @@ class AssetFuncsView(View):
                                    sshuser=device_obj.sshuser, password=decrypt_sshpassword, phpbin=phpbin,
                                    webpath=device_obj.websitepath,
                                    download_vers=download_vers, mysql_user=device_obj.mysqluser,
-                                   mysql_password=decrypt_mysqlpassword, mysql_address=device_obj.mysqladdress, shop_version=shop_version, vhost_path=vhost_path)
+                                   mysql_password=decrypt_mysqlpassword, mysql_address=device_obj.mysqladdress, shop_version=shop_version, vhost_path=vhost_path, mongodbuser=mongodbuser, mongodbpassword=decrypt_mongodbpassword, mongodbaddress=mongodbaddress)
             data = runningjob.get_playbook_result()
 
             if jobpath == "/data/apps/mycmdb/playbooks/cronjob_queue.yml":
@@ -408,6 +413,11 @@ class AssetFuncsView(View):
                 # device_obj.save()
                 deploy_result = "mysql部署成功"
 
+            elif jobpath == CONFIG.PLAYBOOKPATH + "/roles/mongodb/mongodb.yml":
+                encrypt_deploy_result = RsaCrypto().encrypt(deploy_result)['message']
+                device_obj.PASSWORD.update(mongodbpassword=encrypt_deploy_result)
+                deploy_result = 'Mongodb部署成功'
+
             # 添加部署队列和计划任务记录
             Deploy_record.objects.create(deploy_datetime=datetime.datetime.now(), desc=deploy_desc,
                                          hostname=device_obj, operator=request.user.username, remote_ip=remote_ip,
@@ -423,6 +433,7 @@ class AssetFuncsView(View):
                 encrypt_sshpassword = RsaCrypto().encrypt(password)['message']
                 encrypt_ftppassword = RsaCrypto().encrypt(ftppassword)['message']
                 encrypt_mysqlpassword = RsaCrypto().encrypt(mysqlpassword)['message']
+                encrypt_mongodbpassword = RsaCrypto().encrypt(mongodbpassword)['message']
 
                 try:
                     Device.objects.filter(id=asset_id).update(ipaddress=ipaddr, hostname=domain, sshuser=username,
@@ -431,8 +442,8 @@ class AssetFuncsView(View):
                                                               customer_name=customer_name, sshport=port,
                                                               others=others, paid=paid, updated_at=datetime.datetime.now(),
                                                               ftpuser=ftpuser, mysqladdress=mysqladdress, mysqluser=mysqluser,
-                                                              shop_version=shop_version)
-                    Password_record.objects.filter(ipaddress=asset_id).update(sshpassword=encrypt_sshpassword, ftppassword=encrypt_ftppassword, mysqlpassword=encrypt_mysqlpassword)
+                                                              shop_version=shop_version, mongodbaddress=mongodbaddress, mongodbuser=mongodbuser)
+                    Password_record.objects.filter(ipaddress=asset_id).update(sshpassword=encrypt_sshpassword, ftppassword=encrypt_ftppassword, mysqlpassword=encrypt_mysqlpassword, mongodbpassword=encrypt_mongodbpassword)
                     DomainDetail.objects.update_or_create(domain=domain)
                     messages.success(request, "修改内容成功")
                     return redirect(reverse('assetdetail', kwargs={'asset_id': asset_id}))
@@ -472,9 +483,12 @@ class AnsibleViewPublic(View):
             position = verify_form.cleaned_data.get('position')
             ftpuser = request.POST.get('ftpuser', None)
             ftppassword = request.POST.get('ftppassword', None)
-            mysqladdress = request.POST.get('mysqladdress', None)
-            mysqluser = request.POST.get('mysqluser', None)
+            mysqladdress = request.POST.get('mysqladdress', '127.0.0.1')
+            mysqluser = request.POST.get('mysqluser', 'root')
             mysqlpassword = request.POST.get('mysqlpassword', None)
+            mongodbaddress =request.POST.get('mongodbaddress', '127.0.0.1')
+            mongodbuser = request.POST.get('mongodbuser', 'root')
+            mongodbpassword = request.POST.get('mongodbpassword', None)
             envirment = request.POST.get('select1', None)
             cloudips = request.POST.get('select2', None)
             customer_name = verify_form.cleaned_data.get('customer_name')
@@ -500,6 +514,7 @@ class AnsibleViewPublic(View):
             encrypt_sshpassword = RsaCrypto().encrypt(password)['message']
             encrypt_ftppassword = RsaCrypto().encrypt(ftppassword)['message']
             encrypt_mysqlpassword = RsaCrypto().encrypt(mysqlpassword)['message']
+            encrypt_mongodbpassword = RsaCrypto().encrypt(mongodbpassword)['message']
 
             # operator_id = User.objects.get(username=operator).id
 
@@ -521,7 +536,8 @@ class AnsibleViewPublic(View):
                 'hostname': domain, 'ipaddress': ipaddr, 'sshuser': username, 'websitepath': position,
                 'envirment_id': envirment, 'cloudips_id': cloudips, 'customer_name': customer_name, 'sshport': port,
                 'others': others, 'mysqluser': mysqluser,
-                'mysqladdress': mysqladdress, 'ftpuser': ftpuser, "shop_version": shop_version
+                'mysqladdress': mysqladdress, 'ftpuser': ftpuser, "shop_version": shop_version,
+                "mongodbaddress": mongodbaddress, "mongodbuser": mongodbuser
             }
 
             # 公共部署判断服务器是否部署多次
@@ -532,7 +548,7 @@ class AnsibleViewPublic(View):
             # 判断数据库中是否有记录，没有则创建，有则修改
             try:
                 custom_asset, created = Device.objects.update_or_create(hostname=domain, defaults=data)
-                custom_asset.PASSWORD.update_or_create(ipaddress=custom_asset.pk, sshpassword=encrypt_sshpassword, ftppassword=encrypt_ftppassword, mysqlpassword=encrypt_mysqlpassword)
+                custom_asset.PASSWORD.update_or_create(ipaddress=custom_asset.pk, sshpassword=encrypt_sshpassword, ftppassword=encrypt_ftppassword, mysqlpassword=encrypt_mysqlpassword, mongodbpassword=encrypt_mongodbpassword)
                 DomainDetail.objects.update_or_create(domain=domain)
             except Exception as e:
                 print("数据异常！请联系管理员")
@@ -562,7 +578,7 @@ class AnsibleViewPublic(View):
             runningjob.playbookrun(playbook_path=[jobpath], domain=domain, hostip=ipaddr, group=env_name,
                                    port=port, sshuser=username, password=password, phpbin=phpbin,
                                    webpath=position, download_vers=download_vers, mysql_user=mysqluser,
-                                   mysql_password=mysqlpassword, mysql_address=mysqladdress, shop_version=shop_version, vhost_path=vhost_path)
+                                   mysql_password=mysqlpassword, mysql_address=mysqladdress, shop_version=shop_version, vhost_path=vhost_path, mongodbuser=mongodbuser, mongodbpassword=mongodbpassword, mongodbaddress=mongodbaddress)
 
             data = runningjob.get_playbook_result()
 
@@ -657,14 +673,17 @@ def decryption(request):
     sshpassword_decrypt = RsaCrypto().decrypt(password_dict['sshpassword'])
     ftppassword_decrypt = RsaCrypto().decrypt(password_dict['ftppassword'])
     mysqlpassword_decrypt = RsaCrypto().decrypt(password_dict['mysqlpassword'])
+    mongodbpassword_decrypt = RsaCrypto().decrypt(password_dict['mongodbpassword'])
     data = {
         'sshpassword_state': sshpassword_decrypt['state'],
         'ftppassword_state': ftppassword_decrypt['state'],
         'mysqlpassword_state': mysqlpassword_decrypt['state'],
+        'mongodbpassword_state': mongodbpassword_decrypt['state'],
 
         'sshpassword': sshpassword_decrypt['message'],
         'ftppassword': ftppassword_decrypt['message'],
-        'mysqlpassword': mysqlpassword_decrypt['message']
+        'mysqlpassword': mysqlpassword_decrypt['message'],
+        'mongodbpassword': mongodbpassword_decrypt['message']
     }
     return JsonResponse(data)
 

@@ -112,6 +112,27 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="mongodbaddress" class="col-sm-3 control-label">Mongodb地址</label>
+                    <div class="col-sm-9">
+                        <input type="text" id="mongodbaddress" value={{ asset_detail.mongodbaddress }} name="mongodbaddress" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mongodbuser" class="col-sm-3 control-label">Mongodb用户</label>
+                    <div class="col-sm-9">
+                        <input type="text" id="mongodbuser" value={{ asset_detail.mongodbuser }} name="mongodbuser" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mongodbpassword" class="col-sm-3 control-label">Mongodb密码</label>
+                    <div class="col-sm-9">
+                        <input type="text" id="mongodbpassword" value={{ password_records.mongodbpassword }} name="mongodbpassword" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label for="select_env">服务器环境</label>
                     <select name="select_env" id="select_env" class="form-control">
                     {% for env in env_lists %}
@@ -301,6 +322,12 @@
                     } else {
                         alert("mysql密码解密失败")
                     };
+
+                    if (response['mongodbpassword_state']){
+                        $('#mongodbpassword').val(response['mongodbpassword'])
+                    } else {
+                        alert("mongodb密码解密失败")
+                    }
                 },
                 error:function (response) {
                     console.log(response);

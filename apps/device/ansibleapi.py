@@ -159,6 +159,9 @@ class AnsibleApi_v2(object):
             mysqlpassword,
             shop_version,
             vhost_path,
+            mongodbaddress,
+            mongodbuser,
+            mongodbpassword,
             module_name,
             module_args,
             *args,
@@ -231,7 +234,10 @@ class AnsibleApi_v2(object):
             mysql_password,
             download_vers,
             shop_version,
-            vhost_path):
+            vhost_path,
+            mongodbaddress,
+            mongodbuser,
+            mongodbpassword):
         """playbook runner"""
         self.callback = PlaybookResultsCollector()
         # 构建数据模型
@@ -254,7 +260,11 @@ class AnsibleApi_v2(object):
             "mysql_user": mysql_user,
             "mysql_password": mysql_password,
             "shop_version": shop_version,
-            "vhost_path": vhost_path}
+            "vhost_path": vhost_path,
+            "mongodb_address": mongodbaddress,
+            "mongodb_user": mongodbuser,
+            "mongodb_password": mongodbpassword
+        }
         self.variable_manage.extra_vars.update(**vars)
         # self.passwords['sshpass'], self.passwords['becomepass'] = password, password
         # playbook = PlaybookExecutor(playbooks=playbook_path, inventory=self.inventory, variable_manager=self.variable_manage, loader=self.loader, options=self.options, passwords=self.passwords)
