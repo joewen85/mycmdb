@@ -77,6 +77,13 @@ class BlackListList(generics.ListCreateAPIView):
     serializer_class = BlackListSerializer
     permission_classes = (IsTokenOrReadOnly,)
 
+    def get_queryset(self):
+        domain = self.request.GET.get('domain')
+        if domain:
+            return DomainDetail.objects.filter(domain=domain)
+        else:
+            return DomainDetail.objects.all()
+
 
 class BlackListDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = DomainDetail.objects.all()
