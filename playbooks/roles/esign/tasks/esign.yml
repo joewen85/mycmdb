@@ -1,0 +1,126 @@
+- name: install jdk dependen
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+     - java-1.8.0-openjdk
+     - java-1.8.0-openjdk-devel
+     - supervisor
+
+- name: cp reverse config with framework
+  template:
+    src: yz-framework-reverse.j2
+    dest: "/usr/local/openresty/nginx/conf/vhost/{{ subdomain }}.conf"
+  when: shop_version == "0"
+- name: cp reverse config with framework
+  template:
+    src: weiqin-reverse.j2
+    dest: "/usr/local/openresty/nginx/conf/vhost/{{ subdomain }}.conf"
+  when: shop_version == "1"
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+- name: 判断acme是否已安装
+  shell: ls ~/.acme.sh
+  ignore_errors: True
+  register: acme_exist
+- name: 不存在则安装
+  #shell: "[ ! -d ~/.acme.sh ] && git clone http://git.yunzmall.com/apps/acme.git /root/acme && cd /root/acme && ./acme.sh --install && rm -rf /root/acme/"
+  shell: "git clone --depth=1 https://git.yunzmall.com/apps/acme.git && cd acme && ./acme.sh --install && rm -rf /root/acme"
+  when: acme_exist.failed == true
+- name: Check that you can connect (GET) to a page and it returns a status 200 with framework
+  uri:
+    url: http://{{ subdomain }}
+  register: http_result
+- shell: ~/.acme.sh/acme.sh --issue -d {{ subdomain }} -w {{ webpath }}/plugins/yun-sign-pc --force
+  when: http_result is success and shop_version == "0"
+
+- name: Check that you can connect (GET) to a page and it returns a status 200 with weiqin
+  uri:
+    url: http://{{ subdomain }}
+  register: http_result
+- shell: ~/.acme.sh/acme.sh --issue -d {{ subdomain }} -w {{ webpath }}/addons/yun_shop/plugins/yun-sign-pc --force
+  when: http_result is success and shop_version == "1"
+
+- name: "{{ subdomain }} open https"
+  lineinfile:
+    dest: /usr/local/openresty/nginx/conf/vhost/{{ subdomain }}.conf
+    state: present
+    regexp: '.*#listen 443 ssl http2;'
+    line: 'listen 443 ssl http2;'
+- name: "{{ subdomain }} open pem"
+  lineinfile:
+    dest: /usr/local/openresty/nginx/conf/vhost/{{ subdomain }}.conf
+    state: present
+    regexp: ".*#ssl_certificate /usr/local/openresty/nginx/conf/ssl/{{ subdomain }}.pem;"
+    line: "ssl_certificate /usr/local/openresty/nginx/conf/ssl/{{ subdomain }}.pem;"
+- name: "{{ subdomain }} open key"
+  lineinfile:
+    dest: /usr/local/openresty/nginx/conf/vhost/{{ subdomain }}.conf
+    state: present
+    regexp: ".*#ssl_certificate_key /usr/local/openresty/nginx/conf/ssl/{{ subdomain }}.key;"
+    line: "ssl_certificate_key /usr/local/openresty/nginx/conf/ssl/{{ subdomain }}.key;"
+- name: general_key
+  shell: ~/.acme.sh/acme.sh --install-cert -d {{ subdomain }} --key-file /usr/local/openresty/nginx/conf/ssl/{{ subdomain }}.key --fullchain-file /usr/local/openresty/nginx/conf/ssl/{{ subdomain }}.pem --reloadcmd "systemctl restart nginx"
+- name: vhost config modify reverse proxy
+  lineinfile:
+    dest: /usr/local/openresty/nginx/conf/vhost/{{ subdomain }}.conf
+    insertbefore: '.*location .*php.*\{'
+    line:
+      "{{ item }}"
+  with_items:
+    - '  location ^~ /addons/yun_shop/ {'
+    - "    proxy_pass   https://{{ domain }}/addons/yun_shop/;}"
+    - '  location ^~ /s/ {'
+    - "    proxy_pass https://{{ domain }}/addons/yun_shop/api.phpuuid=0&type=5&route=plugin.yun-sign.frontend.short-url.index&url_code=;}"
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+- name: create folder
+  file: path=/etc/supervisord.d state=directory
+- name: weiqing config
+  template: src=weiqin-start.j2 dest=/etc/supervisord.d/{{ subdomain }}.ini
+  when: shop_version == "1"
+- name: yunzhong framework config
+  template: src=yz-framework-start.j2 dest=/etc/supervisord.d/{{ subdomain }}.ini
+  when: shop_version == "0"
+
+- name: create log folder with yunzhong framework
+  file:
+    path: "{{ webpath }}/storage/logs/yun_sign_server/"
+    state: directory
+    owner: www
+    group: www
+    mode: 770
+  when: shop_version == "0"
+- name: create log folder with weiqin
+  file:
+    path: "{{ webpath }}/addons/yun_shop/storage/logs/yun_sign_server/"
+    state: directory
+    owner: www
+    group: www
+    mode: 770
+  when: shop_version == "1"
+- name: create log file with yunzhong framework
+#   file:
+#     path: "{{ webpath }}/storage/logs/yun_sign_server/all_signserver.log"
+#     owner: www
+#     group: www
+  shell: touch "{{ webpath }}/storage/logs/yun_sign_server/all_signserver.log" &&  chown www:www "{{ webpath }}/storage/logs/yun_sign_server/all_signserver.log"
+  when: shop_version == "0"
+- name: create log file with weiqin
+#   file:
+#     path: "{{ webpath }}/addons/yun_shop/storage/logs/yun_sign_server/all_signserver.log"
+#     owner: www
+#     group: www
+  shell: touch "{{ webpath }}/addons/yun_shop/storage/logs/yun_sign_server/all_signserver.log" && chown www:www "{{ webpath }}/addons/yun_shop/storage/logs/yun_sign_server/all_signserver.log"
+  when: shop_version == "1"
+
+- name: restart supervisord
+  service:
+    name: supervisord
+    state: restarted
