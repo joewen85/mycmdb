@@ -6,6 +6,7 @@ allow_prereleases = false
 
 [dev-packages]
 pylint = "*"
+autopep8 = "*"
 
 [packages]
 django = "==2.2.13"

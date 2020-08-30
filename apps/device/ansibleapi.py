@@ -162,6 +162,7 @@ class AnsibleApi_v2(object):
             mongodbaddress,
             mongodbuser,
             mongodbpassword,
+            subdomain,
             module_name,
             module_args,
             *args,
@@ -180,7 +181,10 @@ class AnsibleApi_v2(object):
         # self.variable_manage.set_host_variable(
         #     host=hosts, varname="ansible_ssh_pass", value=password)
         # self.variable_manage.extra_vars = {"phpbin": phpbin}
-        vars = {'ansible_ssh_host': hostip, "phpbin": phpbin, "ansible_user": sshuser,
+        vars = {
+            'ansible_ssh_host': hostip,
+            "phpbin": phpbin,
+            "ansible_user": sshuser,
             "ansible_ssh_pass": password}
         self.variable_manage.extra_vars.update(**vars)
         print(self.variable_manage.get_vars(host=hosts))
@@ -237,7 +241,8 @@ class AnsibleApi_v2(object):
             vhost_path,
             mongodbaddress,
             mongodbuser,
-            mongodbpassword):
+            mongodbpassword,
+            subdomain):
         """playbook runner"""
         self.callback = PlaybookResultsCollector()
         # 构建数据模型
@@ -263,7 +268,8 @@ class AnsibleApi_v2(object):
             "vhost_path": vhost_path,
             "mongodb_address": mongodbaddress,
             "mongodb_user": mongodbuser,
-            "mongodb_password": mongodbpassword
+            "mongodb_password": mongodbpassword,
+            "subdomain": subdomain
         }
         self.variable_manage.extra_vars.update(**vars)
         # self.passwords['sshpass'], self.passwords['becomepass'] = password, password

@@ -283,6 +283,7 @@ class AssetFuncsView(View):
         mongodbuser = request.POST.get('mongodbuser')
         mongodbpassword = request.POST.get('mongodbpassword', None)
         mongodbaddress = request.POST.get('mongodbaddress')
+        subdomain = request.POST.get('subdomain', None)
         paid = bool(request.POST.get('vers'))
         if paid:
             download_vers = 'paid'
@@ -347,7 +348,7 @@ class AssetFuncsView(View):
                                    sshuser=device_obj.sshuser, password=decrypt_sshpassword, phpbin=phpbin,
                                    webpath=device_obj.websitepath,
                                    download_vers=download_vers, mysql_user=device_obj.mysqluser,
-                                   mysql_password=decrypt_mysqlpassword, mysql_address=device_obj.mysqladdress, shop_version=shop_version, vhost_path=vhost_path, mongodbuser=mongodbuser, mongodbpassword=decrypt_mongodbpassword, mongodbaddress=mongodbaddress)
+                                   mysql_password=decrypt_mysqlpassword, mysql_address=device_obj.mysqladdress, shop_version=shop_version, vhost_path=vhost_path, mongodbuser=mongodbuser, mongodbpassword=decrypt_mongodbpassword, mongodbaddress=mongodbaddress, subdomain=subdomain)
             data = runningjob.get_playbook_result()
 
             if jobpath == "/data/apps/mycmdb/playbooks/cronjob_queue.yml":
@@ -500,6 +501,7 @@ class AnsibleViewPublic(View):
             download_vers = 'free'
             shop_version = request.POST.get('shop_ver')
             operator = request.POST.get('user')
+            subdomain = request.POST.get('subdomain', None)
             # 判断是否盗版
             try:
                 if DomainDetail.objects.get(domain=domain).is_blacklist:
@@ -578,7 +580,7 @@ class AnsibleViewPublic(View):
             runningjob.playbookrun(playbook_path=[jobpath], domain=domain, hostip=ipaddr, group=env_name,
                                    port=port, sshuser=username, password=password, phpbin=phpbin,
                                    webpath=position, download_vers=download_vers, mysql_user=mysqluser,
-                                   mysql_password=mysqlpassword, mysql_address=mysqladdress, shop_version=shop_version, vhost_path=vhost_path, mongodbuser=mongodbuser, mongodbpassword=mongodbpassword, mongodbaddress=mongodbaddress)
+                                   mysql_password=mysqlpassword, mysql_address=mysqladdress, shop_version=shop_version, vhost_path=vhost_path, mongodbuser=mongodbuser, mongodbpassword=mongodbpassword, mongodbaddress=mongodbaddress, subdomain=subdomain)
 
             data = runningjob.get_playbook_result()
 
