@@ -48,6 +48,8 @@
   register: result
 - name: set admin password
   shell: echo {{ mongodb_install_dir }}/bin/mongo 127.0.0.1/admin --eval \"db.createUser\(\{user:\'root\',pwd:\'{{result.stdout}}\',roles:[\'userAdminAnyDatabase\']\}\)\" | bash
+- name: set security
+  shell: sed -i 's@^#security:@security:@' /etc/mongod.conf && sed -i 's@^#  authorization:@  authorization:@' /etc/mongod.conf
 - debug:
     msg: "{{ result.stdout }}"
 
