@@ -9,8 +9,8 @@ pylint = "*"
 autopep8 = "*"
 
 [packages]
-django = "==2.2.13"
-ansible = "==2.9.5"
+django = "==2.2.16"
+ansible = "==2.9.10"
 mysqlclient = "*"
 channels = "*"
 coreapi = "*"
@@ -28,6 +28,7 @@ paramiko = "*"
 uwsgi = "*"
 celery = "*"
 pycryptodomex = "*"
+qrcode = "*"
 
 [requires]
 python_version = "3.7"

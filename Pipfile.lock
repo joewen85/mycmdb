@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "48c7e2ff7e46b3d9ce0c78ff44dbb740a66ca5715ded7502a4c251eb512d9a38"
+            "sha256": "2ebdcc081ab77ff6641e4dc76570634b0a35be3e57b7071051b12163b683bef8"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -34,10 +34,10 @@
         },
         "ansible": {
             "hashes": [
-                "sha256:51ae50d33264eb644ecb79a0208a20569a1127ec3440e8de60eda3a2b3d9caa5"
+                "sha256:0866f1432db1698758ca5753f2c1c2a8048823cc6f9ab4b7d03162c44febcacd"
             ],
             "index": "pypi",
-            "version": "==2.9.5"
+            "version": "==2.9.10"
         },
         "asgiref": {
             "hashes": [
@@ -243,11 +243,11 @@
         },
         "django": {
             "hashes": [
-                "sha256:84f370f6acedbe1f3c41e1a02de44ac206efda3355e427139ecb785b5f596d80",
-                "sha256:e8fe3c2b2212dce6126becab7a693157f1a441a07b62ec994c046c76af5bb66d"
+                "sha256:62cf45e5ee425c52e411c0742e641a6588b7e8af0d2c274a27940931b2786594",
+                "sha256:83ced795a0f239f41d8ecabf51cc5fad4b97462a6008dc12e5af3cb9288724ec"
             ],
             "index": "pypi",
-            "version": "==2.2.13"
+            "version": "==2.2.16"
         },
         "django-crispy-forms": {
             "hashes": [
@@ -527,11 +527,11 @@
         },
         "paramiko": {
             "hashes": [
-                "sha256:920492895db8013f6cc0179293147f830b8c7b21fdfc839b6bad760c27459d9f",
-                "sha256:9c980875fa4d2cb751604664e9a2d0f69096643f5be4db1b99599fe114a97b2f"
+                "sha256:4f3e316fef2ac628b05097a637af35685183111d4bc1b5979bd397c2ab7b5898",
+                "sha256:7f36f4ba2c0d81d219f4595e35f70d56cc94f9ac40a6acdf51d6ca210ce65035"
             ],
             "index": "pypi",
-            "version": "==2.7.1"
+            "version": "==2.7.2"
         },
         "pillow": {
             "hashes": [
@@ -684,6 +684,14 @@
                 "sha256:d13155f591e6fcc1ec3b30685d50bf0711574e2c0dfffd7644babf8b5102ca1a"
             ],
             "version": "==5.3.1"
+        },
+        "qrcode": {
+            "hashes": [
+                "sha256:3996ee560fc39532910603704c82980ff6d4d5d629f9c3f25f34174ce8606cf5",
+                "sha256:505253854f607f2abf4d16092c61d4e9d511a3b4392e60bff957a68592b04369"
+            ],
+            "index": "pypi",
+            "version": "==6.1"
         },
         "redis": {
             "hashes": [
