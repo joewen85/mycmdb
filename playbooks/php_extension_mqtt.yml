@@ -1,0 +1,30 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  gather_facts: false
+  tasks:
+    - name: install mosquitto-devel
+      yum:
+        name: mosquitto-devel
+        state: present
+    - name: find php extension dir
+      shell: "{{ phpbin }} -i|grep ^extension_dir|awk '{print $3}'"
+      register: result
+    - get_url: dest={{ result.stdout}}/mosquitto.so url=https://downloads.yunzmall.com/mosquitto.so force=yes
+    - name: add config to php.ini with yunzhong env
+      lineinfile:
+         dest: /usr/local/php/etc/php.ini
+         line: "extension = {{ result.stdout }}/mosquitto.so"
+         state: present
+      when: phpbin == "/usr/local/php/bin/php"
+    - name: add config to php.ini with bt env
+      lineinfile:
+         dest: /www/server/php/72/etc/php.ini
+         line: "extension = {{ result.stdout }}/mosquitto.so"
+         state: present
+      when: phpbin == "/www/server/php/72/bin/php"
+    - name: reload php service with yunzhong env
+      service: name=php-fpm state=restarted
+      when: phpbin == "/usr/local/php/bin/php"
+    - name: reload php service with bt env
+      shell: /etc/init.d/php-fpm-72 reload
+      when: phpbin == "/www/server/php/72/bin/php"
