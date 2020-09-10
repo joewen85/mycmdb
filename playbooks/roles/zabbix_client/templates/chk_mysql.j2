@@ -1,16 +1,16 @@
 #!/bin/bash
 # -------------------------------------------------------------------------------
 # FileName:    check_mysql.sh
-# Revision:    1.0
-# Date:        2015/06/09
-# Author:      DengYun
-# Email:       dengyun@ttlsa.com
-# Website:     www.ttlsa.com
+# Revision:    1.1
+# Date:        2020/08/012
+# Author:      joe
+# Email:       wennjoe@163.com
+# Website:     www.dev-ops.life
 # Description:
 # Notes:       ~
 # -------------------------------------------------------------------------------
-# Copyright:   2015 (c) DengYun
-# License:     GPL
+
+MYSQL_ADMIN="$(which mysqladmin)"
 
 # 用户名
 MYSQL_USER="{{ mysql_user }}"
@@ -25,7 +25,7 @@ MYSQL_HOST="{{ mysql_address }}"
 MYSQL_PORT='3306'
 
 # 数据连接
-MYSQL_CONN="/usr/local/mysql/bin/mysqladmin -u${MYSQL_USER} -p"${MYSQL_PWD}" -h${MYSQL_HOST} -P${MYSQL_PORT}"
+MYSQL_CONN="${MYSQL_ADMIN} -u${MYSQL_USER} -p"${MYSQL_PWD}" -h${MYSQL_HOST} -P${MYSQL_PORT}"
 
 # 参数是否正确
 if [ $# -ne "1" ];then
@@ -82,7 +82,32 @@ case $1 in
         result=`${MYSQL_CONN} extended-status 2>/dev/null|grep -w "Com_begin"|cut -d"|" -f3`
                 echo $result
                 ;;
-
+    Threads_connected)
+        result=`${MYSQL_CONN} extended-status 2>/dev/null|grep -w "Threads_connected"|cut -d"|" -f3`
+        echo $result
+        ;;
+    Threads_running)
+        result=`${MYSQL_CONN} extended-status 2>/dev/null|grep -w "Threads_running"|cut -d"|" -f3`
+        echo $result
+        ;;
+    Innodb_buffer_pool_pages_total)
+        result=`${MYSQL_CONN} extended-status 2>/dev/null|grep -w "Innodb_buffer_pool_pages_total"|cut -d"|" -f3`
+        echo $result
+        ;;
+    Innodb_buffer_pool_read_requests)
+        result=`${MYSQL_CONN} extended-status 2>/dev/null|grep -w "Innodb_buffer_pool_read_requests"|cut -d"|" -f3`
+        echo $result
+        ;;
+    Innodb_buffer_pool_reads)
+        result=`${MYSQL_CONN} extended-status 2>/dev/null|grep -w "Innodb_buffer_pool_reads"|cut -d"|" -f3`
+        echo $result
+        ;;
+    TPS)
+        Com_commit=`${MYSQL_CONN} extended-status 2>/dev/null|grep -w "Com_commit"|cut -d"|" -f3`
+        Com_rollback=`${MYSQL_CONN} extended-status 2>/dev/null|grep -w "Com_rollback"|cut -d"|" -f3`
+        result=$(( ${Com_commit} + ${Com_rollback} ))
+        echo $result
+        ;;
         *)
         echo "Usage:$0(Uptime|Com_update|Slow_queries|Com_select|Com_rollback|Questions|Com_insert|Com_delete|Com_commit|Bytes_sent|Bytes_received|Com_begin)"
         ;;
