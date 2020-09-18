@@ -12,7 +12,7 @@
      - freetype-devel
      - mhash-devel
      - mcrypt
-     - mysql-devel
+     - mariadb-devel
      - libevent-devel
      - libjpeg-devel
      - libjpeg-turbo-devel
@@ -47,7 +47,7 @@
      - libmcrypt-devel
      - freetype-devel
      - mhash-devel
-     - mysql-devel
+     - mariadb-devel
      - libevent-devel
      - libjpeg-devel
      - libjpeg-turbo-devel
