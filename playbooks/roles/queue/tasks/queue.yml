@@ -1,7 +1,7 @@
 - name: install supervisor software
   yum: name=supervisor state=latest enablerepo=epel
 - name: change config
-  copy: src=supervisord.conf dest=/etc/supervisord.conf
+  template: src=supervisord.j2 dest=/etc/supervisord.conf
 - name: change service
   copy: src=supervisord.service dest=/lib/systemd/system/supervisord.service
 - name: create folder
