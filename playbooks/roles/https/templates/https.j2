@@ -17,7 +17,6 @@ server {
   add_header X-XSS-Protection "1; mode=block" always;
   add_header X-Content-Type-Options "nosniff" always;
   add_header Referrer-Policy "no-referrer-when-downgrade" always;
-  add_header Content-Security-Policy "default-src * data: 'unsafe-eval' 'unsafe-inline'" always;
   ssl_session_cache shared:SSL:10m;
   ssl_session_timeout 10m;
   #if ($ssl_protocol = "") { return 307 https://$server_name$request_uri; }
