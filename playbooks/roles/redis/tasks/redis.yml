@@ -25,6 +25,12 @@
     owner: redis
     group: redis
     recurse: yes
+- name: add data folder
+  file:
+    path: /data/redis
+    owner: redis
+    group: redis
+    recurse: yes
 - name: cp redis-server.service file to os
   copy:
     src: redis-server.service
