@@ -3,8 +3,9 @@
 #- name: stop supervisor services
 #  shell: systemctl stop supervisord
 - name: remove mysql-devel
-  yum: mysql-*
-  state: absent
+  yum:
+    name: mysql-*
+    state: absent
 - name: centos7 install deploy package
   yum:
     name: "{{ packages }}"
