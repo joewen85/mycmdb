@@ -8,3 +8,8 @@
             state: present
             regexp: '^disable_functions =.*'
             line: 'disable_functions = exec,system,chroot,chgrp,chown,shell_exec,ini_alter,ini_restore,dl,openlog,syslog,readlink,symlink,popepassthru,fsocket,popen,eval'
+        - name: reload php config
+          service:
+            name: php-fpm
+            enabled: yes
+            state: restarted
