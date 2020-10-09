@@ -40,9 +40,9 @@ class Envirment(models.Model):
 class Jobs(models.Model):
     """任务"""
     jid = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=20, verbose_name="任务名称")
+    name = models.CharField(max_length=50, verbose_name="任务名称")
     path = models.CharField(max_length=100, verbose_name="任务路径")
-    describe = models.CharField(max_length=30, verbose_name="描述")
+    describe = models.CharField(max_length=50, verbose_name="描述")
 
     class Meta:
         verbose_name = "任务"
