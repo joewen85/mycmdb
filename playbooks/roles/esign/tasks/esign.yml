@@ -91,7 +91,7 @@
 
 - name: create log folder with yunzhong framework
   file:
-    path: "{{ webpath }}/storage/logs/yun_sign_server/"
+    path: "{{ webpath }}/storage/logs/yun_sign_server"
     state: directory
     owner: www
     group: www
@@ -99,7 +99,7 @@
   when: shop_version == "0"
 - name: create log folder with weiqin
   file:
-    path: "{{ webpath }}/addons/yun_shop/storage/logs/yun_sign_server/"
+    path: "{{ webpath }}/addons/yun_shop/storage/logs/yun_sign_server"
     state: directory
     owner: www
     group: www
