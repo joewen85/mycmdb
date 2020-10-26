@@ -13,7 +13,7 @@
     src: yz-framework-reverse.j2
     dest: "/usr/local/openresty/nginx/conf/vhost/{{ subdomain }}.conf"
   when: shop_version == "0"
-- name: cp reverse config with framework
+- name: cp reverse config with weiqin
   template:
     src: weiqin-reverse.j2
     dest: "/usr/local/openresty/nginx/conf/vhost/{{ subdomain }}.conf"
