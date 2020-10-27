@@ -43,6 +43,14 @@
     state: present
     regexp: "^export PATH=$PATH:{{ redis_install_dir }}/bin"
     line: "export PATH=$PATH:{{ redis_install_dir }}/bin"
+- name: add kernel options
+  lineinfile:
+    dest: /etc/sysctl.conf
+    state: present
+    regexp: "vm.overcommit_memory=1"
+    line: "vm.overcommit_memory=1"
+- name: apply kernel options
+  shell: sysctl -p
 - name: set redis-server onboot
   service:
     name: redis-server
