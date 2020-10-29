@@ -53,7 +53,7 @@ class JobAdmin(object):
 
 class Deploy_recordAdmin(object):
     list_display = ('operator', 'remote_ip', 'hostname', 'deploy_datetime', 'desc', 'jobname')
-    search_fields = ('operator__username', 'hostname__hostname')
+    search_fields = ('operator', 'hostname__hostname')
     list_filter = ('hostname','jobname')
     list_per_page = 10
     model_icon = 'fa fa-archive fa-fw'
