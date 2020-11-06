@@ -20,10 +20,15 @@ elif [ ${shop_version} -eq 1 ]; then
 fi
 
 tables=$(mysql -h$host_name -u$user_name -p$user_pwd $db_name -A -Bse "show tables" 2>/dev/null)
-for table_name in $tables
-do
-    check_result=$(mysql -h$host_name -u$user_name -p$user_pwd $db_name -A -Bse "check table $table_name" | awk '{ print $4 }' 2>/dev/null)
-    if [ "$check_result" != "OK" ]; then
-        echo "$table_name已损坏"
-    fi
-done
+if [ ${tables} -eq '' ];then
+    echo "数据库为空！"
+    exit 1
+else
+    for table_name in $tables
+    do
+        check_result=$(mysql -h$host_name -u$user_name -p$user_pwd $db_name -A -Bse "check table $table_name" | awk '{ print $4 }' 2>/dev/null)
+        if [ "$check_result" != "OK" ]; then
+            echo "$table_name已损坏"
+        fi
+    done
+fi
