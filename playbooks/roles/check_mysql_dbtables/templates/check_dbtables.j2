@@ -21,7 +21,7 @@ fi
 
 tables=$(mysql -h$host_name -u$user_name -p$user_pwd $db_name -A -Bse "show tables" 2>/dev/null)
 if [ ${tables} -eq '' ];then
-    echo "数据库为空！"
+    echo "数据库信息不对或数据库为空！"
     exit 1
 else
     for table_name in $tables
