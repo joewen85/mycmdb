@@ -10,7 +10,7 @@ from __future__ import absolute_import
 import os
 import sys
 import time
-import pysnooper
+# import pysnooper
 import datetime
 import json
 from django.db.models import F, Q
