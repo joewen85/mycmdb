@@ -1,0 +1,83 @@
+- name: create environment file .env
+  template:
+    src: env.j2
+    dest: /data/.env
+
+- name: cp docker-compose file
+  copy:
+    src: docker-compose.yml
+    dest: /data/docker-compose.yml
+
+- name: create project folder
+  shell: mkdir -p /data/{confs,logs,mongodb,mysql,redis,wwwroot}
+
+- name: create project configs subfolder
+  shell: mkdir -p /data/confs/{mongodb,mysql,nginx,php,redis,supervisord}
+
+- name: create project logs subfolder
+  shell: mkdir -p /data/logs/{nginx,php,redis,supervisor}
+
+- name: modify web path owner
+  file:
+    path: /data/wwwroot
+    owner: "33"
+    group: "33"
+
+# nginx
+- name: create nginx config sub folder
+  shell: mkdir -p /data/confs/nginx/{ssl,templates}
+
+- name: cp nginx template config to client
+  copy:
+    src: default.conf.template
+    dest: /data/confs/nginx/templates/{{ domain }}.conf.template
+
+- name: ssl cert create
+  shell: echo "{{ cert_var }}" > /data/confs/nginx/ssl/{{ domain }}.pem
+
+- name: ssl priviate key create
+  shell: echo "{{ privatekey_var }}" > /data/confs/nginx/ssl/{{ domain }}.key
+
+# supervisor
+- name: cp supervisor config to sub folder
+  template:
+    src: queue.j2
+    dest: /data/confs/supervisord/{{ domain }}.ini
+
+# redis
+- name: cp redis config to sub folder
+  template:
+    src: redis.j2
+    dest: /data/confs/redis/redis.conf
+
+# shop
+- name: create webpath
+  file:
+    path: /data/wwwroot/{{ domain }}
+    state: directory
+
+- name: deploy shop
+  copy:
+    src: framework-yun_shop_{{ download_vers }}.zip
+    dest: "{{ webpath }}"
+    force: yes
+
+- name: unarchive framework_shop
+  unarchive: src="{{ webpath }}/framework-yun_shop_{{ download_vers }}.zip" dest={{ webpath }} copy=no mode=u+rwx owner="33" group="33"
+- name: delete zip
+  file: path="{{ webpath }}/framework-yun_shop_{{ download_vers }}.zip" state=absent
+
+- name: create supervisor log
+  file:
+    path: "{{ webpath }}/storage/logs/worker.log"
+    state: touch
+    owner: "33"
+    group: "33"
+    mode: u+rwx
+
+- name: run service
+  shell: cd /data/ && docker-compose up -d && docker-compose ps
+  register: result
+
+- debug:
+    msg: "运行状态: {{ result.stdout }}"

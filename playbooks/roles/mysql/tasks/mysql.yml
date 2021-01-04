@@ -1,5 +1,5 @@
 - name: add mysql user
-  user: name=mysql shell=/sbin/nologin
+  user: name=mysql shell=/sbin/nologin uid=2000
 - name: centos7 install dependen
   yum:
     name: "{{ packages }}"

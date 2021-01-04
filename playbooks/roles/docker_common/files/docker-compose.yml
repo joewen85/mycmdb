@@ -1,0 +1,58 @@
+version: '3'
+services:
+  mysql-db:
+      image: yunzhong-image.tencentcloudcr.com/yunzhong/shop:mysql5.7.32
+      container_name: mysql_server
+      volumes:
+        - ./mysql:/var/lib/mysql:rw
+      environment:
+        MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      security_opt:
+        - seccomp:unconfined
+      restart: always
+      # command: ["--character-set-server=utf8mb4","--explicit_defaults_for_timestamp=true", "--default-authentication-plugin=mysql_native_password","--collation-server=utf8mb4_unicode_ci","--binlog_expire_logs_seconds=86400","--lower_case_table_names=0"]
+      command: ["--character-set-server=utf8mb4","--explicit_defaults_for_timestamp=true", "--default-authentication-plugin=mysql_native_password","--collation-server=utf8mb4_unicode_ci","--lower_case_table_names=0"]
+
+  redis-db:
+      image: yunzhong-image.tencentcloudcr.com/yunzhong/shop:redis
+      container_name: redis_server
+      volumes:
+        - ./confs/redis/redis.conf:/usr/local/etc/redis/redis.conf
+        - ./redis:/data
+      restart: always
+
+  shop_php-fpm:
+    image: yunzhong-image.tencentcloudcr.com/yunzhong/shop:php-fpm7.2.34
+    container_name: shop_php-fpm
+    restart: always
+    volumes:
+      - ./wwwroot/${NGINX_HOST}:${NGINX_WEBPATH}
+
+  shop_nginx:
+    image: yunzhong-image.tencentcloudcr.com/yunzhong/shop:nginx
+    container_name: shop_nginx
+    restart: always
+    tty: true
+    depends_on:
+      - shop_php-fpm
+    volumes:
+      - ./confs/nginx/ssl:/etc/nginx/ssl
+      - ./confs/nginx/templates:/etc/nginx/templates
+      - ./logs/nginx:/var/log/nginx
+      - ./wwwroot/${NGINX_HOST}:${NGINX_WEBPATH}
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - NGINX_HOST=${NGINX_HOST}
+      - NGINX_WEBPATH=${NGINX_WEBPATH}
+
+  shop_queue:
+    image: yunzhong-image.tencentcloudcr.com/yunzhong/shop:queue
+    container_name: shop_queue
+    command: "/usr/bin/supervisord -c /etc/supervisord.conf"
+    restart: always
+    volumes:
+      - ./confs/supervisord:/etc/supervisor.d
+      - ./logs/supervisor:/var/log/supervisor
+      - ./wwwroot/${NGINX_HOST}:${NGINX_WEBPATH}

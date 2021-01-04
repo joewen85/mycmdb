@@ -12,7 +12,7 @@
      {% endfor %}
     {% endif %}
     <img src="{% static  "images/LOGO.png" %}">
-    <form action="{% url 'deploy_public' %}" method="post" class="smart-green">
+    <form action="{% url 'deploy_public' %}" method="post" class="smart-green" enctype="multipart/form-data">
         <span class="error-msg">使用一键部署请先确认服务器环境是否满足系统要求<a
                 href="https://bbs.yunzmall.com/forum.php?mod=viewthread&tid=110&extra=page%3D1">点击这里查看</a>，如不满足请勿使用一键部署，部署后如重置服务器操作系统则无法二次部署，只能自行手动处理，免费版芸众官方不在提供手动部署支持。单台服务器只能部署免费版（独立框架、微擎框架）商城各一个</span>
         <label>
@@ -102,6 +102,14 @@
                 {% endfor %}
             </select>
         </label>
+
+        <div class="form-group" id="dockerCert">
+            <label for="cert">证书cert(nginx)</label>
+            <input type="file" name="cert">
+            <label for="privateKey">证书key(nginx)</label>
+            <input type="file" name="privatekey">
+        </div>
+
         <div class="radio">
                 <div class="radio-inline">
                     <label><input type="radio" name="shop_ver" value="0">独立版</label>

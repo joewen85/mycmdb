@@ -242,7 +242,9 @@ class AnsibleApi_v2(object):
             mongodbaddress,
             mongodbuser,
             mongodbpassword,
-            subdomain):
+            subdomain,
+            cert_var=None,
+            privatekey_var=None):
         """playbook runner"""
         self.callback = PlaybookResultsCollector()
         # 构建数据模型
@@ -269,7 +271,9 @@ class AnsibleApi_v2(object):
             "mongodb_address": mongodbaddress,
             "mongodb_user": mongodbuser,
             "mongodb_password": mongodbpassword,
-            "subdomain": subdomain
+            "subdomain": subdomain,
+            "cert_var": cert_var,
+            "privatekey_var": privatekey_var
         }
         self.variable_manage.extra_vars.update(**vars)
         # self.passwords['sshpass'], self.passwords['becomepass'] = password, password
@@ -296,7 +300,6 @@ class AnsibleApi_v2(object):
         return self.results_raw
 
     def get_playbook_result(self):
-
         self.results_raw = {
             'skipped': {},
             'failed': {},

@@ -23,6 +23,8 @@ class Config:
     LOG_LEVEL = os.environ.get("LOG_LEVEL") or 'WARNING'
     LOG_DIR = os.path.join(BASE_DIR, 'log')
 
+    APP_ENV = os.environ.get("APP_ENV") or 'develop'
+
     # MySQL setting like:
     DB_ENGINE = os.environ.get("DB_ENGINE") or 'mysql'
     DB_HOST = os.environ.get("DB_HOST") or '127.0.0.1'
@@ -69,3 +71,16 @@ class Config:
     # TOKEN
     TOKEN = ''
 
+    # celery config
+    CELERY_BROKER_URL = ''
+    CELERY_RESULT_BACKEND = ''
+    CELERY_MAX_TASKS_PER_CHILD = ''
+    CELERYD_CONCURRENCY = ''
+
+    # wecom secret
+    CORPID = ''
+    CORPISECRET = ''
+    AGENTID = ''
+    TOUSER = ''
+    TOPARTY = ''
+    TOTAG = ''

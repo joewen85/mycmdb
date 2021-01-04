@@ -43,13 +43,13 @@
 #    dest: /usr/bin/curl
 #    state: link
 #  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
-- name: jude artisan file exist or not
-  shell: ls /usr/bin/curl-config
-  ignore_errors: True
-  register: lib_result
+#- name: jude artisan file exist or not
+#  shell: ls /usr/bin/curl-config
+#  ignore_errors: True
+#  register: lib_result
 - name: curl-config binary
   file:
     src: /usr/local/curl/bin/curl-config
     dest: /usr/bin/curl-config
     state: link
-  when: lib_result.failed == true
+#  when: lib_result.failed == true

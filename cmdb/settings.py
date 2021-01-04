@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     'domain.apps.DomainConfig',
     'rest_framework',
     'channels',
-
+    'celery',
 ]
 
 MIDDLEWARE = [
@@ -323,8 +323,8 @@ REST_FRAMEWORK = {
 TMP_DIR = os.path.join(BASE_DIR, 'tmp')
 
 APP_ENV = os.environ.get("APP_ENV")
+
 if APP_ENV == "production":
-    print('ENV: %s' % os.environ.get("APP_ENV"))
     # security settings
     SECURE_PROXY_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True

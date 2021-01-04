@@ -4,6 +4,7 @@
     - common
     - jemalloc
     - openresty
+    - vhosts
     - openssl
     - curl
     - libiconv

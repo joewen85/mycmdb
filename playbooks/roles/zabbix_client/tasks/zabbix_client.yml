@@ -131,3 +131,5 @@
   service:
     name: zabbix_agentd
     state: restarted
+- debug:
+    msg: "部署监控服务成功"

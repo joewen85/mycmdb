@@ -16,6 +16,12 @@
                 {% endfor %}
             {% endif %}
 
+            {% if error %}
+                <script>
+                    alert('{{ error }}')
+                </script>
+            {% endif %}
+
             <p>主机：{{ domain }}</p>
             <p>成功:{{ data.status.ok }}</p>
             {% if data.status.failures >= 1 %}
@@ -35,7 +41,7 @@
                 <p>-------------ok detail---------------</p>
                 {% if data.ok.stdout %}
                     {{ data.ok.stdout|safe }}
-                {% else %}
+                {% elif data.ok.msg %}
                     {{ data.ok.msg|safe }}
                 {% endif %}
             </div>

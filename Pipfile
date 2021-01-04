@@ -5,8 +5,7 @@ verify_ssl = true
 allow_prereleases = false
 
 [dev-packages]
-pylint = "*"
-autopep8 = "*"
+pysnooper = "*"
 
 [packages]
 django = "==2.2.16"
@@ -29,6 +28,8 @@ uwsgi = "*"
 celery = "*"
 pycryptodomex = "*"
 qrcode = "*"
+cryptography = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.7"
