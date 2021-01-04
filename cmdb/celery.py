@@ -14,7 +14,6 @@ from cmdb import celeryconfig
 from celery.utils.log import get_task_logger
 from celery.app.task import Task
 from celery.result import AsyncResult
-from utils import ansibleV3
 import datetime
 from datetime import timedelta
 
