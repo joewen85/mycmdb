@@ -65,13 +65,16 @@ class WeChat:
             "msgtype": "text",
             "agentid": self.agentid,
             "text": {
-                "content": "时间：" + str_time + "\n" + "队列状态：" + message[
-                    'task_status'] + "\n" + "任务ID:" +
+                "content": "任务开始时间：" + message[
+                    'start_time'] + "\n" + "结束时间：" + str_time + "\n" + "队列状态：" +
+                           message[
+                               'task_status'] + "\n" + "任务ID:" +
                            message['task_id'] + "\n" + "任务名称：" + message[
                                'job_name'] + "\n" + "域名：" + message[
                                'domain'] + "\n" + "服务器IP：" + message[
-                               'ip'] + "\n" + "任务执行结果：" + message[
-                    'ansible_task_status'] + "\n" + "任务执行结果：" + message[
+                               'ip'] + "\n" + "任务执行状态：" + message[
+                               'ansible_task_status'] + "\n" + "任务执行结果：" +
+                           message[
                                'ansible_message']
             },
             "safe": 0,

@@ -10,10 +10,10 @@
   file:
     path: "/data/wwwroot"
     state: directory
-- name: check user exist
-  shell: id -u www
-  ignore_errors: True
-  register: user_exists
+#- name: check user exist
+#  shell: id -u www
+#  ignore_errors: True
+#  register: user_exists
 - name: add web running user
   user:
     name: "{{ nginx_user }}"
@@ -21,7 +21,7 @@
     shell: /sbin/nologin
     home: /data/wwwroot
     uid: 1000
-  when: user_exists.failed == true
+#  when: user_exists.failed == true
 - name: centos7 unarchive openresty software
   unarchive:
 #    src: openresty-{{ openresty_ver }}.tgz

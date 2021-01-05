@@ -370,6 +370,9 @@ class AssetFuncsView(View):
             env_name = device_obj.envirment.envname
             cloudips_name = device_obj.cloudips.cloudipsname
 
+            start_time = datetime.datetime.strftime(datetime.datetime.now(),
+                                                    '%Y-%m-%d %H:%M:%S')
+
             # 获取任务路径
             job_obj = Jobs.objects.get(pk=job)
             jobpath = job_obj.path
@@ -405,7 +408,8 @@ class AssetFuncsView(View):
                                        privatekey_var=privatekey_var,
                                        asset_id=asset_id, isp=cloudips_name,
                                        deploy_desc=deploy_desc,
-                                       remote_ip=remote_ip, operator=operator)
+                                       remote_ip=remote_ip, operator=operator,
+                                       start_time=start_time)
 
             print('task_id: %s' % result.task_id)
             print('task_state: %s' % result.state)

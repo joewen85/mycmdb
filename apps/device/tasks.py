@@ -57,7 +57,7 @@ class MyTask(Task):
         except Exception as e:
             job_name = e
         if retval['ok'] != {} and retval['failed'] == {}:
-            ansible_message = retval['ok'].get('msg')
+            ansible_message = retval['ok'].get('msg', '成功')
             ansible_status = "成功"
         elif retval['failed'] != {}:
             print(retval['failed'].get('msg'))
@@ -71,7 +71,8 @@ class MyTask(Task):
             "ip": kwargs['hostip'],
             "task_status": status,
             "ansible_task_status": ansible_status,
-            "ansible_message": ansible_message
+            "ansible_message": ansible_message,
+            "start_time": kwargs['start_time']
         }
         self.wc.send_data(message=send_msg, touser=CONFIG.TOUSER,
                           toparty=CONFIG.TOPARTY, totag=CONFIG.TOTAG)
@@ -79,9 +80,11 @@ class MyTask(Task):
         try:
             device_obj = Device.objects.get(pk=kwargs['asset_id'])
             device_obj.deploy_record.create(
-                deploy_datetime=datetime.datetime.now(), desc=kwargs['deploy_desc'],
+                deploy_datetime=datetime.datetime.now(),
+                desc=kwargs['deploy_desc'],
                 operator=kwargs['operator'],
-                remote_ip=kwargs['remote_ip'], jobname=job_name, result=ansible_status)
+                remote_ip=kwargs['remote_ip'], jobname=job_name,
+                result=ansible_status)
         except Exception as err:
             print(err)
         return super(MyTask, self).after_return(status, retval, task_id, args,
@@ -158,7 +161,7 @@ class MyTask(Task):
             for groupname_list in groupnames_list:
                 groupid = zb.get_groups(zabbix_url, authid, groupname_list)
                 groupsid_list.append({"groupid": groupid})
-            print(groupsid_list)
+            # print(groupsid_list)
 
             templatesid_list = []
             for templatename_list in templatenames_list:
