@@ -6,4 +6,4 @@
   filesystem: fstype=xfs dev=/dev/vdb
 
 - name: mount datanode disk
-  mount: path=/data src=/dev/vdb fstype=ext4 opts="defaults" state=mounted
+  mount: path=/data src=/dev/vdb fstype=xfs opts="defaults" state=mounted
