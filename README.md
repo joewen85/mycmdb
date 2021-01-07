@@ -109,4 +109,24 @@ cmdb.ini: cmdb核心和任务执行通过uwsgi运行
 channels.ini：使用asgi/channels实现websocket长连接进程，主要webssh使用
 ```
 
+4.开启celery进程
+```bash
+# 复制项目内的celery.service到/lib/systemd/system/
+cp celery.service /lib/systemd/system/ && systemctl daemon-reload && systemctl enable celery
+
+# 修改项目中celery_worker.sh的执行权限
+chmod +x celery_worker.sh
+```
+* celery进程启停。修改了task必须重启celery
+```bash
+# 启动
+systemctl start celery
+
+# 重启
+systemctl restart celery
+
+# 停止
+systemctl stop celery
+```
+
 完成开启自启动
