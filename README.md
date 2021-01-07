@@ -102,6 +102,12 @@ command = 实际python执行文件的绝对路径 manage.py runserver xxxx:xxx
 stdout_logfile = channel输出日志文件路径
 stderr_logfile = channel输出错误日志文件路径
 ```
+```
+# ansible.cfg
+需要修改：
+fact_caching_connection = 127.0.0.1:6379:6:mismis
+为你的redis信息 redis地址:端口:库:密码
+```
 
 3.使用supervisor管理说明
 ```
