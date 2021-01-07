@@ -12,6 +12,8 @@ CELERYD_OPTS="--time-limit=300 --concurrency=4"
 CELERYD_LOG_LEVEL="INFO"
 CELERYD_LOG_FILE="/data/apps/mycmdb/log/celery_%n%I.log"
 CELERYD_PID_FILE="/data/apps/mycmdb/%n.pid"
+# 必须添加这个环境变量
+export PYTHONOPTIMIZE=1
 
 celery_start(){
   /root/.pyenv/shims/pipenv run ${CELERY_BIN} -A ${CELERY_APP} multi start w1 -E -l ${CELERYD_LOG_LEVEL} --pidfile=${CELERYD_PID_FILE} --logfile=${CELERYD_LOG_FILE} ${CELERYD_OPTS}
