@@ -95,8 +95,9 @@ class MyTask(Task):
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         print('任务执行失败')
-        print(exc)
-        print(einfo)
+        logger.info(
+            'exc: {}, task_id: {}, kwargs:{}, einfi: {}'.format(exc, task_id,
+                                                                kwargs, einfo))
         return super(MyTask, self).on_failure(exc, task_id, args, kwargs, einfo)
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
@@ -178,7 +179,9 @@ class MyTask(Task):
                            ipaddress=device_obj.ipaddress,
                            groups=groupsid_list, templates=templatesid_list)
 
-        # logger.info('task id:{} , retval:{}, arg:{} , kwargs:{} successful !'.format(task_id, retval, args, kwargs))
+        logger.info(
+            'task id:{} , retval:{}, arg:{} , kwargs:{} successful !'.format(
+                task_id, retval, args, kwargs))
         return super(MyTask, self).on_success(retval, task_id, args, kwargs)
 
 
