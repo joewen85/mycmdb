@@ -60,9 +60,12 @@ class MyTask(Task):
             ansible_message = retval['ok'].get('msg', '成功')
             ansible_status = "成功"
         elif retval['failed'] != {}:
-            print(retval['failed'].get('msg'))
+            # print(retval['failed'].get('msg'))
             ansible_message = retval['failed'].get('msg')
             ansible_status = "失败"
+        elif retval['unreachable'] != {}:
+            ansible_message = retval['unreachable'].get('msg')
+            ansible_status = "无法连接服务器"
 
         send_msg = {
             "task_id": task_id,
@@ -92,6 +95,8 @@ class MyTask(Task):
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         print('任务执行失败')
+        print(exc)
+        print(einfo)
         return super(MyTask, self).on_failure(exc, task_id, args, kwargs, einfo)
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
