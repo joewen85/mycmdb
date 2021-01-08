@@ -56,7 +56,8 @@ class MyTask(Task):
             job_name = Jobs.objects.get(path=playbook_name).name
         except Exception as e:
             job_name = e
-        if retval['ok'] != {} and retval['failed'] == {}:
+        if retval['ok'] != {} and retval['failed'] == {} and retval[
+            'unreachable'] == {}:
             ansible_message = retval['ok'].get('msg', '成功')
             ansible_status = "成功"
         elif retval['failed'] != {}:
