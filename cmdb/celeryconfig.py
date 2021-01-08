@@ -28,6 +28,9 @@ worker_prefetch_multiplier = 16
 worker_max_tasks_per_child = 100
 worker_disable_rate_limits = True
 timezone = 'Asia/Shanghai'
-result_expires = 60 * 60 * 24
+result_expires = 86400
+broker_transport_options = {
+    'visibility_timeout': 1800
+}
 
 
