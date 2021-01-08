@@ -20,12 +20,14 @@ except ImportError:
     raise ImportError(msg)
 
 # celery settings
-BROKER_URL = CONFIG.CELERY_BROKER_URL
-CELERY_RESULT_BACKEND = CONFIG.CELERY_BACKEND
-CELERY_WORKER_CONCURRENCY = 5
-CELERY_WORKER_PREFETCH_MULTIPLIER = 20
-CELERYD_FORCE_EXECV = True
-CELERY_WORKER_MAX_TASKS_PER_CHILD = 100
-CELERY_WORKER_DISABLE_RATE_LIMITS = True
+broker_url = CONFIG.CELERY_BROKER_URL
+result_backend = CONFIG.CELERY_BACKEND
+worker_concurrency = 2
+worker_prefetch_multiplier = 16
+# CELERYD_FORCE_EXECV = True
+worker_max_tasks_per_child = 100
+worker_disable_rate_limits = True
+timezone = 'Asia/Shanghai'
+result_expires = 60 * 60 * 24
 
 

@@ -26,11 +26,6 @@ app = Celery('cmdb')
 # app.config_from_object('django.conf:settings', namespace='CELERY')
 app.config_from_object(celeryconfig)
 app.autodiscover_tasks()
-app.conf.timezone = 'Asia/Shanghai'
-app.conf.result_expires = 604800
-# app.conf.broker_transport_options = {
-#     'visibility_timeout': 3600
-# }
 
 platforms.C_FORCE_ROOT = True
 
