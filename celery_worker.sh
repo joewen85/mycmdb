@@ -10,7 +10,7 @@ CELERY_BIN="/root/.local/share/virtualenvs/mycmdb-K9LHJHx5/bin/celery"
 CELERY_APP="cmdb"
 CELERYD_OPTS="--time-limit=300 --concurrency=4"
 CELERYD_LOG_LEVEL="INFO"
-CELERYD_LOG_FILE="/data/apps/mycmdb/log/celery_%n%I.log"
+CELERYD_LOG_FILE="/data/apps/mycmdb/log/celery_%n.log"
 CELERYD_PID_FILE="/data/apps/mycmdb/%n.pid"
 # 必须添加这个环境变量
 export PYTHONOPTIMIZE=1
