@@ -66,7 +66,7 @@ class WeChat:
             "agentid": self.agentid,
             "text": {
                 "content": "任务开始时间：" + message[
-                    'start_time'] + "\n" + "结束时间：" + str_time + "\n" + "队列状态：" +
+                    'start_time'] + "\n" + "结束时间：" + str_time + "\n" + "操作员：" + message['operator'] + "\n" + "队列状态：" +
                            message[
                                'task_status'] + "\n" + "任务ID:" +
                            message['task_id'] + "\n" + "任务名称：" + message[

@@ -76,7 +76,8 @@ class MyTask(Task):
             "task_status": status,
             "ansible_task_status": ansible_status,
             "ansible_message": ansible_message,
-            "start_time": kwargs['start_time']
+            "start_time": kwargs['start_time'],
+            "operator": kwargs['operator']
         }
         self.wc.send_data(message=send_msg, touser=CONFIG.TOUSER,
                           toparty=CONFIG.TOPARTY, totag=CONFIG.TOTAG)
