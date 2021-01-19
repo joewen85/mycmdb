@@ -837,7 +837,8 @@ class TaskView(APIView):
             start_time = datetime.datetime.strftime(datetime.datetime.now(),
                                                     '%Y-%m-%d %H:%M:%S')
             state = request.data.get('state', None)
-            if state:
+
+            if state is None:
                 res['code'] = 500
                 res['msg'] = '缺状态参数'
                 return JsonResponse(res)
