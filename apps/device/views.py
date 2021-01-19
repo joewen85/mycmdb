@@ -16,13 +16,12 @@ from django.shortcuts import render, redirect, HttpResponseRedirect, reverse, \
     HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import View
+from rest_framework.views import APIView
 
 from device.ansibleapi import AnsibleApi_v2
 from device.forms import AddForm, LoginForm, CaptchaForm
 from device.models import Envirment, Device, Cloudips, Jobs, Deploy_record
 from domain.models import DomainDetail
-from celery.result import AsyncResult
-
 from .tasks import deploy_task
 
 from django.views.decorators.cache import cache_page
@@ -38,7 +37,6 @@ except ImportError:
         You can run `cp config_example.py config.py`, and edit it.
         """
     raise ImportError(msg)
-from .zabbix_api import Zabbixapi
 
 logger = logging.getLogger(__name__)
 collect_logger = logging.getLogger('collect')
@@ -303,7 +301,7 @@ class AssetFuncsView(View):
         paid = bool(request.POST.get('vers'))
         cert_file = request.FILES.get('cert')
         private_key = request.FILES.get('privatekey')
-
+        state = request.POST.get('state', None)
         # get ssl cert and key
         try:
             cert_var = cert_file.read().decode('utf8')
@@ -409,7 +407,7 @@ class AssetFuncsView(View):
                                        asset_id=asset_id, isp=cloudips_name,
                                        deploy_desc=deploy_desc,
                                        remote_ip=remote_ip, operator=operator,
-                                       start_time=start_time)
+                                       start_time=start_time, state=state)
 
             print('task_id: %s' % result.task_id)
             print('task_state: %s' % result.state)
@@ -770,3 +768,113 @@ def decryption(request):
         'mongodbpassword': mongodbpassword_decrypt['message']
     }
     return JsonResponse(data)
+
+
+class TaskView(APIView):
+    """
+    任务调用API
+    """
+
+    def post(self, request, *args, **kwargs):
+        res = {
+            "code": 200,
+            "msg": "成功",
+            "data": {}
+        }
+        try:
+            domain = DomainDetail.objects.get(domain=request.data.get('domain'))
+            task = request.data.get('task')
+
+            try:
+                jobpath = Jobs.objects.get(name=task).path
+            except Exception as e:
+                res['code'] = 400
+                res['msg'] = '没有该任务'
+                return JsonResponse(res)
+            device_obj = Device.objects.get(hostname=domain)
+            env_name = device_obj.envirment.envname
+            encrypt_passwords = list(device_obj.PASSWORD.values())[0]
+            decrypt_sshpassword = RsaCrypto().decrypt(
+                encrypt_passwords['sshpassword']).get('message')
+            decrypt_ftppassword = RsaCrypto().decrypt(
+                encrypt_passwords['ftppassword']).get('message')
+            decrypt_mysqlpassword = RsaCrypto().decrypt(
+                encrypt_passwords['mysqlpassword']).get('message')
+            decrypt_mongodbpassword = RsaCrypto().decrypt(
+                encrypt_passwords['mongodbpassword']).get('message')
+            phpbin = device_obj.envirment.phpbin
+            download_vers = device_obj.paid
+            shop_version = device_obj.shop_version
+            vhost_path = device_obj.envirment.vhost_path
+            mongodbuser = device_obj.mongodbuser
+            mongodbaddress = device_obj.mongodbaddress
+            subdomain = request.data.get('subdomain')
+            # get ssl cert and key
+            # cert_file = None
+            # private_key = None
+            # try:
+            #     cert_var = cert_file.read().decode('utf8')
+            #     privatekey_var = private_key.read().decode('utf8')
+            #     cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert_var)
+            #     sb = cert.get_subject()
+            #
+            #     if sb.CN != domain:
+            #         return render(request, "deploy_result.html",
+            #                       {"error": "提供证书不正确！您提供的证书为：%s" % sb.CN})
+            # except Exception as e:
+            #     print(e)
+            cert_var = None
+            privatekey_var = None
+            asset_id = device_obj.id
+            cloudips_name = device_obj.cloudips.cloudipsname
+            deploy_desc = request.data.get('deploy_desc')
+            if 'HTTP_X_FORWARDED_FOR' in request.META:
+                remote_ip = request.META['HTTP_X_FORWARDED_FOR']
+            else:
+                remote_ip = request.META['REMOTE_ADDR']
+
+            operator = request.data.get('operator', '授权系统')
+            start_time = datetime.datetime.strftime(datetime.datetime.now(),
+                                                    '%Y-%m-%d %H:%M:%S')
+            state = request.data.get('state', None)
+            if state:
+                res['code'] = 500
+                res['msg'] = '缺状态参数'
+                return JsonResponse(res)
+
+            if domain.is_blacklist is True:
+                res['code'] = 401
+                res['msg'] = '黑名单不能更新'
+            else:
+                result = deploy_task.delay(playbook_path=[jobpath],
+                                           domain=device_obj.hostname,
+                                           hostip=device_obj.ipaddress,
+                                           group=env_name,
+                                           port=device_obj.sshport,
+                                           sshuser=device_obj.sshuser,
+                                           password=decrypt_sshpassword,
+                                           phpbin=phpbin,
+                                           webpath=device_obj.websitepath,
+                                           download_vers=download_vers,
+                                           mysql_user=device_obj.mysqluser,
+                                           mysql_password=decrypt_mysqlpassword,
+                                           mysql_address=device_obj.mysqladdress,
+                                           shop_version=shop_version,
+                                           vhost_path=vhost_path,
+                                           mongodbuser=mongodbuser,
+                                           mongodbpassword=decrypt_mongodbpassword,
+                                           mongodbaddress=mongodbaddress,
+                                           subdomain=subdomain,
+                                           cert_var=cert_var,
+                                           privatekey_var=privatekey_var,
+                                           asset_id=asset_id, isp=cloudips_name,
+                                           deploy_desc=deploy_desc,
+                                           remote_ip=remote_ip,
+                                           operator=operator,
+                                           start_time=start_time,
+                                           state=state)
+        except Exception as e:
+            res['code'] = 400
+            res['msg'] = "域名不存在"
+            print(e)
+        return JsonResponse(res)

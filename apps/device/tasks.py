@@ -8,17 +8,17 @@
 
 from __future__ import absolute_import
 import os
-import sys
-import time
 # import pysnooper
 import datetime
-import json
-from django.db.models import F, Q
-from utils.cryto import RsaCrypto
+from django.db.models import F
+from celery import Task
+from celery import shared_task
 from celery.utils.log import get_task_logger
 from .models import Device, Jobs
+from utils.cryto import RsaCrypto
 from utils.weixin import WeChat
 from .zabbix_api import Zabbixapi
+from .ansibleapi import AnsibleApi_v2
 
 logger = get_task_logger(__name__)
 
@@ -39,18 +39,13 @@ else:
     print(
         "环境变量问题，Celery Client启动后无法正常执行Ansible任务，\n请设置export PYTHONOPTIMIZE=1；Django环境请忽略")
 
-from celery import Task
-from celery import shared_task
-
-from .ansibleapi import AnsibleApi_v2
-from redis import Redis
-
 
 class MyTask(Task):
-    abstract = True
     wc = WeChat(CONFIG.CORPID, CONFIG.CORPISECRET, CONFIG.AGENTID)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
+        ansible_status = ''
+        ansible_message = ''
         playbook_name = ''.join(self.request.get('kwargs')['playbook_path'])
         try:
             job_name = Jobs.objects.get(path=playbook_name).name
@@ -107,14 +102,13 @@ class MyTask(Task):
 
     def on_success(self, retval, task_id, args, kwargs):
         print('任务执行成功')
+        device_obj = ''
         try:
             device_obj = Device.objects.get(pk=kwargs['asset_id'])
         except Exception as err:
             print(err)
-        if ''.join(kwargs[
-                       'playbook_path']) == CONFIG.PLAYBOOKPATH + "/envirment.yml" or \
-                ''.join(kwargs[
-                            'playbook_path']) == CONFIG.PLAYBOOKPATH + "/roles/ftp/ftp.yml":
+        task_path = ''.join(kwargs['playbook_path'])
+        if task_path == CONFIG.PLAYBOOKPATH + "/envirment.yml" or task_path == CONFIG.PLAYBOOKPATH + "/roles/ftp/ftp.yml":
             # 写入ftp密码
             encrypt_deploy_result = \
                 RsaCrypto().encrypt(retval['ok'].get('msg'))['message']
@@ -194,71 +188,30 @@ def deploy_task(**kwargs):
     asset_id = kwargs['asset_id']
     print("")
 
-    try:
-        device_obj = Device.objects.get(id=asset_id)
-        encrypt_passwords = list(device_obj.PASSWORD.values())[0]
-        decrypt_sshpassword = RsaCrypto().decrypt(
-            encrypt_passwords['sshpassword']).get('message')
-        decrypt_ftppassword = RsaCrypto().decrypt(
-            encrypt_passwords['ftppassword']).get('message')
-        decrypt_mysqlpassword = RsaCrypto().decrypt(
-            encrypt_passwords['mysqlpassword']).get('message')
-        decrypt_mongodbpassword = RsaCrypto().decrypt(
-            encrypt_passwords['mongodbpassword']).get('message')
-    except Exception as err:
-        print(err)
-        decrypt_ftppassword = 'None'
-        decrypt_mysqlpassword = 'None'
-        decrypt_mongodbpassword = 'None'
-
     runningjob = AnsibleApi_v2()
     runningjob.playbookrun(playbook_path=kwargs['playbook_path'],
                            domain=kwargs['domain'], hostip=kwargs['hostip'],
                            group=kwargs['group'], port=kwargs['port'],
                            sshuser=kwargs['sshuser'],
-                           password=decrypt_sshpassword,
+                           password=kwargs['password'],
                            phpbin=kwargs['phpbin'],
                            webpath=kwargs['webpath'],
                            download_vers=kwargs['download_vers'],
                            mysql_user=kwargs['mysql_user'],
-                           mysql_password=decrypt_mysqlpassword,
+                           mysql_password=kwargs['mysql_password'],
                            mysql_address=kwargs['mysql_address'],
                            shop_version=kwargs['shop_version'],
                            vhost_path=kwargs['vhost_path'],
                            mongodbuser=kwargs['mongodbuser'],
                            mongodbaddress=kwargs['mongodbaddress'],
-                           mongodbpassword=decrypt_mongodbpassword,
+                           mongodbpassword=kwargs['mongodbpassword'],
                            subdomain=kwargs['subdomain'],
                            cert_var=kwargs['cert_var'],
-                           privatekey_var=kwargs['privatekey_var'])
+                           privatekey_var=kwargs['privatekey_var'],
+                           state=kwargs['state'])
     task_result = runningjob.get_playbook_result()
 
     return task_result
-
-
-# import time
-# # @shared_task(bind=True, base=MyTask)
-# @task()
-# def task_test(**kwargs):
-#     print('tttttest......')
-#     # task_test.update_state(state='PROGRESS', meta={'progress': 0})
-#     time.sleep(10)
-#     # task_test.update_state(state='PROGRESS', meta={'progress': 30})
-#     time.sleep(10)
-#     return "finish"
-#
-# @shared_task
-# def check_task_status(task_obj):
-#     print(task_obj)
-#     task_id = task_obj.id
-#     print(task_id)
-#     while True:
-#         if task_obj.ready():
-#             break
-#         else:
-#             time.sleep(5)
-#             print('任务进行中........')
-#     return task_obj.ready()
 
 
 def get_task_status(task_id):

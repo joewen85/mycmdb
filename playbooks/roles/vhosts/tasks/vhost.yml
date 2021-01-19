@@ -3,9 +3,14 @@
     path: /usr/local/openresty/nginx/conf/vhost
     state: directory
 - name: add vhost
-  template: src=https.j2 dest=/usr/local/openresty/nginx/conf/vhost/{{ domain }}.conf
+  template:
+    src: https.j2
+    dest: /usr/local/openresty/nginx/conf/vhost/{{ domain }}.conf
+
 - name: add status
-  copy: src=status.conf dest=/usr/local/openresty/nginx/conf/vhost/status.conf
+  copy:
+    src: status.conf
+    dest: /usr/local/openresty/nginx/conf/vhost/status.conf
 #- name: judge folder exist or not
 #  shell: ls {{ webpath }}
 #  ignore_errors: True
@@ -14,8 +19,19 @@
 #  when: result is failed
 #- shell: mv {{ webpath }} {{ webpath }}_bk && mkdir -p {{ webpath }}
 #  when: result is succeeded
+- name: check webfolder exist
+  stat:
+    path: "{{ webpath }}"
+  register: webfolder_status
 - name: create webfolder
-  file: path={{ webpath }} owner=www group=www mode=770 recurse=yes state=directory
+  file:
+    path: "{{ webpath }}"
+    owner: www
+    group: www
+    mode: '0770'
+    recurse: yes
+    state: directory
+  when: webfolder_status.stat.exists == False
   #tags:
   #- conf
   #notify:

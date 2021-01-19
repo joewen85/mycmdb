@@ -44,8 +44,9 @@
   file: path=/usr/local/pureftpd/etc/pureftpd.pdb state=absent
 - name: create ftp user
   shell: /usr/local/pureftpd/bin/pure-pw useradd www -f /usr/local/pureftpd/etc/pureftpd.passwd -u www -g www -d /data/wwwroot/ -m < /usr/local/pureftpd/etc/passfile
-- name: change webpath mode
-  file: path=/data/wwwroot mode=770 owner=www group=www recurse=yes state=directory
+- name: change webfolder ownership
+  shell: chown -R www:www /data/wwwroot
+
 - name: modify rsyslog transfer config
   lineinfile:
     dest: /etc/rsyslog.conf

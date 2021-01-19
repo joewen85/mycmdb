@@ -8,8 +8,8 @@ allow_prereleases = false
 pysnooper = "*"
 
 [packages]
-django = "==2.2.16"
-ansible = "==2.9.10"
+incremental = "*"
+django = "==2.2.17"
 mysqlclient = "*"
 channels = "*"
 coreapi = "*"
@@ -30,6 +30,7 @@ pycryptodomex = "*"
 qrcode = "*"
 cryptography = "*"
 pillow = "*"
+ansible = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.9"

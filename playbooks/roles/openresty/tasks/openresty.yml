@@ -10,6 +10,7 @@
   file:
     path: "/data/wwwroot"
     state: directory
+    mode: '0770'
 #- name: check user exist
 #  shell: id -u www
 #  ignore_errors: True
@@ -22,6 +23,8 @@
     home: /data/wwwroot
     uid: 1000
 #  when: user_exists.failed == true
+- name: change webfolder ownership
+  shell: chown -R www:www /data/wwwroot
 - name: centos7 unarchive openresty software
   unarchive:
 #    src: openresty-{{ openresty_ver }}.tgz

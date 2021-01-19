@@ -20,7 +20,7 @@ from django.conf.urls import include
 from django.urls import path
 
 from device.views import AssetAdd, LoginView, LogoutView, index, AnsibleViewPublic, ajax_val, AssetListView, \
-    AssetFuncsView, shop_download, decryption, migrate_data
+    AssetFuncsView, shop_download, decryption, migrate_data, TaskView
 
 urlpatterns = [
     path('mgmt/', xadmin.site.urls),
@@ -41,5 +41,6 @@ urlpatterns = [
     path('domain/', include('domain.urls')),
     # path('webssh/', include('webssh.urls')),
     # path('md/', migrate_data),
-    path('decryption/', decryption, name='decryption')
+    path('decryption/', decryption, name='decryption'),
+    path('task/', TaskView.as_view(), name='taskview')
 ]

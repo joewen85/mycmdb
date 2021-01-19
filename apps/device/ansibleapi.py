@@ -243,6 +243,7 @@ class AnsibleApi_v2(object):
             mongodbuser,
             mongodbpassword,
             subdomain,
+            state,
             cert_var=None,
             privatekey_var=None):
         """playbook runner"""
@@ -273,7 +274,8 @@ class AnsibleApi_v2(object):
             "mongodb_password": mongodbpassword,
             "subdomain": subdomain,
             "cert_var": cert_var,
-            "privatekey_var": privatekey_var
+            "privatekey_var": privatekey_var,
+            "state": state
         }
         self.variable_manage.extra_vars.update(**vars)
         # self.passwords['sshpass'], self.passwords['becomepass'] = password, password
