@@ -376,6 +376,11 @@ class AssetFuncsView(View):
             jobpath = job_obj.path
             jobname = job_obj.name
 
+            # 判断pc端任务状态传入参数
+            if jobname == 'pcpage' and state is None:
+                return render(request, "deploy_result.html",
+                              {"error": "缺状态参数!"})
+
             # 获取php环境路径
             phpbin = device_obj.envirment.phpbin
             vhost_path = device_obj.envirment.vhost_path
@@ -838,7 +843,7 @@ class TaskView(APIView):
                                                     '%Y-%m-%d %H:%M:%S')
             state = request.data.get('state', None)
 
-            if state is None:
+            if task == 'pcpage' and state is None:
                 res['code'] = 500
                 res['msg'] = '缺状态参数'
                 return JsonResponse(res)
