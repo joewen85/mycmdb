@@ -10,7 +10,7 @@
   file:
     path: "/data/wwwroot"
     state: directory
-    mode: '0770'
+    mode: '0755'
 #- name: check user exist
 #  shell: id -u www
 #  ignore_errors: True
