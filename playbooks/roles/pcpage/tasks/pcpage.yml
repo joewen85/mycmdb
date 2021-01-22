@@ -30,7 +30,7 @@
   lineinfile:
     dest: "{{ webpath }}/plugins/shop_server/host.json"
     regexp: '"baseURL":.*'
-    line: "  \"baseURL\": \"{{ domain }}\""
+    line: "  \"baseURL\": \"https://{{ domain }}\""
 
 - name: set node environment
   lineinfile:
