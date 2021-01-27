@@ -274,7 +274,6 @@ class AssetFuncsView(View):
                            'deploy_records': deployrec_list})
 
     def post(self, request, asset_id):
-        asset_id = request.POST.get('asset_id')
         domain = request.POST.get('domain', None)
         ipaddr = request.POST.get('ipaddress', None)
         username = request.POST.get('username', None)
@@ -373,11 +372,11 @@ class AssetFuncsView(View):
 
             # 获取任务路径
             job_obj = Jobs.objects.get(pk=job)
-            jobpath = job_obj.path
-            jobname = job_obj.name
+            job_path = job_obj.path
+            job_name = job_obj.name
 
             # 判断pc端任务状态传入参数
-            if jobname == 'pcpage' and state is None:
+            if job_name == 'pcpage' and state is None:
                 return render(request, "deploy_result.html",
                               {"error": "缺状态参数!"})
 
@@ -390,7 +389,7 @@ class AssetFuncsView(View):
 
             # 执行ansible playbook
             # task.apply_async(args=[arg1, arg2], kwargs={'kwarg1': 'x', 'kwarg2': 'y'})
-            result = deploy_task.delay(playbook_path=[jobpath],
+            result = deploy_task.delay(playbook_path=[job_path],
                                        domain=device_obj.hostname,
                                        hostip=device_obj.ipaddress,
                                        group=env_name, port=device_obj.sshport,
@@ -412,7 +411,7 @@ class AssetFuncsView(View):
                                        asset_id=asset_id, isp=cloudips_name,
                                        deploy_desc=deploy_desc,
                                        remote_ip=remote_ip, operator=operator,
-                                       start_time=start_time, state=state)
+                                       start_time=start_time, state=state, job_name=job_name)
 
             print('task_id: %s' % result.task_id)
             print('task_state: %s' % result.state)
@@ -420,7 +419,7 @@ class AssetFuncsView(View):
 
             ret = {
                 "code": 0,
-                "result": "%s 任务已提交到后台队列....3s后返回" % jobname,
+                "result": "%s 任务已提交到后台队列....3s后返回" % job_name,
                 "next_url": "/asset_detail/%s/" % asset_id
             }
             return render(request, 'jump.html', {"ret": ret})

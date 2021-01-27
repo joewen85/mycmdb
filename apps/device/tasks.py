@@ -14,7 +14,7 @@ from django.db.models import F
 from celery import Task
 from celery import shared_task
 from celery.utils.log import get_task_logger
-from .models import Device, Jobs
+from .models import Device
 from utils.cryto import RsaCrypto
 from utils.weixin import WeChat
 from .zabbix_api import Zabbixapi
@@ -46,11 +46,6 @@ class MyTask(Task):
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         ansible_status = ''
         ansible_message = ''
-        playbook_name = ''.join(self.request.get('kwargs')['playbook_path'])
-        try:
-            job_name = Jobs.objects.get(path=playbook_name).name
-        except Exception as e:
-            job_name = e
         if retval['ok'] != {} and retval['failed'] == {} and retval[
             'unreachable'] == {}:
             ansible_message = retval['ok'].get('msg', '成功')
@@ -65,7 +60,7 @@ class MyTask(Task):
 
         send_msg = {
             "task_id": task_id,
-            "job_name": job_name,
+            "job_name": kwargs['job_name'],
             "domain": kwargs['domain'],
             "ip": kwargs['hostip'],
             "task_status": status,
@@ -83,7 +78,7 @@ class MyTask(Task):
                 deploy_datetime=datetime.datetime.now(),
                 desc=kwargs['deploy_desc'],
                 operator=kwargs['operator'],
-                remote_ip=kwargs['remote_ip'], jobname=job_name,
+                remote_ip=kwargs['remote_ip'], jobname=kwargs['job_name'],
                 result=ansible_status)
         except Exception as err:
             print(err)
@@ -103,38 +98,37 @@ class MyTask(Task):
     def on_success(self, retval, task_id, args, kwargs):
         print('任务执行成功')
         device_obj = ''
+        retval_msg = retval['ok'].get('msg')
         try:
             device_obj = Device.objects.get(pk=kwargs['asset_id'])
         except Exception as err:
             print(err)
-        task_path = ''.join(kwargs['playbook_path'])
-        if task_path == CONFIG.PLAYBOOKPATH + "/envirment.yml" or task_path == CONFIG.PLAYBOOKPATH + "/roles/ftp/ftp.yml":
+
+        if CONFIG.PLAYBOOKPATH + "/envirment.yml" or CONFIG.PLAYBOOKPATH + "/roles/ftp/ftp.yml" in \
+                kwargs['playbook_path']:
             # 写入ftp密码
-            encrypt_deploy_result = \
-                RsaCrypto().encrypt(retval['ok'].get('msg'))['message']
+            encrypt_deploy_result = RsaCrypto().encrypt(retval_msg)['message']
             device_obj.PASSWORD.update(ftppassword=encrypt_deploy_result)
 
-        elif ''.join(kwargs[
-                         'playbook_path']) == CONFIG.PLAYBOOKPATH + "/roles/mysql/mysql.yml":
+        elif CONFIG.PLAYBOOKPATH + "/roles/mysql/mysql.yml" in kwargs[
+            'playbook_path']:
             # 写入mysql密码
-            encrypt_deploy_result = \
-                RsaCrypto().encrypt(retval['ok'].get('msg'))['message']
+            encrypt_deploy_result = RsaCrypto().encrypt(retval_msg)['message']
             device_obj.PASSWORD.update(mysqlpassword=encrypt_deploy_result)
 
-        elif ''.join(kwargs[
-                         'playbook_path']) == CONFIG.PLAYBOOKPATH + "/roles/mongodb/mongodb.yml":
+        elif CONFIG.PLAYBOOKPATH + "/roles/mongodb/mongodb.yml" in kwargs[
+            'playbook_path']:
             # 写入mongodb密码
-            encrypt_deploy_result = \
-                RsaCrypto().encrypt(retval['ok'].get('msg'))['message']
+            encrypt_deploy_result = RsaCrypto().encrypt(retval_msg)['message']
             device_obj.PASSWORD.update(mongodbpassword=encrypt_deploy_result)
 
-        if ''.join(kwargs[
-                       'playbook_path']) == CONFIG.PLAYBOOKPATH + "/cronjob_queue.yml":
+        if CONFIG.PLAYBOOKPATH + "/cronjob_queue.yml" in kwargs[
+            'playbook_path']:
             """部署队列和计划任务成功后计数"""
             Device.objects.filter(hostname=device_obj.hostname).update(
                 deploy_times=F('deploy_times') + 1)
-        elif ''.join(kwargs[
-                         'playbook_path']) == CONFIG.PLAYBOOKPATH + "/roles/zabbix_client/zabbix_client.yml":
+        elif CONFIG.PLAYBOOKPATH + "/roles/zabbix_client/zabbix_client.yml" in \
+                kwargs['playbook_path']:
             zabbix_url = CONFIG.ZABBIX_URL
             zabbix_user = CONFIG.ZABBIX_USER
             zabbix_passwd = CONFIG.ZABBIX_PASSWD
@@ -185,7 +179,6 @@ class MyTask(Task):
 # @pysnooper.snoop('log/debug_async.log')
 def deploy_task(**kwargs):
     print("任务函数进行中。。。。。。。。")
-    asset_id = kwargs['asset_id']
     print("")
 
     runningjob = AnsibleApi_v2()
