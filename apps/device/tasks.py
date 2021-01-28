@@ -103,32 +103,27 @@ class MyTask(Task):
             device_obj = Device.objects.get(pk=kwargs['asset_id'])
         except Exception as err:
             print(err)
-
-        if CONFIG.PLAYBOOKPATH + "/envirment.yml" or CONFIG.PLAYBOOKPATH + "/roles/ftp/ftp.yml" in \
-                kwargs['playbook_path']:
+        task_path = ''.join(kwargs['playbook_path'])
+        if task_path == CONFIG.PLAYBOOKPATH + "/envirment.yml" or task_path == CONFIG.PLAYBOOKPATH + "/roles/ftp/ftp.yml":
             # 写入ftp密码
             encrypt_deploy_result = RsaCrypto().encrypt(retval_msg)['message']
             device_obj.PASSWORD.update(ftppassword=encrypt_deploy_result)
 
-        elif CONFIG.PLAYBOOKPATH + "/roles/mysql/mysql.yml" in kwargs[
-            'playbook_path']:
+        elif task_path == CONFIG.PLAYBOOKPATH + "/roles/mysql/mysql.yml":
             # 写入mysql密码
             encrypt_deploy_result = RsaCrypto().encrypt(retval_msg)['message']
             device_obj.PASSWORD.update(mysqlpassword=encrypt_deploy_result)
 
-        elif CONFIG.PLAYBOOKPATH + "/roles/mongodb/mongodb.yml" in kwargs[
-            'playbook_path']:
+        elif task_path == CONFIG.PLAYBOOKPATH + "/roles/mongodb/mongodb.yml":
             # 写入mongodb密码
             encrypt_deploy_result = RsaCrypto().encrypt(retval_msg)['message']
             device_obj.PASSWORD.update(mongodbpassword=encrypt_deploy_result)
 
-        if CONFIG.PLAYBOOKPATH + "/cronjob_queue.yml" in kwargs[
-            'playbook_path']:
+        if task_path == CONFIG.PLAYBOOKPATH + "/cronjob_queue.yml":
             """部署队列和计划任务成功后计数"""
             Device.objects.filter(hostname=device_obj.hostname).update(
                 deploy_times=F('deploy_times') + 1)
-        elif CONFIG.PLAYBOOKPATH + "/roles/zabbix_client/zabbix_client.yml" in \
-                kwargs['playbook_path']:
+        elif task_path == CONFIG.PLAYBOOKPATH + "/roles/zabbix_client/zabbix_client.yml":
             zabbix_url = CONFIG.ZABBIX_URL
             zabbix_user = CONFIG.ZABBIX_USER
             zabbix_passwd = CONFIG.ZABBIX_PASSWD
