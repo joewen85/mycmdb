@@ -654,7 +654,7 @@ class AnsibleViewPublic(View):
                                    mongodbpassword=mongodbpassword,
                                    mongodbaddress=mongodbaddress,
                                    subdomain=subdomain, cert_var=cert_var,
-                                   privatekey_var=privatekey_var)
+                                   privatekey_var=privatekey_var, state=None)
             data = runningjob.get_playbook_result()
 
             # 累计部署记录
