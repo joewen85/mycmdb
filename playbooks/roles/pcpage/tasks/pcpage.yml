@@ -26,11 +26,15 @@
     dest: /usr/bin/node
     state: link
 
-- name: modify host.json
-  lineinfile:
+#- name: modify host.json
+#  lineinfile:
+#    dest: "{{ webpath }}/plugins/shop_server/host.json"
+#    regexp: '"baseURL":.*'
+#    line: "  \"baseURL\": \"https://{{ domain }}\""
+- name: create host.json
+  template:
+    src: host.j2
     dest: "{{ webpath }}/plugins/shop_server/host.json"
-    regexp: '"baseURL":.*'
-    line: "  \"baseURL\": \"https://{{ domain }}\""
 
 - name: set node environment
   lineinfile:
