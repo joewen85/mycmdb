@@ -100,6 +100,9 @@
     name: nginx
     state: restarted
 
+- name: set boot start pm2
+  shell: cd "{{ webpath }}"/plugins/shop_server && /usr/local/node/bin/pm2 startup && pm2 save
+
 - name: check pm2 service exist
   wait_for:
     port: 82
