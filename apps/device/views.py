@@ -841,6 +841,7 @@ class TaskView(APIView):
             start_time = datetime.datetime.strftime(datetime.datetime.now(),
                                                     '%Y-%m-%d %H:%M:%S')
             state = request.data.get('state', None)
+            job_name = task
 
             if task == 'pcpage' and state is None:
                 res['code'] = 500
@@ -877,7 +878,7 @@ class TaskView(APIView):
                                            remote_ip=remote_ip,
                                            operator=operator,
                                            start_time=start_time,
-                                           state=state)
+                                           state=state, job_name=job_name)
         except Exception as e:
             res['code'] = 400
             res['msg'] = "域名不存在"
