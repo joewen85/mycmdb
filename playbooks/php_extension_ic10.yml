@@ -1,0 +1,17 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  gather_facts: false
+  tasks:
+        - name: find php extension dir
+          shell: "{{ phpbin }} -i|grep ^extension_dir|awk '{print $3}'"
+          register: result
+        - get_url: dest={{ result.stdout}}/ioncube_loader_lin_7.2.so url=https://downloads.yunzmall.com/ioncube_loader_lin_7.2.so force=yes
+        - name: add config to php.ini
+          lineinfile:
+             dest: /usr/local/php/etc/php.ini
+             #regexp: '^[PHP]'
+             regexp: 'ioncube_loader_lin_7.2.so'
+             insertafter: '^[PHP]'
+             line: "zend_extension = {{ result.stdout}}/ioncube_loader_lin_7.2.so"
+        - name: reload php service
+          service: name=php-fpm state=restarted
