@@ -57,10 +57,14 @@
     state: directory
 
 - name: deploy shop
-  copy:
-    src: framework-yun_shop_{{ download_vers }}.zip
+#  copy:
+#    src: framework-yun_shop_{{ download_vers }}.zip
+#    dest: "{{ webpath }}"
+#    force: yes
+  get_url:
+    url: 'https://downloads.yunzmall.com/framework-yun_shop_free.zip'
     dest: "{{ webpath }}"
-    force: yes
+    timeout: 5
 
 - name: unarchive framework_shop
   unarchive: src="{{ webpath }}/framework-yun_shop_{{ download_vers }}.zip" dest={{ webpath }} copy=no mode=u+rwx owner="33" group="33"
