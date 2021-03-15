@@ -55,8 +55,8 @@
   file:
     path: /data/wwwroot/{{ domain }}
     state: directory
-    owner: 33
-    group： 33
+    owner: "33"
+    group: "33"
     mode: u+rwx
 
 - name: deploy shop
