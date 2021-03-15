@@ -22,6 +22,8 @@ services:
         - ./confs/redis/redis.conf:/usr/local/etc/redis/redis.conf
         - ./redis:/data
       restart: always
+      ports:
+        - "127.0.0.1:6379:6379"
 
   shop_php-fpm:
     image: yunzhong-image.tencentcloudcr.com/yunzhong/shop:php-fpm7.2.34
