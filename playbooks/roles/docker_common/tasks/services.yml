@@ -4,8 +4,8 @@
     dest: /data/.env
 
 - name: cp docker-compose file
-  copy:
-    src: docker-compose.yml
+  template:
+    src: docker-compose.j2
     dest: /data/docker-compose.yml
 
 - name: create project folder
@@ -28,8 +28,8 @@
   shell: mkdir -p /data/confs/nginx/{ssl,templates}
 
 - name: cp nginx template config to client
-  copy:
-    src: default.conf.template
+  template:
+    src: default.conf.j2
     dest: /data/confs/nginx/templates/{{ domain }}.conf.template
 
 - name: ssl cert create

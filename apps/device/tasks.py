@@ -152,8 +152,6 @@ class MyTask(Task):
             for groupname_list in groupnames_list:
                 groupid = zb.get_groups(zabbix_url, authid, groupname_list)
                 groupsid_list.append({"groupid": groupid})
-            # print(groupsid_list)
-
             templatesid_list = []
             for templatename_list in templatenames_list:
                 templateid = zb.get_template(zabbix_url, authid,
