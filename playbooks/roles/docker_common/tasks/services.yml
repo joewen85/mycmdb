@@ -57,7 +57,7 @@
     state: directory
     owner: "33"
     group: "33"
-    mode: u+rwx
+    mode: 0755
 
 - name: deploy shop
 #  copy:
@@ -70,9 +70,18 @@
     timeout: 5
 
 - name: unarchive framework_shop
-  unarchive: src="{{ webpath }}/framework-yun_shop_{{ download_vers }}.zip" dest={{ webpath }} copy=no mode=u+rwx owner="33" group="33"
+  ansible.builtin.unarchive:
+    src: "{{ webpath }}/framework-yun_shop_{{ download_vers }}.zip"
+    dest: "{{ webpath }}"
+    remote_src: yes
+    owner: "33"
+    group: "33"
+    mode: 0755
+
 - name: delete zip
-  file: path="{{ webpath }}/framework-yun_shop_{{ download_vers }}.zip" state=absent
+  file:
+    path: "{{ webpath }}/framework-yun_shop_{{ download_vers }}.zip"
+    state: absent
 
 - name: create supervisor log
   file:
@@ -80,7 +89,7 @@
     state: touch
     owner: "33"
     group: "33"
-    mode: u+rwx
+    mode: 0755
 
 - name: run service
   shell: cd /data/ && docker-compose up -d && docker-compose ps

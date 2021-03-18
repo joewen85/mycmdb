@@ -102,7 +102,7 @@ class Deploy_record(models.Model):
     remote_ip = models.GenericIPAddressField(verbose_name="远程访问地址", null=True)
     # jobname = models.ForeignKey(Jobs, on_delete=models.DO_NOTHING, null=True, verbose_name="任务名称")
     jobname = models.CharField(max_length=32, null=True, verbose_name="任务名称")
-    result = models.CharField(max_length=256, null=True, verbose_name="执行任务结果")
+    result = models.TextField(null=True, verbose_name="执行任务结果")
 
     class Meta:
         verbose_name = "部署记录"
