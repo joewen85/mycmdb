@@ -1,0 +1,39 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  gather_facts: false
+  tasks:
+        - name: get old domain
+          shell: grep "^NGINX_HOST=.*" /data/.env |awk -F"=" '{print $2}'
+          register: old_domain_result
+
+        - name: modify web folder name
+          shell: mv /data/wwwroot/"{{ old_domain_result.stdout }}" /data/wwwroot/"{{ domain }}"
+
+        - name: change domain for docker
+          lineinfile:
+            dest: "/data/.env"
+            regexp: '^NGINX_HOST=.*'
+            line: "NGINX_HOST={{ domain }}"
+        - name: change webpath for docker
+          lineinfile:
+            dest: "/data/.env"
+            regexp: '^NGINX_WEBPATH=.*'
+            line: "NGINX_WEBPATH={{ webpath }}"
+
+        - name: ssl cert create
+          shell: echo "{{ cert_var }}" > /data/confs/nginx/ssl/{{ domain }}.pem
+
+        - name: ssl priviate key create
+          shell: echo "{{ privatekey_var }}" > /data/confs/nginx/ssl/{{ domain }}.key
+
+        - name: delete shop cache file
+          file:
+            path: "{{ webpath }}/bootstrap/cache/config.php"
+            state: absent
+
+        - name: restart nginx
+          shell: cd /data/ && docker-compose up -d nginx
+          register: result
+
+        - debug:
+            msg: "运行状态: {{ result.stdout }}"

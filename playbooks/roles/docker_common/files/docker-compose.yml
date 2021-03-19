@@ -25,20 +25,20 @@ services:
       ports:
         - "127.0.0.1:6379:6379"
 
-  {{ domain }}_php-fpm:
+  php-fpm:
     image: yunzhong-image.tencentcloudcr.com/yunzhong/shop:php-fpm7.2.34
-    container_name: {{ domain }}_php-fpm
+    container_name: php-fpm
     restart: always
     volumes:
       - ./wwwroot/${NGINX_HOST}:${NGINX_WEBPATH}
 
-  {{ domain }}_nginx:
+  nginx:
     image: yunzhong-image.tencentcloudcr.com/yunzhong/shop:nginx
-    container_name: {{ domain }}_nginx
+    container_name: nginx
     restart: always
     tty: true
     depends_on:
-      - {{ domain }}_php-fpm
+      - php-fpm
     volumes:
       - ./confs/nginx/ssl:/etc/nginx/ssl
       - ./confs/nginx/templates:/etc/nginx/templates
@@ -51,9 +51,9 @@ services:
       - NGINX_HOST=${NGINX_HOST}
       - NGINX_WEBPATH=${NGINX_WEBPATH}
 
-  {{ domain }}_queue:
+  queue:
     image: yunzhong-image.tencentcloudcr.com/yunzhong/shop:queue
-    container_name: {{ domain }}_queue
+    container_name: queue
     command: "/usr/bin/supervisord -c /etc/supervisord.conf"
     restart: always
     volumes:
