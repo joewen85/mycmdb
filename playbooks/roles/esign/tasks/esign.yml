@@ -75,7 +75,7 @@
     - '  location ^~ /addons/yun_shop/ {'
     - "    proxy_pass   https://{{ domain }}/addons/yun_shop/;}"
     - '  location ^~ /s/ {'
-    - "    proxy_pass https://{{ domain }}/addons/yun_shop/api.phpuuid=0&type=5&route=plugin.yun-sign.frontend.short-url.index&url_code=;}"
+    - "    proxy_pass https://{{ domain }}/addons/yun_shop/api.php?uuid=0&type=5&route=plugin.yun-sign.frontend.short-url.index&url_code=;}"
 - name: restart nginx
   service:
     name: nginx
