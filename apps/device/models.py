@@ -28,6 +28,7 @@ class Envirment(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="修改时间")
     phpbin = models.CharField(max_length=100, verbose_name="PHP环境路径", null=True)
     vhost_path = models.CharField(max_length=100, verbose_name="网站虚拟目录路径", null=True)
+    fastcgi_pass = models.CharField(max_length=64, verbose_name="后端PHP处理方式", null=True, blank=True)
 
     class Meta:
         verbose_name = "运行环境"

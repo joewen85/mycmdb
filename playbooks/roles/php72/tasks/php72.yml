@@ -71,6 +71,7 @@
      - libc-client
      - bzip2-devel
      - autoconf
+     - sqlite-devel
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
 - name: check user exist
   shell: id -u www

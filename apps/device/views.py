@@ -383,6 +383,7 @@ class AssetFuncsView(View):
             # 获取php环境路径
             phpbin = device_obj.envirment.phpbin
             vhost_path = device_obj.envirment.vhost_path
+            fastcgi_pass = device_obj.envirment.fastcgi_pass
 
             # get operator
             operator = self.request.user.username
@@ -391,10 +392,10 @@ class AssetFuncsView(View):
             # task.apply_async(args=[arg1, arg2], kwargs={'kwarg1': 'x', 'kwarg2': 'y'})
             result = deploy_task.delay(playbook_path=[job_path],
                                        domain=device_obj.hostname,
-                                       hostip=device_obj.ipaddress,
+                                       ansible_ssh_host=device_obj.ipaddress,
                                        group=env_name, port=device_obj.sshport,
-                                       sshuser=device_obj.sshuser,
-                                       password=decrypt_sshpassword,
+                                       ansible_ssh_user=device_obj.sshuser,
+                                       ansible_ssh_pass=decrypt_sshpassword,
                                        phpbin=phpbin,
                                        webpath=device_obj.websitepath,
                                        download_vers=download_vers,
@@ -403,15 +404,16 @@ class AssetFuncsView(View):
                                        mysql_address=device_obj.mysqladdress,
                                        shop_version=shop_version,
                                        vhost_path=vhost_path,
-                                       mongodbuser=mongodbuser,
+                                       mongodbuser=device_obj.mongodbuser,
                                        mongodbpassword=decrypt_mongodbpassword,
-                                       mongodbaddress=mongodbaddress,
+                                       mongodbaddress=device_obj.mongodbaddress,
                                        subdomain=subdomain, cert_var=cert_var,
                                        privatekey_var=privatekey_var,
                                        asset_id=asset_id, isp=cloudips_name,
                                        deploy_desc=deploy_desc,
                                        remote_ip=remote_ip, operator=operator,
-                                       start_time=start_time, state=state, job_name=job_name)
+                                       start_time=start_time, state=state, job_name=job_name,
+                                       fastcgi_pass=fastcgi_pass)
 
             print('task_id: %s' % result.task_id)
             print('task_state: %s' % result.state)
@@ -423,17 +425,6 @@ class AssetFuncsView(View):
                 "next_url": "/asset_detail/%s/" % asset_id
             }
             return render(request, 'jump.html', {"ret": ret})
-
-            # runningjob = AnsibleApi_v2()
-            # runningjob.playbookrun(playbook_path=[jobpath], domain=device_obj.hostname, hostip=device_obj.ipaddress,
-            #                        group=env_name, port=device_obj.sshport,
-            #                        sshuser=device_obj.sshuser, password=decrypt_sshpassword, phpbin=phpbin,
-            #                        webpath=device_obj.websitepath,
-            #                        download_vers=download_vers, mysql_user=device_obj.mysqluser,
-            #                        mysql_password=decrypt_mysqlpassword, mysql_address=device_obj.mysqladdress,
-            #                        shop_version=shop_version, vhost_path=vhost_path)
-            # data = runningjob.get_playbook_result()
-
         else:
             """修改资产"""
 
@@ -640,9 +631,9 @@ class AnsibleViewPublic(View):
             # 执行ansible playbook
             runningjob = AnsibleApi_v2()
             runningjob.playbookrun(playbook_path=[jobpath], domain=domain,
-                                   hostip=ipaddr, group=env_name,
-                                   port=port, sshuser=username,
-                                   password=password, phpbin=phpbin,
+                                   ansible_ssh_host=ipaddr, group=env_name,
+                                   port=port, ansible_ssh_user=username,
+                                   ansible_ssh_pass=password, phpbin=phpbin,
                                    webpath=position,
                                    download_vers=download_vers,
                                    mysql_user=mysqluser,
@@ -854,11 +845,11 @@ class TaskView(APIView):
             else:
                 result = deploy_task.delay(playbook_path=[jobpath],
                                            domain=device_obj.hostname,
-                                           hostip=device_obj.ipaddress,
+                                           ansible_ssh_host=device_obj.ipaddress,
                                            group=env_name,
                                            port=device_obj.sshport,
-                                           sshuser=device_obj.sshuser,
-                                           password=decrypt_sshpassword,
+                                           ansible_ssh_user=device_obj.sshuser,
+                                           ansible_ssh_pass=decrypt_sshpassword,
                                            phpbin=phpbin,
                                            webpath=device_obj.websitepath,
                                            download_vers=download_vers,

@@ -62,7 +62,7 @@ class MyTask(Task):
             "task_id": task_id,
             "job_name": kwargs['job_name'],
             "domain": kwargs['domain'],
-            "ip": kwargs['hostip'],
+            "ip": kwargs['ansible_ssh_host'],
             "task_status": status,
             "ansible_task_status": ansible_status,
             "ansible_message": ansible_message,
@@ -175,26 +175,7 @@ def deploy_task(**kwargs):
     print("")
 
     runningjob = AnsibleApi_v2()
-    runningjob.playbookrun(playbook_path=kwargs['playbook_path'],
-                           domain=kwargs['domain'], hostip=kwargs['hostip'],
-                           group=kwargs['group'], port=kwargs['port'],
-                           sshuser=kwargs['sshuser'],
-                           password=kwargs['password'],
-                           phpbin=kwargs['phpbin'],
-                           webpath=kwargs['webpath'],
-                           download_vers=kwargs['download_vers'],
-                           mysql_user=kwargs['mysql_user'],
-                           mysql_password=kwargs['mysql_password'],
-                           mysql_address=kwargs['mysql_address'],
-                           shop_version=kwargs['shop_version'],
-                           vhost_path=kwargs['vhost_path'],
-                           mongodbuser=kwargs['mongodbuser'],
-                           mongodbaddress=kwargs['mongodbaddress'],
-                           mongodbpassword=kwargs['mongodbpassword'],
-                           subdomain=kwargs['subdomain'],
-                           cert_var=kwargs['cert_var'],
-                           privatekey_var=kwargs['privatekey_var'],
-                           state=kwargs['state'])
+    runningjob.playbookrun(**kwargs)
     task_result = runningjob.get_playbook_result()
 
     return task_result

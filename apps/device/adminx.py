@@ -26,7 +26,7 @@ class CloudipsAdmin(object):
 
 
 class EnvirmentAdmin(object):
-    list_display = ('envname', 'describe', 'created_at', 'updated_at')
+    list_display = ('envname', 'describe', 'fastcgi_pass', 'created_at', 'updated_at')
     search_fields = ('envname', 'describe',)
     list_filter = ('envname', 'describe')
     model_icon = 'fa fa-bug fa-fw'

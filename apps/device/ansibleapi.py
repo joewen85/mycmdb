@@ -165,6 +165,7 @@ class AnsibleApi_v2(object):
             subdomain,
             module_name,
             module_args,
+            fastcgi_pass,
             *args,
             **kwargs):
         """
@@ -222,66 +223,16 @@ class AnsibleApi_v2(object):
             if tqm is not None:
                 tqm.cleanup()
 
-    def playbookrun(
-            self,
-            playbook_path,
-            domain,
-            hostip,
-            group,
-            port,
-            sshuser,
-            password,
-            phpbin,
-            webpath,
-            mysql_address,
-            mysql_user,
-            mysql_password,
-            download_vers,
-            shop_version,
-            vhost_path,
-            mongodbaddress,
-            mongodbuser,
-            mongodbpassword,
-            subdomain,
-            state,
-            cert_var=None,
-            privatekey_var=None):
+    def playbookrun(self, *args, **kwargs):
         """playbook runner"""
         self.callback = PlaybookResultsCollector()
         # 构建数据模型
-        self.inventory.add_group(group=group)
-        self.inventory.add_host(host=domain, port=port, group=group)
-        # hosts = self.inventory.get_host(hostname=domain)
-        # self.variable_manage.set_host_variable(
-        #     host=hosts, varname="ansible_ssh_pass", value=password)
+        self.inventory.add_group(group=kwargs["group"])
+        self.inventory.add_host(host=kwargs["domain"], port=kwargs["port"], group=kwargs["group"])
 
-        vars = {
-            'domain': domain,
-            'webpath': webpath,
-            'ansible_ssh_host': hostip,
-            'ansible_ssh_user': sshuser,
-            "phpbin": phpbin,
-            "download_vers": download_vers,
-            "ansible_user": sshuser,
-            "ansible_ssh_pass": password,
-            "mysql_address": mysql_address,
-            "mysql_user": mysql_user,
-            "mysql_password": mysql_password,
-            "shop_version": shop_version,
-            "vhost_path": vhost_path,
-            "mongodb_address": mongodbaddress,
-            "mongodb_user": mongodbuser,
-            "mongodb_password": mongodbpassword,
-            "subdomain": subdomain,
-            "cert_var": cert_var,
-            "privatekey_var": privatekey_var,
-            "state": state
-        }
-        self.variable_manage.extra_vars.update(**vars)
-        # self.passwords['sshpass'], self.passwords['becomepass'] = password, password
-        # playbook = PlaybookExecutor(playbooks=playbook_path, inventory=self.inventory, variable_manager=self.variable_manage, loader=self.loader, options=self.options, passwords=self.passwords)
+        self.variable_manage.extra_vars.update(**kwargs)
         playbook = PlaybookExecutor(
-            playbooks=playbook_path,
+            playbooks=kwargs["playbook_path"],
             inventory=self.inventory,
             variable_manager=self.variable_manage,
             loader=self.loader,
@@ -322,33 +273,3 @@ class AnsibleApi_v2(object):
             self.results_raw['unreachable'] = result._result
         return self.results_raw
 
-
-# if __name__ == '__main__':
-#     resource = {
-#         "dynamic_host": {
-#             "hosts": [
-#                 {"hostname": "test1", "ip": "172.16.1.101", "username": "root", "password": "mismis", "port": "22"},
-#                 {"hostname": "test2", "ip": "172.16.1.102", "username": "root", "password": "mismis", "port": "22"},
-#             ]
-#         }
-#     }
-#     a = AnsibleApi_v2()
-#     a.adh_model(hostip='172.16.1.102', group='openresty', port=22, password='mismis', phpbin='/usr/local/php/bin/php', module_name="shell", module_args="ip addr")
-#     data = a.get_model_result()
-#     print(data)
-#     b = AnsibleApi_v2()
-#     b.playbookrun(
-#         playbook_path=(
-#             './test_debug.yml',
-#         ),
-#         domain='test.com',
-#         hostip='172.16.1.103',
-#         group='openresty_hosts',
-#         port='22',
-#         sshuser='root',
-#         password='mismis',
-#         phpbin='/usr/local/php/bin/php',
-#         webpath='/data/wwwroot/yunzhong',
-#         download_vers='free')
-#     data = b.get_playbook_result()
-#     print(data)

@@ -40,8 +40,8 @@ class DomainView(APIView):
             runningjob = AnsibleApi_v2()
             # run ansible deploy
             runningjob.playbookrun(playbook_path=[CONFIG.PLAYBOOKPATH + "/roles/application_domain/app_doamin.yml"],
-                                   domain=clean_domain['domain'], hostip=CONFIG.API_HOSTIP, group=CONFIG.API_GROUP,
-                                   port=22, sshuser=CONFIG.API_SSHUSER, password=CONFIG.API_SSHPASSWORD, phpbin='/usr/local/php/bin/php',
+                                   domain=clean_domain['domain'], ansible_ssh_host=CONFIG.API_HOSTIP, group=CONFIG.API_GROUP,
+                                   port=22, ansible_ssh_user=CONFIG.API_SSHUSER, ansible_ssh_pass=CONFIG.API_SSHPASSWORD, phpbin='/usr/local/php/bin/php',
                                    webpath=CONFIG.API_WEBPATH, download_vers=1, mysql_user="none",
                                    mysql_password="none", mysql_address="none", shop_version=0, vhost_path="none")
             playbook_result = runningjob.get_playbook_result()
