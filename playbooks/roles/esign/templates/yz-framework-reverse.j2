@@ -1,6 +1,6 @@
 server {
   listen 80;
-  #listen 443 ssl http2;
+  listen 443 ssl http2;
   server_name {{ subdomain }};
   access_log /data/wwwlogs/{{ subdomain }}_nginx.log;
   index index.html index.htm index.php;
@@ -8,26 +8,27 @@ server {
 
   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
   ssl_prefer_server_ciphers on;
-  #ssl_certificate /usr/local/openresty/nginx/conf/ssl/{{ subdomain }}.pem;
-  #ssl_certificate_key /usr/local/openresty/nginx/conf/ssl/{{ subdomain }}.key;
+  ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+  ssl_stapling on;
+  ssl_stapling_verify on;
+  ssl_certificate /usr/local/openresty/nginx/conf/ssl/{{ subdomain }}.pem;
+  ssl_certificate_key /usr/local/openresty/nginx/conf/ssl/{{ subdomain }}.key;
   ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-  ssl_ciphers "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS !RC4";
   #ssl_dhparam /usr/local/openresty/nginx/conf/ssl/dhparam.pem;
   add_header X-Frame-Options "SAMEORIGIN" always;
   add_header X-XSS-Protection "1; mode=block" always;
   add_header X-Content-Type-Options "nosniff" always;
-  add_header Referrer-Policy "no-referrer-when-downgrade" always;
-  add_header Content-Security-Policy "default-src * data: 'unsafe-eval' 'unsafe-inline'" always;
+  ssl_buffer_size 4k;
   ssl_session_cache shared:SSL:10m;
-  ssl_session_timeout 10m;
-  #if ($ssl_protocol = "") { return 307 https://$server_name$request_uri; }
+  ssl_session_timeout 1h;
+  if ($ssl_protocol = "") { return 307 https://$server_name$request_uri; }
   location ~ \.well-known/{
         allow all;
     }
 
   location ~ [^/]\.php(/|$) {
    # fastcgi_pass remote_php_ip:9000;
-   fastcgi_pass unix:/dev/shm/php-cgi.sock;
+   fastcgi_pass unix:{{ fastcgi_pass }};
    fastcgi_index index.php;
    include fastcgi.conf;
   }

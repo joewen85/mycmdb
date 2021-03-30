@@ -9,7 +9,7 @@ pysnooper = "*"
 
 [packages]
 incremental = "*"
-django = "==2.2.17"
+django = "==2.2.18"
 mysqlclient = "*"
 channels = "*"
 coreapi = "*"

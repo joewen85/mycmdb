@@ -302,15 +302,18 @@ class AssetFuncsView(View):
         private_key = request.FILES.get('privatekey')
         state = request.POST.get('state', None)
         # get ssl cert and key
+
+        job_obj = Jobs.objects.get(pk=job)
         try:
             cert_var = cert_file.read().decode('utf8')
             privatekey_var = private_key.read().decode('utf8')
-            cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert_var)
-            sb = cert.get_subject()
+            if job_obj.name != "esign":
+                cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert_var)
+                sb = cert.get_subject()
 
-            if sb.CN != domain:
-                return render(request, "deploy_result.html",
-                              {"error": "提供证书不正确！您提供的证书为：%s" % sb.CN})
+                if sb.CN != domain:
+                    return render(request, "deploy_result.html",
+                                  {"error": "提供证书不正确！您提供的证书为：%s" % sb.CN})
         except Exception as e:
             print(e)
             cert_var = None
@@ -371,7 +374,6 @@ class AssetFuncsView(View):
                                                     '%Y-%m-%d %H:%M:%S')
 
             # 获取任务路径
-            job_obj = Jobs.objects.get(pk=job)
             job_path = job_obj.path
             job_name = job_obj.name
 
