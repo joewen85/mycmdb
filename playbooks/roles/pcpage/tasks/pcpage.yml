@@ -103,7 +103,7 @@
       "{{ item }}"
   with_items:
     - '  location /plugins/shop_server/ {'
-    - '    include proxy.conf;'
+    - '    #include proxy.conf;'
     - "    proxy_pass   http://127.0.0.1:82;}"
   when: group == "bt-env" and state == "start"
 
