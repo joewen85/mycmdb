@@ -83,7 +83,7 @@
   shell: cd "{{ webpath }}"/plugins/shop_server && /usr/local/node/bin/pm2 restart "{{ domain }}"
   when: state == "restart"
 
-- name: vhost config modify reverse proxy
+- name: vhost config modify reverse proxy for yunzhong-env
   lineinfile:
     dest: /usr/local/openresty/nginx/conf/vhost/{{ domain }}.conf
     insertbefore: '.*location .*php.*\{'
@@ -93,7 +93,19 @@
     - '  location /plugins/shop_server/ {'
     - '    include proxy.conf;'
     - "    proxy_pass   http://127.0.0.1:82;}"
-  when: state == "start"
+  when: group == "yunzhong-env" and state == "start"
+
+- name: vhost config modify reverse proxy for bt-env
+  lineinfile:
+    dest: /www/server/panel/vhost/nginx/{{ domain }}.conf
+    insertbefore: '.*location .*php.*\{'
+    line:
+      "{{ item }}"
+  with_items:
+    - '  location /plugins/shop_server/ {'
+    - '    include proxy.conf;'
+    - "    proxy_pass   http://127.0.0.1:82;}"
+  when: group == "bt-env" and state == "start"
 
 - name: reload nginx
   service:
