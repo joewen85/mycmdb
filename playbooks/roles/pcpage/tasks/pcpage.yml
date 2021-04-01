@@ -98,7 +98,7 @@
 - name: vhost config modify reverse proxy for bt-env
   lineinfile:
     dest: /www/server/panel/vhost/nginx/{{ domain }}.conf
-    insertbefore: '.*location .*php.*\{'
+    insertbefore: '.*include enable-php-.*'
     line:
       "{{ item }}"
   with_items:
