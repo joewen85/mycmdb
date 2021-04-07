@@ -65,7 +65,7 @@
 #    dest: "{{ webpath }}"
 #    force: yes
   get_url:
-    url: 'https://downloads.yunzmall.com/framework-yun_shop_{{ download_vers }}.zip'
+    url: "https://downloads.yunzmall.com/framework-yun_shop_{{ download_vers }}.zip"
     dest: "{{ webpath }}"
     timeout: 5
 
