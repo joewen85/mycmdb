@@ -9,11 +9,26 @@
     user: www
     state: absent
 
-# delete bt-env install supervisor
+#- name: fuck bt-env rewrite supervisord_conf
+#  file:
+#    path: "/usr/bin/echo_supervisord_conf"
+#    attributes: "-i"
+#  when: group == "bt-env"
+
+# delete bt-env yum install supervisor
+- name: delete bt-env install supervisor
+  yum:
+    name: supervisor
+    state: absent
+  when: group == "bt-env"
+
+# delete bt-env pip install supervisor
 - name: delete bt-env install supervisor
   pip:
     name: supervisor
     state: absent
+    extra_args: "-y"
+    virtualenv_site_packages: yes
   when: group == "bt-env"
 
 # delete {{ domain }} config
@@ -35,7 +50,7 @@
         dest: /etc/crontab
         regexp: ".*artisan cron:run"
 
-- name: restart supervisord
-  service:
-    name: supervisord
-    state: restarted
+#- name: restart supervisord
+#  service:
+#    name: supervisord
+#    state: restarted
