@@ -12,6 +12,7 @@
      - lsof
      - vim
      - glibc-devel
+     - unzip
 
 - name: disable firewalld
   service:

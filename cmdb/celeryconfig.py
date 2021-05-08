@@ -32,5 +32,6 @@ result_expires = 86400
 broker_transport_options = {
     'visibility_timeout': 1800
 }
+accept_content = ['json']
 
 
