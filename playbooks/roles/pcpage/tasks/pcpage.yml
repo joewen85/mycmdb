@@ -31,10 +31,17 @@
 #    dest: "{{ webpath }}/plugins/shop_server/host.json"
 #    regexp: '"baseURL":.*'
 #    line: "  \"baseURL\": \"https://{{ domain }}\""
-- name: create host.json
+- name: create host.json for yz-framework
   template:
     src: host.j2
     dest: "{{ webpath }}/plugins/shop_server/host.json"
+  when: shop_version == "0"
+
+- name: create host.json for weiqing
+  template:
+    src: host.j2
+    dest: "{{ webpath }}/plugins/shop_server/host.json"
+  when: shop_version == "1"
 
 - name: set node environment
   lineinfile:
