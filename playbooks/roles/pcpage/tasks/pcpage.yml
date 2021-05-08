@@ -137,10 +137,15 @@
     - "    proxy_pass   http://127.0.0.1:82;}"
   when: group == "bt-env" and state == "start"
 
-- name: reload nginx
+- name: reload nginx for yunzhong-env
   service:
     name: nginx
     state: restarted
+  when: group == "yunzhong-env"
+
+- name: reload nginx for bt-env
+  shell: /etc/init.d/nginx restart
+  when: group == "bt-env"
 
 - name: set boot start pm2 for yz-framework
   shell: cd "{{ webpath }}"/plugins/shop_server && /usr/local/node/bin/pm2 startup && pm2 save
