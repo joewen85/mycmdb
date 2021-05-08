@@ -40,7 +40,7 @@
 - name: create host.json for weiqing
   template:
     src: host.j2
-    dest: "{{ webpath }}/plugins/shop_server/host.json"
+    dest: "{{ webpath }}/addons/yun_shop/plugins/shop_server/host.json"
   when: shop_version == "1"
 
 - name: set node environment
