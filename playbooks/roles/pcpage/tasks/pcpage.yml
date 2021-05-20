@@ -42,13 +42,13 @@
   template:
     src: host.j2
     dest: "{{ webpath }}/plugins/shop_server/host.json"
-  when: shop_version == "0"
+  when: shop_version == "False"
 
 - name: create host.json for weiqing
   template:
     src: host.j2
     dest: "{{ webpath }}/addons/yun_shop/plugins/shop_server/host.json"
-  when: shop_version == "1"
+  when: shop_version == "True"
 
 - name: set node environment
   lineinfile:
@@ -87,43 +87,43 @@
 
 - name: build pcpage project for yz-framework
   shell: cd "{{ webpath }}"/plugins/shop_server && /usr/local/node/bin/npm run build
-  when: shop_version == "0"
+  when: shop_version == "False"
 
 - name: build pcpage project for weiqing
   shell: cd "{{ webpath }}"/addons/yun_shop/plugins/shop_server && /usr/local/node/bin/npm run build
-  when: shop_version == "1"
+  when: shop_version == "True"
 
 - name: delete old files for yz-framework
   shell: rm -rf "{{ webpath }}"/plugins/shop_server/plugins/shop_server/*
-  when: shop_version == "0"
+  when: shop_version == "False"
 
 - name: delete old files for weiqing
   shell: rm -rf "{{ webpath }}"/addons/yun_shop/plugins/shop_server/plugins/shop_server/*
-  when: shop_version == "1"
+  when: shop_version == "True"
 
 - name: cp staticfile for yz-framework
   shell: cp -a "{{ webpath }}"/plugins/shop_server/.nuxt/dist/client/* "{{ webpath }}"/plugins/shop_server/plugins/shop_server/
-  when: shop_version == "0"
+  when: shop_version == "False"
 
 - name: cp staticfile for weiqing
   shell: cp -a "{{ webpath }}"/addons/yun_shop/plugins/shop_server/.nuxt/dist/client/* "{{ webpath }}"/addons/yun_shop/plugins/shop_server/plugins/shop_server/
-  when: shop_version == "1"
+  when: shop_version == "True"
 
 - name: start server for yz-framework
   shell: cd "{{ webpath }}"/plugins/shop_server && /usr/local/node/bin/pm2 start npm --name "{{ domain }}" -- run start
-  when: state == "start" and shop_version == "0"
+  when: state == "start" and shop_version == "False"
 
 - name: start server for weiqing
   shell: cd "{{ webpath }}"/addons/yun_shop/plugins/shop_server && /usr/local/node/bin/pm2 start npm --name "{{ domain }}" -- run start
-  when: state == "start" and shop_version == "1"
+  when: state == "start" and shop_version == "True"
 
 - name: restart server for yz-framework
   shell: cd "{{ webpath }}"/plugins/shop_server && /usr/local/node/bin/pm2 restart "{{ domain }}"
-  when: state == "restart" and shop_version == "0"
+  when: state == "restart" and shop_version == "False"
 
 - name: restart server for yz-framework
   shell: cd "{{ webpath }}"/addons/yun_shop/plugins/shop_server && /usr/local/node/bin/pm2 restart "{{ domain }}"
-  when: state == "restart" and shop_version == "1"
+  when: state == "restart" and shop_version == "True"
 
 - name: vhost config modify reverse proxy for yunzhong-env
   lineinfile:
@@ -161,11 +161,11 @@
 
 - name: set boot start pm2 for yz-framework
   shell: cd "{{ webpath }}"/plugins/shop_server && /usr/local/node/bin/pm2 startup && pm2 save
-  when: shop_version == "0"
+  when: shop_version == "False"
 
 - name: set boot start pm2 for weiqing
   shell: cd "{{ webpath }}"/addons/yun_shop/plugins/shop_server && /usr/local/node/bin/pm2 startup && pm2 save
-  when: shop_version == "1"
+  when: shop_version == "True"
 
 - name: check pm2 service exist
   wait_for:
