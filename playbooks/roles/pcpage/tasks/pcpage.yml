@@ -2,29 +2,36 @@
   yum:
     name: wget
     state: present
+  when: state == "start"
 
 - name: download nodejs
   get_url: url=https://npm.taobao.org/mirrors/node/{{ nodejs_ver }}/node-{{ nodejs_ver }}-linux-x64.tar.gz dest=/usr/local/ timeout=5
+  when: state == "start"
 
 - name: unarchive nodejs
   unarchive: src=/usr/local/node-{{ nodejs_ver }}-linux-x64.tar.gz dest=/usr/local/ copy=no
+  when: state == "start"
+
 - name: modify name
 #  shell: mv /usr/local/node-"{{ nodejs_ver }}"-linux-x64 /usr/local/node
   file:
     src: "/usr/local/node-{{ nodejs_ver }}-linux-x64"
     dest: /usr/local/node
     state: link
+  when: state == "start"
 
 - name: delete tar file
   file:
     path: "/usr/local/node-{{ nodejs_ver }}-linux-x64.tar.gz"
     state: absent
+  when: state == "start"
 
 - name: ln binary node
   file:
     src: /usr/local/node/bin/node
     dest: /usr/bin/node
     state: link
+  when: state == "start"
 
 #- name: modify host.json
 #  lineinfile:
@@ -49,9 +56,11 @@
     state: present
     regexp: 'export PATH=$PATH:/usr/local/node/bin'
     line: 'export PATH=$PATH:/usr/local/node/bin'
+  when: state == "start"
 
 - name: apply environment
   shell: source /root/.bashrc
+  when: state == "start"
 
 - name: install cnpm
   npm:
@@ -59,6 +68,7 @@
     registry: 'https://registry.npm.taobao.org'
     executable: /usr/local/node/bin/npm
     global: yes
+  when: state == "start"
 
 - name: install package
   npm:
@@ -66,12 +76,14 @@
 #    registry: 'https://registry.npm.taobao.org'
     executable: /usr/local/node/bin/cnpm
     state: present
+  when: state == "start"
 
 - name: install "pm2" node.js package globally.
   npm:
     name: pm2
     registry: 'https://registry.npm.taobao.org'
     global: yes
+  when: state == "start"
 
 - name: build pcpage project for yz-framework
   shell: cd "{{ webpath }}"/plugins/shop_server && /usr/local/node/bin/npm run build
