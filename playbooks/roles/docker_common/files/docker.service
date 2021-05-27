@@ -5,7 +5,7 @@ After=network-online.target firewalld.service
 Wants=network-online.target
 [Service]
 Type=notify
-ExecStart=/usr/bin/dockerd
+ExecStart=/usr/bin/dockerd -H unix:///run/docker.sock -H tcp://0.0.0.0:9999
 ExecReload=/bin/kill -s HUP $MAINPID
 LimitNOFILE=infinity
 LimitNPROC=infinity

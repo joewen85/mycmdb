@@ -92,8 +92,13 @@
     mode: 0755
 
 - name: run service
-  shell: cd /data/ && docker-compose up -d && docker-compose ps
+#  shell: cd /data/ && docker-compose up -d && docker-compose ps
+  community.docker.docker_compose:
+    build: no
+    files: /data/docker-compose.yml
+    project_src: ['mysql_db', 'redis_db', 'php-fpm', 'nginx', 'queue']
   register: result
 
 - debug:
-    msg: "运行状态: {{ result.stdout }}"
+#    msg: "运行状态: {{ result.stdout }}"
+    msg: "运行状态: {{ result }}"

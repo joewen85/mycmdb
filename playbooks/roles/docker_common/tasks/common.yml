@@ -1,5 +1,5 @@
 - name: install dependen
-  yum:
+  dnf:
     name: "{{ packages }}"
     state: latest
   vars:
@@ -13,6 +13,10 @@
      - vim
      - glibc-devel
      - unzip
+     - python3
+
+- name: install python docker models
+  shell: python3 -m pip install docker pyyaml docker-compose
 
 - name: disable firewalld
   service:
@@ -29,8 +33,11 @@
 - name: install docker srver
   unarchive:
     src: "https://downloads.yunzmall.com/docker-{{ docker_version }}.tgz"
-    dest: /usr/bin/
+    dest: /tmp/
     remote_src: yes
+
+- name: mv docker exec to /usr/bin
+  shell: mv /tmp/docker/* /usr/bin/
 
 - name: cp docker service file
   copy:
