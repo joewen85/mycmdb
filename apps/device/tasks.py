@@ -10,10 +10,13 @@ from __future__ import absolute_import
 import os
 # import pysnooper
 import datetime
+
 from django.db.models import F
 from celery import Task
 from celery import shared_task
 from celery.utils.log import get_task_logger
+from celery.exceptions import SoftTimeLimitExceeded
+
 from .models import Device
 from utils.cryto import RsaCrypto
 from utils.weixin import WeChat
@@ -173,12 +176,13 @@ class MyTask(Task):
 def deploy_task(**kwargs):
     print("任务函数进行中。。。。。。。。")
     print("")
-
-    runningjob = AnsibleApi_v2()
-    runningjob.playbookrun(**kwargs)
-    task_result = runningjob.get_playbook_result()
-
-    return task_result
+    try:
+        runningjob = AnsibleApi_v2()
+        runningjob.playbookrun(**kwargs)
+        task_result = runningjob.get_playbook_result()
+        return task_result
+    except SoftTimeLimitExceeded:
+        print("处理任务超时!!!!")
 
 
 def get_task_status(task_id):

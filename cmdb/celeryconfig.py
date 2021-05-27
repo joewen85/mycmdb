@@ -29,6 +29,8 @@ worker_max_tasks_per_child = 100
 worker_disable_rate_limits = True
 timezone = 'Asia/Shanghai'
 result_expires = 86400
+task_soft_time_limit = 600
+task_time_limit = 600
 broker_transport_options = {
     'visibility_timeout': 1800
 }

@@ -16,7 +16,7 @@
      - python3
 
 - name: install python docker models
-  shell: python3 -m pip install docker pyyaml docker-compose
+  shell: python3 -m pip install --user -i https://pypi.tuna.tsinghua.edu.cn/simple docker pyyaml docker-compose
 
 - name: disable firewalld
   service:
