@@ -58,19 +58,19 @@
   copy:
     src: ca.pem
     dest: /etc/docker/ca.pem
-    mode: u+rw
+    mode: '0600'
 
 - name: cp server cert
   copy:
     src: server-cert.pem
     dest: /etc/docker/server-cert.pem
-    mode: u+rw
+    mode: '0600'
 
 - name: cp server key
   copy:
     src: server-key.pem
     dest: /etc/docker/server-key.pem
-    mode: u+rw
+    mode: '0600'
 
 - name: set docker service
   shell: systemctl daemon-reload && systemctl enable docker && systemctl start docker
