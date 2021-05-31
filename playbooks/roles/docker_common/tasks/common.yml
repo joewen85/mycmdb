@@ -54,23 +54,29 @@
     src: daemon.json
     dest: /etc/docker/daemon.json
 
-- name: cp ca
-  copy:
-    src: ca.pem
-    dest: /etc/docker/ca.pem
+#- name: cp cert
+#  copy:
+#    src: server_cert.zip
+#    dest: /etc/docker/
+
+- name: unzip cert
+  unarchive:
+    src: server_cert.zip
+    dest: /etc/docker/
+    remote_src: no
     mode: '0600'
 
-- name: cp server cert
-  copy:
-    src: server-cert.pem
-    dest: /etc/docker/server-cert.pem
-    mode: '0600'
-
-- name: cp server key
-  copy:
-    src: server-key.pem
-    dest: /etc/docker/server-key.pem
-    mode: '0600'
+#- name: cp server cert
+#  copy:
+#    src: server-cert.pem
+#    dest: /etc/docker/server-cert.pem
+#    mode: '0600'
+#
+#- name: cp server key
+#  copy:
+#    src: server-key.pem
+#    dest: /etc/docker/server-key.pem
+#    mode: '0600'
 
 - name: set docker service
   shell: systemctl daemon-reload && systemctl enable docker && systemctl start docker
