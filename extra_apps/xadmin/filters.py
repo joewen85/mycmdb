@@ -202,7 +202,7 @@ class ChoicesFieldListFilter(ListFieldFilter):
 
     def choices(self):
         yield {
-            'selected': self.lookup_exact_val is '',
+            'selected': self.lookup_exact_val == '',
             'query_string': self.query_string({}, [self.lookup_exact_name]),
             'display': _('All')
         }
@@ -451,7 +451,7 @@ class MultiSelectFieldListFilter(ListFieldFilter):
     """ Delegates the filter to the default filter and ors the results of each
 
     Lists the distinct values of each field as a checkbox
-    Uses the default spec for each 
+    Uses the default spec for each
 
     """
     template = 'xadmin/filters/checklist.html'
@@ -548,7 +548,7 @@ class AllValuesFieldListFilter(ListFieldFilter):
 
     def choices(self):
         yield {
-            'selected': (self.lookup_exact_val is '' and self.lookup_isnull_val is ''),
+            'selected': (self.lookup_exact_val == '' and self.lookup_isnull_val == ''),
             'query_string': self.query_string({}, [self.lookup_exact_name, self.lookup_isnull_name]),
             'display': _('All'),
         }
