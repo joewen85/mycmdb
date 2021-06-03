@@ -1,7 +1,7 @@
 version: '3'
 services:
   mysql_db:
-      image: registry.yunzmall.com/yunzhong/shop:mysql_5.7.32
+      image: registry.yunzmall.com/yunzhong/shop:mysql
       container_name: mysql_db
       volumes:
         - ./mysql:/var/lib/mysql:rw
@@ -16,7 +16,7 @@ services:
       command: ["--character-set-server=utf8mb4","--explicit_defaults_for_timestamp=true", "--default-authentication-plugin=mysql_native_password","--collation-server=utf8mb4_unicode_ci","--lower_case_table_names=0"]
 
   redis_db:
-      image: registry.yunzmall.com/yunzhong/shop:redis_1.0.1
+      image: registry.yunzmall.com/yunzhong/shop:redis
       container_name: redis_db
       volumes:
         - ./confs/redis/redis.conf:/usr/local/etc/redis/redis.conf
@@ -26,14 +26,14 @@ services:
         - "127.0.0.1:6379:6379"
 
   php-fpm:
-    image: registry.yunzmall.com/yunzhong/shop:php-fpm_7.2.34
+    image: registry.yunzmall.com/yunzhong/shop:php-fpm
     container_name: php-fpm
     restart: always
     volumes:
       - ./wwwroot/${NGINX_HOST}:${NGINX_WEBPATH}
 
   nginx:
-    image: registry.yunzmall.com/yunzhong/shop:nginx_1.0.1
+    image: registry.yunzmall.com/yunzhong/shop:nginx
     container_name: nginx
     restart: always
     tty: true
@@ -52,7 +52,7 @@ services:
       - NGINX_WEBPATH=${NGINX_WEBPATH}
 
   queue:
-    image: registry.yunzmall.com/yunzhong/shop:queue_1.0.1
+    image: registry.yunzmall.com/yunzhong/shop:queue
     container_name: queue
     command: "/usr/bin/supervisord -c /etc/supervisord.conf"
     restart: always
