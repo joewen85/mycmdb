@@ -160,11 +160,11 @@
   when: group == "bt-env"
 
 - name: set boot start pm2 for yz-framework
-  shell: cd "{{ webpath }}"/plugins/shop_server && /usr/local/node/bin/pm2 startup && pm2 save
+  shell: cd {{ webpath }}/plugins/shop_server && /usr/local/node/bin/pm2 startup && pm2 save
   when: shop_version == '0'
 
 - name: set boot start pm2 for weiqing
-  shell: cd "{{ webpath }}"/addons/yun_shop/plugins/shop_server && /usr/local/node/bin/pm2 startup && pm2 save
+  shell: cd {{ webpath }}/addons/yun_shop/plugins/shop_server && /usr/local/node/bin/pm2 startup && pm2 save
   when: shop_version == '1'
 
 - name: check pm2 service exist
