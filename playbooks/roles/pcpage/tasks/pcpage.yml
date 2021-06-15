@@ -42,13 +42,13 @@
   template:
     src: host.j2
     dest: "{{ webpath }}/plugins/shop_server/host.json"
-  when: shop_version == "False"
+  when: shop_version == "0"
 
 - name: create host.json for weiqing
   template:
     src: host.j2
     dest: "{{ webpath }}/addons/yun_shop/plugins/shop_server/host.json"
-  when: shop_version == "True"
+  when: shop_version == "1"
 
 - name: set node environment
   lineinfile:
