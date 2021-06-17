@@ -97,7 +97,7 @@
     state: directory
     owner: www
     group: www
-    mode: 770
+    mode: 0770
   when: shop_version == "0"
 - name: create log folder with weiqin
   file:
