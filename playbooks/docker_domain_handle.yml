@@ -39,4 +39,4 @@
           register: result
 
         - debug:
-            msg: "运行状态: {{ result.stdout }}"
+            msg: "运行状态: {{ result.status }}"
