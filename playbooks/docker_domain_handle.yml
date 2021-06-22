@@ -32,7 +32,9 @@
             state: absent
 
         - name: restart nginx
-          shell: cd /data/ && docker-compose up -d nginx
+          community.docker.docker_container:
+            name: nginx
+            state: started
           register: result
 
         - debug:
