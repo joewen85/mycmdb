@@ -487,7 +487,7 @@ class AnsibleViewPublic(View):
         if request.user.is_authenticated:
             jobs = Jobs.objects.all()
         else:
-            jobs = Jobs.objects.filter(pk__lte=11)
+            jobs = Jobs.objects.filter(Q(pk=7) | Q(pk=8))
 
         captcha_form = CaptchaForm()
         return render(request, 'deploy_public.html',
