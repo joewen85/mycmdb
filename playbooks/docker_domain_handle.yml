@@ -6,19 +6,19 @@
           shell: grep "^NGINX_HOST=.*" /data/.env |awk -F"=" '{print $2}'
           register: old_domain_result
 
-        - name: modify web folder name
-          shell: mv /data/wwwroot/"{{ old_domain_result.stdout }}" /data/wwwroot/"{{ domain }}"
+#        - name: modify web folder name
+#          shell: mv /data/wwwroot/"{{ old_domain_result.stdout }}" /data/wwwroot/"{{ domain }}"
 
         - name: change domain for docker
           lineinfile:
             dest: "/data/.env"
             regexp: '^NGINX_HOST=.*'
             line: "NGINX_HOST={{ domain }}"
-        - name: change webpath for docker
-          lineinfile:
-            dest: "/data/.env"
-            regexp: '^NGINX_WEBPATH=.*'
-            line: "NGINX_WEBPATH={{ webpath }}"
+#        - name: change webpath for docker
+#          lineinfile:
+#            dest: "/data/.env"
+#            regexp: '^NGINX_WEBPATH=.*'
+#            line: "NGINX_WEBPATH={{ webpath }}"
 
         - name: ssl cert create
           shell: echo "{{ cert_var }}" > /data/confs/nginx/ssl/{{ domain }}.pem
@@ -35,6 +35,7 @@
           community.docker.docker_container:
             name: nginx
             state: started
+            restart: yes
           register: result
 
         - debug:
