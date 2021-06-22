@@ -86,11 +86,11 @@
     path: /data
     state: directory
 
-- name: download docker-compose binany
-  get_url:
-    url: https://downloads.yunzmall.com/docker-compose
-    dest: /usr/bin/docker-compose
-    mode: u+rwx
+#- name: download docker-compose binany
+#  get_url:
+#    url: https://downloads.yunzmall.com/docker-compose
+#    dest: /usr/bin/docker-compose
+#    mode: u+rwx
 
 - name: 修改日志记录条目
   lineinfile:

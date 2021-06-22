@@ -23,7 +23,7 @@
 - name: centos7 unarchive curl
   unarchive:
 #    src: curl-{{ curl_ver }}.tgz
-    src: "https://downloads.yunzmall.com/playbook_source/curl/curl-{{ curl_ver }}.tgz"
+    src: "https://downloads.yunzmall.com/playbook_source/curl/curl-7.73.0.tgz"
     dest: /usr/local/
     remote_src: yes
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8

@@ -33,6 +33,7 @@ http {
   fastcgi_busy_buffers_size 128k;
   fastcgi_temp_file_write_size 128k;
   fastcgi_intercept_errors on;
+  fastcgi_ignore_client_abort on;
 
   #Gzip Compression
   gzip on;

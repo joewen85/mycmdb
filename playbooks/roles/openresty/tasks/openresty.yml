@@ -28,7 +28,7 @@
 - name: centos7 unarchive openresty software
   unarchive:
 #    src: openresty-{{ openresty_ver }}.tgz
-    src: "https://downloads.yunzmall.com/playbook_source/openresty/openresty-{{ openresty_ver }}.tgz"
+    src: "https://downloads.yunzmall.com/playbook_source/openresty/openresty-1.17.8.2.tgz"
     dest: /usr/local/
     remote_src: yes
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
