@@ -54,4 +54,5 @@
           register: result
 
         - debug:
-            msg: "运行状态: {{ result }}"
+            msg: "运行状态: {{ result.container.State.Status }}。域名: {{ domain }}"
+
