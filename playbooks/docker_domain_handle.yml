@@ -49,7 +49,7 @@
             volumes:
               - /data/confs/nginx/ssl:/etc/nginx/ssl:rw
               - /data/logs/nginx:/var/log/nginx:rw
-              - {{ webpath }}:{{ webpath }}:rw
+              - "{{ webpath }}":"{{ webpath }}":rw
               - /data/confs/nginx/templates:/etc/nginx/templates:rw
           register: result
 
