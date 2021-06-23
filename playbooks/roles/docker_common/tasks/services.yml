@@ -106,6 +106,7 @@
     name: mysql_db
     image: registry.yunzmall.com/yunzhong/shop:mysql
     detach: yes
+    restart_policy: always
     networks:
       - name: yzshop
     network_mode: yzshop
@@ -123,6 +124,7 @@
     name: redis_db
     image: registry.yunzmall.com/yunzhong/shop:redis
     detach: yes
+    restart_policy: always
     networks:
       - name: yzshop
     network_mode: yzshop
@@ -138,6 +140,7 @@
     name: php-fpm
     image: registry.yunzmall.com/yunzhong/shop:php-fpm
     detach: yes
+    restart_policy: always
     networks:
       - name: yzshop
     network_mode: yzshop
@@ -149,6 +152,7 @@
     name: nginx
     image: registry.yunzmall.com/yunzhong/shop:nginx
     detach: yes
+    restart_policy: always
     networks:
       - name: yzshop
     network_mode: yzshop
@@ -170,6 +174,7 @@
     name: queue
     image: registry.yunzmall.com/yunzhong/shop:queue
     detach: yes
+    restart_policy: always
     networks:
       - name: yzshop
     network_mode: yzshop
