@@ -2,9 +2,9 @@
   remote_user: root
   gather_facts: false
   tasks:
-        - name: get old domain
-          shell: grep "^NGINX_HOST=.*" /data/.env |awk -F"=" '{print $2}'
-          register: old_domain_result
+#        - name: get old domain
+#          shell: grep "^NGINX_HOST=.*" /data/.env |awk -F"=" '{print $2}'
+#          register: old_domain_result
 
 #        - name: modify web folder name
 #          shell: mv /data/wwwroot/"{{ old_domain_result.stdout }}" /data/wwwroot/"{{ domain }}"
@@ -36,7 +36,22 @@
             name: nginx
             state: started
             restart: yes
+            networks:
+              - name: yzshop
+            network_mode: yzshop
+            env:
+              NGINX_HOST: "{{ domain }}"
+              NGINX_WEBPATH: "{{ webpath }}"
+        #    command: ['nginx', '-g', 'daemon off;']
+            ports:
+              - "80:80"
+              - "443:443"
+            volumes:
+              - /data/confs/nginx/ssl:/etc/nginx/ssl:rw
+              - /data/logs/nginx:/var/log/nginx:rw
+              - /data/wwwroot/{{ domain }}:{{ webpath }}:rw
+              - /data/confs/nginx/templates:/etc/nginx/templates:rw
           register: result
 
         - debug:
-            msg: "运行状态: {{ result.status }}"
+            msg: "运行状态: {{ result }}"
