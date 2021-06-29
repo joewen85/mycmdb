@@ -137,6 +137,18 @@
     - "    proxy_pass   http://127.0.0.1:82;}"
   when: group == "yunzhong-env" and state == "start"
 
+- name: vhost config modify reverse proxy for docker-env
+  lineinfile:
+    dest: /data/confs/nginx/templates/{{ domain }}.conf.template
+    insertbefore: '.*location .*php.*\{'
+    line:
+      "{{ item }}"
+  with_items:
+    - '  location /plugins/shop_server/ {'
+    - '    include proxy.conf;'
+    - "    proxy_pass   http://{{ backendip }}:82;}"
+  when: group == "docker-env" and state == "start"
+
 - name: vhost config modify reverse proxy for bt-env
   lineinfile:
     dest: /www/server/panel/vhost/nginx/{{ domain }}.conf
@@ -158,6 +170,28 @@
 - name: reload nginx for bt-env
   shell: /etc/init.d/nginx restart
   when: group == "bt-env"
+
+- name: reload nginx for docker-env
+  community.docker.docker_container:
+    name: nginx
+    state: started
+    restart: yes
+    networks:
+      - name: yzshop
+    network_mode: yzshop
+    env:
+      NGINX_HOST: "{{ domain }}"
+      NGINX_WEBPATH: "{{ webpath }}"
+#    command: ['nginx', '-g', 'daemon off;']
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /data/confs/nginx/ssl:/etc/nginx/ssl:rw
+      - /data/logs/nginx:/var/log/nginx:rw
+      - "{{ webpath }}:{{ webpath }}:rw"
+      - /data/confs/nginx/templates:/etc/nginx/templates:rw
+  when: group == "docker-env"
 
 - name: set boot start pm2 for yz-framework
   shell: cd {{ webpath }}/plugins/shop_server && /usr/local/node/bin/pm2 startup && pm2 save

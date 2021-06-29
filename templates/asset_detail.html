@@ -240,6 +240,7 @@
                         <input id="desc" type="text" value="" name="desc" placeholder="请输入部署原因" style="display: none">
                         <input id="subdomain" type="text" value="" name="subdomain" placeholder="二级域名" style="display: none">
                         <input id="state" type="text" value="" name="state" placeholder="pc端开启或重启(start|restart)" style="display: none">
+                        <input id="backendip" type="text" value="" name="backendip" placeholder="后端ip" style="display: none">
                     </div>
                 </div>
 
@@ -366,14 +367,17 @@
                     $('#desc').show();
                     $('#subdomain').hide();
                     $('#state').hide();
+                    $('#backendip').hide();
                 } else if(task_name === 'pcpage'){
                     $('#state').show();
+                    $('#backendip').show();
                     $('#desc').hide();
                     $('#subdomain').hide();
                 } else {
                     $('#subdomain').hide();
                     $('#desc').hide();
                     $('#state').hide();
+                    $('#backendip').hide();
                 }
             })
         })

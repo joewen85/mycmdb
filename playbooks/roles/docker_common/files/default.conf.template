@@ -7,6 +7,16 @@ server {
     index index.html index.htm index.php;
     access_log  /var/log/nginx/${NGINX_HOST}_nginx.log  main;
 
+    client_max_body_size 1024m;
+    fastcgi_connect_timeout 300;
+    fastcgi_send_timeout 300;
+    fastcgi_read_timeout 300;
+    fastcgi_buffer_size 64k;
+    fastcgi_buffers 4 64k;
+    fastcgi_busy_buffers_size 128k;
+    fastcgi_temp_file_write_size 128k;
+    fastcgi_intercept_errors on;
+    fastcgi_ignore_client_abort on;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
     ssl_prefer_server_ciphers on;
     ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';

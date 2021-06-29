@@ -301,6 +301,7 @@ class AssetFuncsView(View):
         cert_file = request.FILES.get('cert')
         private_key = request.FILES.get('privatekey')
         state = request.POST.get('state', None)
+        backendip = request.POST.get('backendip', '127.0.0.1')
         # get ssl cert and key
 
         job_obj = Jobs.objects.get(pk=job)
@@ -414,8 +415,10 @@ class AssetFuncsView(View):
                                        asset_id=asset_id, isp=cloudips_name,
                                        deploy_desc=deploy_desc,
                                        remote_ip=remote_ip, operator=operator,
-                                       start_time=start_time, state=state, job_name=job_name,
-                                       fastcgi_pass=fastcgi_pass)
+                                       start_time=start_time, state=state,
+                                       job_name=job_name,
+                                       fastcgi_pass=fastcgi_pass,
+                                       backendip=backendip)
 
             print('task_id: %s' % result.task_id)
             print('task_state: %s' % result.state)
@@ -527,6 +530,7 @@ class AnsibleViewPublic(View):
             subdomain = request.POST.get('subdomain', None)
             cert_file = request.FILES.get('cert')
             private_key = request.FILES.get('privatekey')
+            backendip = request.POST.get('backendip', None)
 
             # get ssl cert and key
             try:
@@ -806,6 +810,7 @@ class TaskView(APIView):
             mongodbuser = device_obj.mongodbuser
             mongodbaddress = device_obj.mongodbaddress
             subdomain = request.data.get('subdomain')
+            backendip = request.data.get('backendip', '127.0.0.1')
             # get ssl cert and key
             # cert_file = None
             # private_key = None
@@ -871,7 +876,8 @@ class TaskView(APIView):
                                            remote_ip=remote_ip,
                                            operator=operator,
                                            start_time=start_time,
-                                           state=state, job_name=job_name)
+                                           state=state, job_name=job_name,
+                                           backendip=backendip)
         except Exception as e:
             res['code'] = 400
             res['msg'] = "域名不存在"
