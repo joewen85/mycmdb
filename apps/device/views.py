@@ -483,7 +483,7 @@ class AnsibleViewPublic(View):
     """
 
     def get(self, request):
-        env_datas = Envirment.objects.all()
+        env_datas = Envirment.objects.filter(pk=4)
         cloudips_datas = Cloudips.objects.all()
 
         # 判断用户是否登陆，登陆显示所有任务，anonymous用户只显示10条
