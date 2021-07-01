@@ -61,30 +61,30 @@
         </label>
         <label>
             <span>网站位置 :</span>
-            <input id="position" type="text" value="" name="position" placeholder="请输入网站存放位置" required/>
+            <input id="position" type="text" value="" name="position" placeholder="/data/wwwroot/域名" required/>
             {% if verify_form %}
                 <div class="error-msg">{{ verify_form.position.0 }}</div>
             {% endif %}
         </label>
-        <label>
-                <span>ftp用户名 :</span>
-                <input type="text" value=www name="ftpuser" required/>
-            </label>
-            <label>
-                <span>ftp密码 :</span>
-                <input type="text" value=None name="ftppassword"/>
-            </label>
-            <label>
-                <span>mysql地址 :</span>
-                <input type="text" value=127.0.0.1 name="mysqladdress" required/>
-            </label>
-            <label>
-                <span>mysql用户 :</span>
-                <input type="text" value=root name="mysqluser" required/>
-            </label>
+{#        <label>#}
+{#                <span>ftp用户名 :</span>#}
+{#                <input type="text" value=www name="ftpuser" required/>#}
+{#            </label>#}
+{#            <label>#}
+{#                <span>ftp密码 :</span>#}
+{#                <input type="text" value=None name="ftppassword"/>#}
+{#            </label>#}
+{#            <label>#}
+{#                <span>mysql地址 :</span>#}
+{#                <input type="text" value=127.0.0.1 name="mysqladdress" required/>#}
+{#            </label>#}
+{#            <label>#}
+{#                <span>mysql用户 :</span>#}
+{#                <input type="text" value=root name="mysqluser" required/>#}
+{#            </label>#}
             <label>
                 <span>mysql密码 :</span>
-                <input type="text" value=None name="mysqlpassword"/>
+                <input type="text" value='' name="mysqlpassword" placeholder="输入数据库root用户密码" required/>
             </label>
         <label>
             <span>服务器环境 :</span>
@@ -114,9 +114,9 @@
                 <div class="radio-inline">
                     <label><input type="radio" name="shop_ver" value="0">独立版</label>
                 </div>
-                <div class="radio-inline">
-                    <label><input type="radio" name="shop_ver" value="1">微擎版</label>
-                </div>
+{#                <div class="radio-inline">#}
+{#                    <label><input type="radio" name="shop_ver" value="1">微擎版</label>#}
+{#                </div>#}
         </div>
         <span>任务 :</span>
         <select name="select3" id="sel" onchange="Change(this)">

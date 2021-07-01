@@ -512,7 +512,7 @@ class AnsibleViewPublic(View):
             ftppassword = request.POST.get('ftppassword', None)
             mysqladdress = request.POST.get('mysqladdress', '127.0.0.1')
             mysqluser = request.POST.get('mysqluser', 'root')
-            mysqlpassword = request.POST.get('mysqlpassword', None)
+            mysqlpassword = request.POST.get('mysqlpassword', '')
             mongodbaddress = request.POST.get('mongodbaddress', '127.0.0.1')
             mongodbuser = request.POST.get('mongodbuser', 'root')
             mongodbpassword = request.POST.get('mongodbpassword', None)
@@ -593,46 +593,47 @@ class AnsibleViewPublic(View):
             }
 
             # 公共部署判断服务器是否部署多次
-            asset_objs = Device.objects.filter(ipaddress=ipaddr)
-            if len(asset_objs) > 3:
-                messages.error(request, '服务器不能部署太多站点。！')
-                return redirect(reverse('deploy_public'))
-            # 判断数据库中是否有记录，没有则创建，有则修改
-            try:
-                custom_asset, created = Device.objects.update_or_create(
-                    hostname=domain, defaults=data)
-                custom_asset.PASSWORD.update_or_create(
-                    ipaddress=custom_asset.pk, sshpassword=encrypt_sshpassword,
-                    ftppassword=encrypt_ftppassword,
-                    mysqlpassword=encrypt_mysqlpassword,
-                    mongodbpassword=encrypt_mongodbpassword)
-                DomainDetail.objects.update_or_create(domain=domain)
-                custom_asset.PASSWORD.update_or_create(
-                    ipaddress=custom_asset.pk, sshpassword=encrypt_sshpassword,
-                    ftppassword=encrypt_ftppassword,
-                    mysqlpassword=encrypt_mysqlpassword)
-            except Exception as e:
-                print("数据异常！请联系管理员")
-
-            if created is not True:
-                times = custom_asset.deploy_times
-                weiqingshop_times = custom_asset.deploy_weiqingshop_times
-                frameworkshop_times = custom_asset.deploy_frameworkshop_times
-
-                # limit queue and cronjob check
-                if times > 5:
-                    messages.error(request, '免费部署计划任务和队列次数已用尽请联系管理员。！！！')
-                    return redirect(reverse('deploy_public'))
-
-                # limit weiqingshop check
-                elif weiqingshop_times > 1:
-                    messages.error(request, '免费部署次数已用尽请联系管理员。！！！')
-                    return redirect(reverse('deploy_public'))
-
-                # limit frameworkshop check
-                elif frameworkshop_times > 1:
-                    messages.error(request, '免费部署次数已用尽请联系管理员。！！！')
-                    return redirect(reverse('deploy_public'))
+            # asset_objs = Device.objects.filter(ipaddress=ipaddr)
+            # if len(asset_objs) > 3:
+            #     messages.error(request, '服务器不能部署太多站点。！')
+            #     return redirect(reverse('deploy_public'))
+            # # 判断数据库中是否有记录，没有则创建，有则修改
+            # created = ''
+            # try:
+            #     custom_asset, created = Device.objects.update_or_create(
+            #         hostname=domain, defaults=data)
+            #     custom_asset.PASSWORD.update_or_create(
+            #         ipaddress=custom_asset.pk, sshpassword=encrypt_sshpassword,
+            #         ftppassword=encrypt_ftppassword,
+            #         mysqlpassword=encrypt_mysqlpassword,
+            #         mongodbpassword=encrypt_mongodbpassword)
+            #     DomainDetail.objects.update_or_create(domain=domain)
+            #     custom_asset.PASSWORD.update_or_create(
+            #         ipaddress=custom_asset.pk, sshpassword=encrypt_sshpassword,
+            #         ftppassword=encrypt_ftppassword,
+            #         mysqlpassword=encrypt_mysqlpassword)
+            # except Exception as e:
+            #     print("数据异常！请联系管理员")
+            #
+            # if created:
+            #     times = custom_asset.deploy_times
+            #     weiqingshop_times = custom_asset.deploy_weiqingshop_times
+            #     frameworkshop_times = custom_asset.deploy_frameworkshop_times
+            #
+            #     # limit queue and cronjob check
+            #     if times > 5:
+            #         messages.error(request, '免费部署计划任务和队列次数已用尽请联系管理员。！！！')
+            #         return redirect(reverse('deploy_public'))
+            #
+            #     # limit weiqingshop check
+            #     elif weiqingshop_times > 1:
+            #         messages.error(request, '免费部署次数已用尽请联系管理员。！！！')
+            #         return redirect(reverse('deploy_public'))
+            #
+            #     # limit frameworkshop check
+            #     elif frameworkshop_times > 1:
+            #         messages.error(request, '免费部署次数已用尽请联系管理员。！！！')
+            #         return redirect(reverse('deploy_public'))
 
             # 执行ansible playbook
             runningjob = AnsibleApi_v2()
@@ -655,16 +656,16 @@ class AnsibleViewPublic(View):
             data = runningjob.get_playbook_result()
 
             # 累计部署记录
-            if jobname == '部署队列和计划任务':
-                Device.objects.filter(hostname=domain).update(
-                    deploy_times=F('deploy_times') + 1)
-            elif jobname == '部署微擎或商城(微擎框架)':
-                Device.objects.filter(hostname=domain).update(
-                    deploy_weiqingshop_times=F('deploy_weiqingshop_times') + 1)
-            elif jobname == '部署框架商城(芸众框架)':
-                Device.objects.filter(hostname=domain).update(
-                    deploy_frameworkshop_times=F(
-                        'deploy_frameworkshop_times') + 1)
+            # if jobname == '部署队列和计划任务':
+            #     Device.objects.filter(hostname=domain).update(
+            #         deploy_times=F('deploy_times') + 1)
+            # elif jobname == '部署微擎或商城(微擎框架)':
+            #     Device.objects.filter(hostname=domain).update(
+            #         deploy_weiqingshop_times=F('deploy_weiqingshop_times') + 1)
+            # elif jobname == '部署框架商城(芸众框架)':
+            #     Device.objects.filter(hostname=domain).update(
+            #         deploy_frameworkshop_times=F(
+            #             'deploy_frameworkshop_times') + 1)
 
             # 获取结果
             if data['ok']:
@@ -678,12 +679,12 @@ class AnsibleViewPublic(View):
                 operator = request.user.username
             else:
                 operator = '免费用户'
-
-            # 添加部署记录
-            Deploy_record.objects.create(
-                deploy_datetime=datetime.datetime.now(), hostname=custom_asset,
-                operator=operator, remote_ip=remote_ip, desc=deploy_desc,
-                jobname=jobname, result=deploy_result)
+            #
+            # # 添加部署记录
+            # Deploy_record.objects.create(
+            #     deploy_datetime=datetime.datetime.now(), hostname=custom_asset,
+            #     operator=operator, remote_ip=remote_ip, desc=deploy_desc,
+            #     jobname=jobname, result=deploy_result)
             print(json.dumps(data, indent=4))
             return render(request, "deploy_result.html",
                           {"data": data, "domain": domain})
