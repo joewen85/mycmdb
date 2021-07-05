@@ -143,12 +143,15 @@
 
 - name: create folder
   file: path=/etc/supervisord.d state=directory
+
 - name: weiqing config
   template: src=weiqin-start.j2 dest=/etc/supervisord.d/{{ subdomain }}.ini
-  when: shop_version == "1" and group == "yunzhong-env" and group == "bt-env"
-- name: yunzhong framework config
+  when: shop_version == "1" and group == "yunzhong-env" or group == "bt-env"
+
+
+- name: yunzhong framework
   template: src=yz-framework-start.j2 dest=/etc/supervisord.d/{{ subdomain }}.ini
-  when: shop_version == "0" and group == "yunzhong-env" and group == "bt-env"
+  when: shop_version == "0" and group == "yunzhong-env" or group == "bt-env"
 
 - name: create log folder with yunzhong framework
   file:
@@ -157,7 +160,7 @@
     owner: www
     group: www
     mode: '0770'
-  when: shop_version == "0" and group == "yunzhong-env" and group == "bt-env"
+  when: shop_version == "0" and group == "yunzhong-env" or group == "bt-env"
 
 - name: create log folder with weiqin
   file:
@@ -166,7 +169,7 @@
     owner: www
     group: www
     mode: '0755'
-  when: shop_version == "1" and group == "yunzhong-env" and group == "bt-env"
+  when: shop_version == "1" and group == "yunzhong-env" or group == "bt-env"
 
 - name: create log folder with docker-env
   file:
@@ -179,10 +182,10 @@
 
 - name: create log file with yunzhong framework
   shell: touch "{{ webpath }}/storage/logs/yun_sign_server/all_signserver.log" &&  chown www:www "{{ webpath }}/storage/logs/yun_sign_server/all_signserver.log"
-  when: shop_version == "0" and group == "yunzhong-env" and group == "bt-env"
+  when: shop_version == "0" and group == "yunzhong-env" or group == "bt-env"
 - name: create log file with weiqin
   shell: touch "{{ webpath }}/addons/yun_shop/storage/logs/yun_sign_server/all_signserver.log" && chown www:www "{{ webpath }}/addons/yun_shop/storage/logs/yun_sign_server/all_signserver.log"
-  when: shop_version == "1" and group == "yunzhong-env" and group == "bt-env"
+  when: shop_version == "1" and group == "yunzhong-env" or group == "bt-env"
 - name: create log file with docker-env
   file:
     path: "{{ webpath }}/storage/logs/yun_sign_server/all_signserver.log"
@@ -196,7 +199,7 @@
   service:
     name: supervisord
     state: restarted
-  when: group == "yunzhong-env" and group == "bt-env"
+  when: group == "yunzhong-env" or group == "bt-env"
 
 - name: openjdk docker
   community.docker.docker_container:
