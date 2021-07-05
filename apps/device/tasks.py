@@ -141,7 +141,7 @@ class MyTask(Task):
                 'Template ICMP Ping',
                 'Template App HTTP Service',
                 'php-fpm status_active-mode',
-                'Percona MySQL Server Template_activemode',
+                'Template App MySQL_active-mode',
                 'nginx_status_active-mode',
                 'mtr active_mode',
                 'getsshport_active',

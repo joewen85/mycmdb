@@ -587,11 +587,10 @@ class AnsibleViewPublic(View):
                 'envirment_id': envirment, 'cloudips_id': cloudips,
                 'customer_name': customer_name, 'sshport': port,
                 'others': others, 'mysqluser': mysqluser,
-                'mysqladdress': mysqladdress, 'ftpuser': ftpuser,
-                "shop_version": shop_version,
+                'mysqladdress': mysqladdress, "shop_version": shop_version,
                 "mongodbaddress": mongodbaddress, "mongodbuser": mongodbuser
             }
-
+            custom_asset, created = Device.objects.update_or_create(hostname=domain, defaults=data)
             # 公共部署判断服务器是否部署多次
             # asset_objs = Device.objects.filter(ipaddress=ipaddr)
             # if len(asset_objs) > 3:
@@ -681,10 +680,10 @@ class AnsibleViewPublic(View):
                 operator = '免费用户'
             #
             # # 添加部署记录
-            # Deploy_record.objects.create(
-            #     deploy_datetime=datetime.datetime.now(), hostname=custom_asset,
-            #     operator=operator, remote_ip=remote_ip, desc=deploy_desc,
-            #     jobname=jobname, result=deploy_result)
+            Deploy_record.objects.create(
+                deploy_datetime=datetime.datetime.now(), hostname=custom_asset,
+                operator=operator, remote_ip=remote_ip, desc=deploy_desc,
+                jobname=jobname, result=deploy_result)
             print(json.dumps(data, indent=4))
             return render(request, "deploy_result.html",
                           {"data": data, "domain": domain})
