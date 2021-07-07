@@ -60,14 +60,10 @@
     mode: 0755
 
 - name: deploy shop
-#  copy:
-#    src: framework-yun_shop_{{ download_vers }}.zip
-#    dest: "{{ webpath }}"
-#    force: yes
-  get_url:
-    url: "https://downloads.yunzmall.com/framework-yun_shop_{{ download_vers }}.zip"
+  copy:
+    src: framework-yun_shop_{{ download_vers }}.zip
     dest: "{{ webpath }}"
-    timeout: 5
+    force: yes
 
 - name: unarchive framework_shop
   ansible.builtin.unarchive:
