@@ -113,6 +113,7 @@
       MYSQL_ROOT_PASSWORD: "{{ mysql_password }}"
       MYSQL_ROOT_HOST: "%"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - /data/mysql:/var/lib/mysql:rw
 
 - name: run redis service
@@ -128,6 +129,7 @@
     ports:
       - "127.0.0.1:6379:6379"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - /data/confs/redis/redis.conf:/usr/local/etc/redis/redis.conf
       - /data/redis:/data
 
@@ -141,6 +143,7 @@
       - name: yzshop
     network_mode: yzshop
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - /data/wwwroot/{{ domain }}:{{ webpath }}
 
 - name: run nginx service
@@ -160,6 +163,7 @@
       - "80:80"
       - "443:443"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - /data/confs/nginx/ssl:/etc/nginx/ssl:rw
       - /data/logs/nginx:/var/log/nginx:rw
       - /data/wwwroot/{{ domain }}:{{ webpath }}:rw
@@ -176,6 +180,7 @@
     network_mode: yzshop
     command: ['/usr/bin/supervisord', '-c', '/etc/supervisord.conf']
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - /data/confs/supervisord:/etc/supervisor.d
       - /data/logs/supervisor:/var/log/supervisor
       - /data/wwwroot/{{ domain }}:{{ webpath }}
