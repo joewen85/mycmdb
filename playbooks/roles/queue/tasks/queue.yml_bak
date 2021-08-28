@@ -1,0 +1,21 @@
+- name: install supervisor software
+  yum: name=supervisor state=latest enablerepo=epel
+- name: change config
+  copy: src=supervisord.conf dest=/etc/supervisord.conf
+- name: change service
+  copy: src=supervisord.service dest=/lib/systemd/system/supervisord.service
+- name: create folder
+  file: path=/etc/supervisord.d state=directory
+- name: jude artisan file exist or not
+  stat: path={{ webpath }}/artisan
+  register: artisan_result
+- template: src=weiqing.j2 dest=/etc/supervisord.d/{{ domain }}.ini
+  when: artisan_result.stat.exists == False
+- template: src=framework.j2 dest=/etc/supervisord.d/{{ domain }}.ini
+  when: artisan_result.stat.exists
+- name: reload systemctl
+  command: systemctl daemon-reload
+- name: start supervisord
+  service: name=supervisord state=restarted enabled=yes
+- debug:
+    msg: "队列和计划任务部署成功"

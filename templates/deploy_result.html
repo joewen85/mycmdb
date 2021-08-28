@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    客户管理系统 | 任务执行结果
+{% endblock %}
+{% block content %}
+    <img src="{% static  "images/LOGO.png" %}">
+    <form class="smart-green">
+        <h1>运行结果：</h1>
+        <div class="resultall" style="display: block">
+            {% if messages %}
+                {% for msg in messages %}
+                    <script>
+                        alert('{{ msg.message }}');
+                    </script>
+                {% endfor %}
+            {% endif %}
+
+            {% if error %}
+                <script>
+                    alert('{{ error }}')
+                </script>
+            {% endif %}
+
+            <p>主机：{{ domain }}</p>
+            <p>成功:{{ data.status.ok }}</p>
+            {% if data.status.failures >= 1 %}
+                <p class="error-msg">失败:{{ data.status.failures }}</p>
+            {% else %}
+                <p>失败:{{ data.status.failures }}</p>
+            {% endif %}
+            {% if data.status.unreachable >= 1 %}
+                <p class="error-msg">不可达:{{ data.status.unreachable }}</p>
+            {% else %}
+                <p>不可达:{{ data.status.unreachable }}</p>
+            {% endif %}
+        </div>
+
+        {% if data.ok %}
+            <div class="ok_list" style="display: block">
+                <p>-------------ok detail---------------</p>
+                {% if data.ok.stdout %}
+                    {{ data.ok.stdout|safe }}
+                {% elif data.ok.msg %}
+                    {{ data.ok.msg|safe }}
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if data.status.failures %}
+            <div style="display: block" class="failed_list">
+                <p>-------------failed detail---------------</p>
+                {% if data.failed.msg %}
+                    {{ data.failed.msg }}
+                    {{ data.failed.stderr }}
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if data.unreachable %}
+            <div class="unreachable_list">
+                <p>-------------unreachable detail---------------</p>
+                {% if "Failed to connect to the host" in data.unreachable.msg %}
+                    无法连接{{ ipaddress }},请检查服务器连接信息！
+                {% endif %}
+            </div>
+        {% endif %}
+        {{ result }}
+    </form>
+{% endblock %}
+{% block extend_js %}
+{#    <script>#}
+{#        let next_url = "";#}
+{#        let timejump = 5500;#}
+{#        $(function () {#}
+{#            setTimeout(function () {#}
+{#                window.location.href = next_url;#}
+{#            }, timejump)#}
+{#        })#}
+{#    </script>#}
+{% endblock %}
+

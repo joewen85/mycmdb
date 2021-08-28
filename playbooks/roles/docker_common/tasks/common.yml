@@ -1,0 +1,129 @@
+- name: install dependen
+  dnf:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+     - epel-release
+     - gcc
+     - gcc-c++
+     - make
+     - wget
+     - lsof
+     - vim
+     - glibc-devel
+     - unzip
+     - python3
+
+- name: install python docker models
+  shell: python3 -m pip install --user -i https://pypi.tuna.tsinghua.edu.cn/simple docker pyyaml docker-compose
+
+- name: disable firewalld
+  service:
+    name: firewalld
+    enabled: no
+    state: stopped
+
+- name: open ipv4 forward
+  shell: sed -i 's/^net.ipv4.ip_forward = .*/net.ipv4.ip_forward = 1/' /etc/sysctl.conf
+
+- name: change allocate memory
+  shell: echo "vm.overcommit_memory = 1" >> /etc/sysctl.conf
+
+- name: apply sysctl.config
+  shell: sysctl -p
+
+- name: install docker srver
+  unarchive:
+    src: "https://downloads.yunzmall.com/docker-{{ docker_version }}.tgz"
+    dest: /tmp/
+    remote_src: yes
+
+- name: mv docker exec to /usr/bin
+  shell: mv /tmp/docker/* /usr/bin/
+
+- name: cp docker service file
+  copy:
+    src: docker.service
+    dest: /lib/systemd/system/docker.service
+
+- name: create docker config folder
+  file:
+    path: /etc/docker
+    state: directory
+
+- name: cp repo setting
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+
+#- name: cp cert
+#  copy:
+#    src: server_cert.zip
+#    dest: /etc/docker/
+
+- name: unzip cert
+  unarchive:
+    src: server_cert.zip
+    dest: /etc/docker/
+    remote_src: no
+    mode: '0600'
+
+#- name: cp server cert
+#  copy:
+#    src: server-cert.pem
+#    dest: /etc/docker/server-cert.pem
+#    mode: '0600'
+#
+#- name: cp server key
+#  copy:
+#    src: server-key.pem
+#    dest: /etc/docker/server-key.pem
+#    mode: '0600'
+
+- name: set docker service
+  shell: systemctl daemon-reload && systemctl enable docker && systemctl start docker
+
+- name: create data folder
+  file:
+    path: /data
+    state: directory
+
+#- name: download docker-compose binany
+#  get_url:
+#    url: https://downloads.yunzmall.com/docker-compose
+#    dest: /usr/bin/docker-compose
+#    mode: u+rwx
+
+- name: 修改日志记录条目
+  lineinfile:
+    dest: /etc/bashrc
+    state: present
+    regexp: '^export HISTSIZE=.*'
+    line: 'export HISTSIZE=4000'
+- name: 修改histor配置详细记录1
+  lineinfile:
+    dest: /etc/bashrc
+    insertafter: '^export HISTSIZE=.*'
+    line: "USER_IP=$(who -u am i 2>/dev/null| awk '{print $NF}'|sed -e 's/[()]//g')\n[ -z ${USER_IP} ] && USER_IP=$(hostname)"
+- name: 修改histor配置详细记录2
+  lineinfile:
+    dest: /etc/bashrc
+    state: present
+    regexp: '^export HISTTIMEFORMAT="%F %T.*'
+    line: 'export HISTTIMEFORMAT="%F %T ${USER_IP}:$(whoami) "'
+- name: 修改histor配置详细记录3
+  lineinfile:
+    dest: /etc/bashrc
+    state: present
+    regexp: '^export PROMPT_COMMAND=.*'
+    line: 'export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"'
+- name: 修改histor配置详细记录4
+  lineinfile:
+    dest: /etc/bashrc
+    state: present
+    regexp: '^unset HISTCONTROL'
+    line: 'unset HISTCONTROL'
+- name: 应用配置
+  shell: source /etc/bashrc
+

@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+{% block title %}
+    客户管理系统 | 资产详情
+{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="/static/xterm/xterm.css"/>
+    <!-- <link rel="stylesheet" href="/static/xterm/style.css"/> -->
+    <link rel="stylesheet" href="/static/xterm/fullscreen.css"/>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="header-group">
+            {{ block.super }}
+            {% if messages %}
+                <script>
+                    {% for msg in messages %}
+                        alert('{{ msg.message }}');
+                    {% endfor %}
+                </script>
+            {% endif %}
+        </div>
+        <div style="margin-top: 10px" id="form" class="main-group">
+            <form id="server_detail" method="post" class="form-horizontal smart-green" role="form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <input type="hidden" id="asset_id" class="smart-green asset_id" value="{{ asset_detail.id }}" name="asset_id">
+                    <input type="hidden" id="decrypt_status" value="">
+                </div>
+{#              {% for foo in asset_detail %}#}
+                <div class="form-group">
+                    <label for="custom-name" class="col-sm-2 control-label">客户名称</label>
+                    <div class="col-sm-10">
+                        <input type="text" value={{ asset_detail.customer_name }} name="customer_name" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="domain" class="col-sm-2 control-label">域名</label>
+                    <div class="col-sm-10">
+                        <input type="text" value={{ asset_detail.hostname }} name="domain" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ipaddress" class="col-sm-2 control-label">IP地址</label>
+                    <div class="col-sm-10">
+                        <input type="text" value={{ asset_detail.ipaddress }} name="ipaddress" id="host" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="" class="col-sm-3 control-label">服务器连接端口</label>
+                    <div class="col-sm-9">
+                        <input type="text" value={{ asset_detail.sshport }} name="port" id="port" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="username" class="col-sm-3 control-label">服务器登录用户</label>
+                    <div class="col-sm-9">
+                        <input type="text" value={{ asset_detail.sshuser }} name="username" id="user" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="col-sm-3 control-label">服务器登录密码</label>
+                    <div class="col-sm-8">
+                        <input class="password form-control" value={{ password_records.sshpassword }} name="password" id="password"/>
+                    </div>
+                    <div class="col-sm-1" style="padding-left: 0px; padding-top: 10px"><i class="iconfont icon-yanjing1 show-password"></i></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="position" class="col-sm-2 control-label">网站位置</label>
+                    <div class="col-sm-10">
+                        <input type="text" value={{ asset_detail.websitepath }} name="position" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ftpuser" class="col-sm-3 control-label">FTP用户名</label>
+                    <div class="col-sm-9">
+                        <input type="text" value={{ asset_detail.ftpuser }} name="ftpuser" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ftppassword" class="col-sm-3 control-label">FTP密码</label>
+                    <div class="col-sm-9">
+                        <input type="text" id="ftppassword" value={{ password_records.ftppassword }} name="ftppassword" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mysqladdress" class="col-sm-3 control-label">MYSQL地址</label>
+                    <div class="col-sm-9">
+                        <input type="text" value={{ asset_detail.mysqladdress }} name="mysqladdress" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mysqluser" class="col-sm-3 control-label">MYSQL用户</label>
+                    <div class="col-sm-9">
+                        <input type="text" value={{ asset_detail.mysqluser }} name="mysqluser" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mysqlpassword" class="col-sm-3 control-label">MYSQL密码</label>
+                    <div class="col-sm-9">
+                        <input type="text" id="mysqlpassword" value={{ password_records.mysqlpassword }} name="mysqlpassword" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mongodbaddress" class="col-sm-3 control-label">Mongodb地址</label>
+                    <div class="col-sm-9">
+                        <input type="text" id="mongodbaddress" value={{ asset_detail.mongodbaddress }} name="mongodbaddress" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mongodbuser" class="col-sm-3 control-label">Mongodb用户</label>
+                    <div class="col-sm-9">
+                        <input type="text" id="mongodbuser" value={{ asset_detail.mongodbuser }} name="mongodbuser" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mongodbpassword" class="col-sm-3 control-label">Mongodb密码</label>
+                    <div class="col-sm-9">
+                        <input type="text" id="mongodbpassword" value={{ password_records.mongodbpassword }} name="mongodbpassword" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="select_env">服务器环境</label>
+                    <select name="select_env" id="select_env" class="form-control">
+                    {% for env in env_lists %}
+                        {% if env.describe == asset_detail.envirment.describe %}
+                            <option value="{{ env.id }}"
+                                    selected="{{ asset_detail.envirment.describe }}" name="env">{{ env.describe }}</option>
+                        {% else %}
+                            <option value="{{ env.id }}">{{ env.describe }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="select_isp">服务器运营商</label>
+                    <select name="select_isp" id="select_isp" class="form-control">
+                        {% for cloudisp in cloudisp_list %}
+                            {% if cloudisp.describe == asset_detail.cloudips.describe %}
+                                <option value="{{ cloudisp.id }}" selected="{{ asset_detail.cloudips.describe }}"
+                                        name="cloudips">{{ cloudisp.describe }}</option>
+                            {% else %}
+                                <option value="{{ cloudisp.id }}">{{ cloudisp.describe }}</option>
+                            {% endif %}
+                        {% endfor %}
+                </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="cert">证书cert(nginx)</label>
+                    <input type="file" name="cert" id="certFile">
+                    <label for="privateKey">证书key(nginx)</label>
+                    <input type="file" name="privatekey" id="keyFile">
+                </div>
+
+                <div class="form-group">
+                    <label for="others">其它</label>
+                    <textarea name="others" class="form-control">{{ asset_detail.others }}</textarea>
+                </div>
+
+                {% if asset_detail.shop_version %}
+                    <div class="radio">
+                        <div class="radio-inline">
+                            <label><input type="radio" name="shop_ver" value="0" >独立版</label>
+                        </div>
+                        <div class="radio-inline">
+                            <label><input type="radio" name="shop_ver" value="1" checked>微擎版</label>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="radio">
+                        <div class="radio-inline">
+                            <label><input type="radio" name="shop_ver" value="0" checked>独立版</label>
+                        </div>
+                        <div class="radio-inline">
+                            <label><input type="radio" name="shop_ver" value="1">微擎版</label>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="checkbox">
+                    <label>
+                        {% if asset_detail.paid %}
+                            <input type="checkbox" class="checkbox-inline" id="vers" value="{{ asset_detail.paid }}" name="vers"
+                                   checked="checked" style="margin-right: 20px">
+                        {% else %}
+                            <input type="checkbox" class="checkbox-inline" id="vers" value="{{ asset_detail.paid }}" name="vers" style="margin-right: 20px">
+                        {% endif %}
+                        <script>
+                            $("#vers").click(function () {
+                                if ($(this).is(":checked")) {
+                                    $("[name=vers]:checkbox").prop("value", true)
+                                } else {
+                                    $("[name=vers]:checkbox").prop("value", false)
+                                }
+                            })
+                        </script>
+                    是否收费版</label>
+                </div>
+
+                {% if asset_detail.is_maintenance %}
+                    <div class="form-group">
+                        <label for="maintenance_duration" class="col-sm-2 control-label">维护期限</label>
+                        <div class="col-sm-10">
+                             <input type="text" value={{ asset_detail.maintenance_duration }} name="maintenance_duration" readonly class="form-control"/>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="deploy_time" class="col-sm-3 control-label">部署次数</label>
+                    <div class="col-sm-9">
+                        <input class="form-control" type="text" value={{ asset_detail.deploy_times }} name="deploy_times" readonly/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="select1">任务</label>
+{#                    <select name="select1" id="sel" class="form-control" onchange="Change(this)">#}
+                    <select name="select1" id="sel" class="form-control">
+                        {% for job in task_list %}
+                            <option value={{ job.jid }}>{{ job.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div id="dynSelectShow">
+                        <input id="desc" type="text" value="" name="desc" placeholder="请输入部署原因" style="display: none">
+                        <input id="subdomain" type="text" value="" name="subdomain" placeholder="二级域名" style="display: none">
+                        <input id="state" type="text" value="" name="state" placeholder="pc端开启或重启(start|restart)" style="display: none">
+                        <input id="backendip" type="text" value="" name="backendip" placeholder="后端ip" style="display: none">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {% if deploy_records %}
+                        <table class="smart-green" border="1" style="width: auto; padding: 0;">
+                            <thead>
+                                <tr>
+                                    <th>序号:</th>
+                                    <th>操作员:</th>
+                                    <th>操作IP地址:</th>
+                                    <th>部署时间:</th>
+                                    <th>部署说明:</th>
+                                    <th>部署任务:</th>
+                                    <th>结果:</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for deploy_record in deploy_records %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ deploy_record.operator }}</td>
+                                        <td>{{ deploy_record.remote_ip }}</td>
+                                        <td>{{ deploy_record.deploy_datetime }}</td>
+                                        <td>{{ deploy_record.desc }}</td>
+                                        <td>{{ deploy_record.jobname }}</td>
+                                        <td>{{ deploy_record.result }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                        </table>
+                     {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" name="deploy" class="btn btn-success">开始部署任务</button>
+                    <button type="submit" id="m" name="assetupdate" class="btn btn-info">修改资产先点解密</button>
+{#                    <button type="submit" name="assetdelete" class="btn btn-danger" onclick="mysubmit(3)">删除资产</button>#}
+                    <button type="submit" name="assetdelete" class="btn btn-danger">删除资产</button>
+                    <button type="button" class="btn btn-default" onclick="websocket()">SSH登陆</button>
+                    <input type="hidden" value="{{ user }}" name="user">
+                    {% csrf_token %}
+                </div>
+            </form>
+        </div>
+
+        <div id="django-webssh-terminal" class="hide">
+            <div id="terminal"></div>
+        </div>
+    </div>
+
+    <script src="/static/xterm/xterm.js"></script>
+    <script src="/static/xterm/fullscreen.js"></script>
+    <!-- <script src="/static/xterm/terminado.js"></script> -->
+    <script src="/static/js/webssh.js"></script>
+    <script src="/static/xterm/fit.js"></script>
+    <script>
+        $('#iconfont').css({
+                'cursor': 'pointer'
+            });
+        // # ajax 刷新
+        $('.show-password').click(function () {
+            var asset_id = $('#asset_id').val();
+            $.ajax({
+                url: "/decryption/",
+                type: "get",
+                data: {
+                    assetid: asset_id
+                },
+                success: function (response) {
+                    console.log(response)
+                    if (response['sshpassword_state']){
+                        $('.password').val(response['sshpassword'])
+                        $('#decrypt_status').val(response['sshpassword_state'])
+                    } else {
+                        alert("ssh服务器登陆密码解密失败")
+                        $('#decrypt_password').val(response['sshpassword_state'])
+                    };
+
+                    if (response['ftppassword_state']){
+                        $('#ftppassword').val(response['ftppassword']);
+                    } else {
+                        alert("ftp密码解密失败")
+                    };
+
+                    if (response['mysqlpassword_state']){
+                        $('#mysqlpassword').val(response['mysqlpassword'])
+                    } else {
+                        alert("mysql密码解密失败")
+                    };
+
+                    if (response['mongodbpassword_state']){
+                        $('#mongodbpassword').val(response['mongodbpassword'])
+                    } else {
+                        alert("mongodb密码解密失败")
+                    }
+                },
+                error:function (response) {
+                    console.log(response);
+                    alert('无权限操作，请联系管理员')
+                }
+            })
+        });
+
+        $(".btn-info").click(function () {
+            {#console.log(document.getElementById('server_detail'))#}
+            var decrypt_status = $('#decrypt_status').val();
+           if( decrypt_status ){
+               return true;
+           } else {
+               alert('无解密无法修改资料，请先点解密')
+               return false;
+           }
+        });
+
+        $(document).ready(function () {
+            $('#sel').change(function () {
+                const task_name = sel.options[sel.selectedIndex].text;
+                if (task_name === 'esign'){
+                    $('#subdomain').show();
+                    $('#desc').hide();
+                    $('#state').hide();
+                } else if(task_name === '部署队列和计划任务'){
+                    $('#desc').show();
+                    $('#subdomain').hide();
+                    $('#state').hide();
+                    $('#backendip').hide();
+                } else if(task_name === 'pcpage'){
+                    $('#state').show();
+                    $('#backendip').show();
+                    $('#desc').hide();
+                    $('#subdomain').hide();
+                } else {
+                    $('#subdomain').hide();
+                    $('#desc').hide();
+                    $('#state').hide();
+                    $('#backendip').hide();
+                }
+            })
+        })
+    </script>
+{% endblock %}
+

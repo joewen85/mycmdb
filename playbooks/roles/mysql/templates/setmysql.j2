@@ -1,0 +1,56 @@
+#!/bin/bash
+
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US:en
+Mem=`free -m | awk '/Mem:/{print $2}'`
+
+sed -i 's@executing mysqld_safe@executing mysqld_safe\nexport LD_PRELOAD=/usr/local/lib/libjemalloc.so@' {{ mysql_install_dir }}/bin/mysqld_safe
+sed -i "s@/usr/local/mysql@{{ mysql_install_dir }}@g" {{ mysql_install_dir }}/bin/mysqld_safe
+#sed -i "s@^basedir=.*@basedir={{ mysql_install_dir }}@" /etc/init.d/mysqld
+#sed -i "s@^datadir=.*@datadir={{ mysql_data_dir }}@" /etc/init.d/mysqld
+
+sed -i "s@max_connections.*@max_connections = $((${Mem}/3))@" /etc/my.cnf
+if [ ${Mem} -gt 1500 -a ${Mem} -le 2500 ]; then
+    sed -i 's@^thread_cache_size.*@thread_cache_size = 16@' /etc/my.cnf
+    sed -i 's@^query_cache_size.*@query_cache_size = 16M@' /etc/my.cnf
+    sed -i 's@^myisam_sort_buffer_size.*@myisam_sort_buffer_size = 16M@' /etc/my.cnf
+    sed -i 's@^key_buffer_size.*@key_buffer_size = 16M@' /etc/my.cnf
+    sed -i 's@^innodb_buffer_pool_size.*@innodb_buffer_pool_size = 128M@' /etc/my.cnf
+    sed -i 's@^tmp_table_size.*@tmp_table_size = 32M@' /etc/my.cnf
+    sed -i 's@^table_open_cache.*@table_open_cache = 256@' /etc/my.cnf
+elif [ ${Mem} -gt 2500 -a ${Mem} -le 3500 ]; then
+    sed -i 's@^thread_cache_size.*@thread_cache_size = 32@' /etc/my.cnf
+    sed -i 's@^query_cache_size.*@query_cache_size = 32M@' /etc/my.cnf
+    sed -i 's@^myisam_sort_buffer_size.*@myisam_sort_buffer_size = 32M@' /etc/my.cnf
+    sed -i 's@^key_buffer_size.*@key_buffer_size = 64M@' /etc/my.cnf
+    sed -i 's@^innodb_buffer_pool_size.*@innodb_buffer_pool_size = 512M@' /etc/my.cnf
+    sed -i 's@^tmp_table_size.*@tmp_table_size = 64M@' /etc/my.cnf
+    sed -i 's@^table_open_cache.*@table_open_cache = 512@' /etc/my.cnf
+elif [ ${Mem} -gt 3500 ]; then
+    sed -i 's@^thread_cache_size.*@thread_cache_size = 64@' /etc/my.cnf
+    sed -i 's@^query_cache_size.*@query_cache_size = 64M@' /etc/my.cnf
+    sed -i 's@^myisam_sort_buffer_size.*@myisam_sort_buffer_size = 64M@' /etc/my.cnf
+    sed -i 's@^key_buffer_size.*@key_buffer_size = 256M@' /etc/my.cnf
+    sed -i 's@^innodb_buffer_pool_size.*@innodb_buffer_pool_size = 1024M@' /etc/my.cnf
+    sed -i 's@^tmp_table_size.*@tmp_table_size = 128M@' /etc/my.cnf
+    sed -i 's@^table_open_cache.*@table_open_cache = 1024@' /etc/my.cnf
+fi
+
+chkconfig --add mysqld
+chkconfig mysqld on
+{{ mysql_install_dir }}/bin/mysqld --initialize-insecure --user=mysql --basedir={{ mysql_install_dir }} --datadir={{ mysql_data_dir }}
+if [ $? -eq 0 ];then
+    ln -s /usr/local/jemalloc/lib/libjemalloc.so.2 /usr/local/lib/libjemalloc.so
+    /etc/init.d/mysqld start
+    [ -z "$(grep ^'export PATH=' /etc/profile)" ] && echo "export PATH={{ mysql_install_dir }}/bin:\$PATH" >> /etc/profile
+      [ -n "$(grep ^'export PATH=' /etc/profile)" -a -z "$(grep {{ mysql_install_dir }} /etc/profile)" ] && sed -i "s@^export PATH=\(.*\)@export PATH={{ mysql_install_dir }}/bin:\1@" /etc/profile
+    . /etc/profile
+    {{ mysql_install_dir }}/bin/mysql -e "grant all privileges on *.* to root@'127.0.0.1' identified by \"{{ result.stdout }}\" with grant option;"
+    {{ mysql_install_dir }}/bin/mysql -e "grant all privileges on *.* to root@'localhost' identified by \"{{ result.stdout }}\" with grant option;"
+    {{ mysql_install_dir }}/bin/mysql -uroot -p'{{ result.stdout }}' -e "reset master;"
+    rm -rf /etc/ld.so.conf.d/{mysql,mariadb,percona,alisql}*.conf
+    echo "{{ mysql_install_dir }}/lib" > /etc/ld.so.conf.d/z-mysql.conf
+    ldconfig
+else
+    echo "initial mysql error"
+fi

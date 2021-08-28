@@ -1,0 +1,39 @@
+- name: install deploy package
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+     - perl
+- name: centos7 unarchive openssl
+  unarchive:
+#    src: openssl-{{ openssl_ver }}.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/openssl/openssl-1.1.1i.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: centos8 unarchive openssl
+  unarchive:
+#    src: openssl-{{ openssl_ver }}_centos8.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/openssl/openssl-{{ openssl_ver }}_centos8.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+- name: touch library file
+  file:
+    path: /etc/ld.so.conf.d/openssl.conf
+    state: touch
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: create library configure
+  lineinfile:
+    dest: /etc/ld.so.conf.d/openssl.conf
+    state: present
+    regexp: '^/usr/local/ssl/lib$'
+    line: '/usr/local/ssl/lib'
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: apply library
+  shell: ldconfig
+- name: get cacert
+  get_url:
+    url: http://downloads.yunzmall.com/cacert.pem
+    dest: /usr/local/ssl/cacert.pem

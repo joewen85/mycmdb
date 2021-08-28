@@ -1,0 +1,6 @@
+---
+# Variable configuration
+
+# config tasks
+#- include_tasks: queue.yml
+- include_tasks: cronjob.yml

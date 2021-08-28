@@ -1,0 +1,33 @@
+#!/bin/bash
+# Author: Joe wen
+# Blog: https://www.joewen.net
+# Time: 2020-11-06 11:17:23
+# Name: check_db_tables.sh
+# Version: v1.0
+# Description: This is a Script.
+
+host_name={{ mysql_address }}
+user_name={{ mysql_user }}
+user_pwd={{ mysql_password }}
+shop_version={{ shop_version }}
+
+if [ ${shop_version} -eq 0 ]; then
+    # 芸众框架
+    db_name=$(grep ".*master.*database" {{ webpath }}/database/config.php |awk -F"'" '{print $8}')
+elif [ ${shop_version} -eq 1 ]; then
+    # 微擎
+    db_name=$(grep ".*master.*database" {{ webpath }}/data/config.php |awk -F"'" '{print $8}')
+fi
+
+tables=$(mysql -h$host_name -u$user_name -p$user_pwd $db_name -A -Bse "show tables" 2>/dev/null)
+if [ "${tables}" = "" -o "${db_name}" = "" ];then
+    echo "数据库信息不对或数据库为空！"
+else
+    for table_name in $tables
+    do
+        check_result=$(mysql -h$host_name -u$user_name -p$user_pwd $db_name -A -Bse "check table $table_name" | awk '{ print $4 }' 2>/dev/null)
+        if [ "$check_result" != "OK" ]; then
+            echo "$table_name已损坏"
+        fi
+    done
+fi

@@ -1,0 +1,86 @@
+- name: add mongodb user
+  user: name=mongodb shell=/sbin/nologin
+  when: group != "docker-env"
+- name: centos install dependen
+  yum:
+    name: expect
+    state: present
+  when: group != "docker-env"
+- name: centos install mongodb
+  unarchive:
+    src: "https://downloads.yunzmall.com/playbook_source/mongodb/mongodb-linux-x86_64-rhel{{ansible_distribution_major_version}}0-{{ mongodb_ver }}.tgz"
+    dest: /usr/local/
+    owner: mongodb
+    group: mongodb
+    remote_src: yes
+  when: group != "docker-env"
+- name: create mongodb_install_dir
+  shell: mv /usr/local/mongodb-linux-x86_64-rhel{{ansible_distribution_major_version}}0-{{ mongodb_ver }} {{ mongodb_install_dir }}
+  when: group != "docker-env"
+#   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+# - name: centos7 install mongodb
+#   unarchive:
+#     src: "https://downloads.yunzmall.com/playbook_source/mongodb/mongodb-linux-x86_64-rhel70-{{ mongodb_ver_centos7 }}.tgz"
+#     dest: {{ mongodb_install_dir }}
+#     owner: mongodb
+#     group: mongodb
+#     remote_src: yes
+#   when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: create mongo data
+  file:
+    path: "{{ mongo_data_dir }}"
+    state: directory
+    owner: mongodb
+    group: mongodb
+  when: group != "docker-env"
+- name: set mongodb config file
+  template:
+    src: mongod.j2
+    dest: /etc/mongod.conf
+  when: group != "docker-env"
+- name: set mongodb service file
+  template:
+    src: mongodb.service.j2
+    dest: /lib/systemd/system/mongodb.service
+  when: group != "docker-env"
+- name: reload systemd
+  shell: systemctl daemon-reload
+  when: group != "docker-env"
+- name: set mongodb service start and onboot
+  service:
+    name: mongodb
+    enabled: yes
+    state: restarted
+  when: group != "docker-env"
+- name: create passwd
+  shell: mkpasswd -l 8 -s 0
+  register: result
+  when: group != "docker-env"
+- name: set admin password
+  shell: echo {{ mongodb_install_dir }}/bin/mongo 127.0.0.1/admin --eval \"db.createUser\(\{user:\'root\',pwd:\'{{result.stdout}}\',roles:[\'userAdminAnyDatabase\']\}\)\" | bash
+  when: group != "docker-env"
+- name: set security
+  shell: sed -i 's@^#security:@security:@' /etc/mongod.conf && sed -i 's@^#  authorization:@  authorization:@' /etc/mongod.conf
+  when: group != "docker-env"
+- name: docker mongodb
+  community.docker.docker_container:
+    name: mongo
+    image: registry.yunzmall.com/yunzhong/shop:mongo
+    detach: yes
+    restart_policy: always
+    networks:
+      - name: yzshop
+    network_mode: yzshop
+    env:
+      MONGO_INITDB_ROOT_USERNAME: "root"
+      MONGO_INITDB_ROOT_PASSWORD: "{{ mongodbpassword }}"
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - /data/mongodb:/data/db:rw
+  when: group == "docker-env"
+
+- debug:
+    msg: "{{ result.stdout }}"
+  when: group != "docker-env"
+

@@ -1,0 +1,5 @@
+[program:{{ subdomain }}]
+command=/usr/bin/java -Dloader.path={{ webpath }}/plugins/yun-sign/jar/libs -Dspring.config.location={{ webpath }}/plugins/yun-sign/jar/application-shop.properties,{{ webpath }}/plugins/yun-sign/jar/application.properties -jar {{ webpath }}/plugins/yun-sign/jar/yun-sign-server-nolib.jar
+user=www
+redirect_stderr=true
+stdout_logfile={{ webpath }}/storage/logs/yun_sign_server/all_signserver.log

@@ -1,0 +1,74 @@
+- name: create system user
+  user:
+    name: "www"
+    state: present
+    shell: /sbin/nologin
+    home: /data/wwwroot
+    uid: 1000
+- name: centos7 install pureftpd
+  unarchive:
+#    src: pureftpd-{{ pureftpd_ver }}.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/pureftpd/pureftpd-{{ pureftpd_ver }}.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: centos8 install pureftpd
+  unarchive:
+#    src: pureftpd-{{ pureftpd_ver }}_centos8.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/pureftpd/pureftpd-{{ pureftpd_ver }}_centos8.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+- name: set pureftpd config
+  copy:
+    src: pure-ftpd.conf
+    dest: /usr/local/pureftpd/etc/
+- name: set pureftpd logrotate
+  copy:
+    src: pureftpd.logrotate
+    dest: /etc/logrotate.d/pureftpd
+- name: set pureftpd systemd
+  copy:
+    src: pureftpd.service
+    dest: /lib/systemd/system/
+- name: install randon password generate
+  yum: name=expect state=latest
+- name: create passwd
+  shell: mkpasswd -l 8 -s 0
+  register: result
+- name: add passwd to tmpfile
+  shell: echo -e "{{ result.stdout }}\n{{ result.stdout }}" > /usr/local/pureftpd/etc/passfile
+- name: delete old passwd file
+  file: path=/usr/local/pureftpd/etc/pureftpd.passwd state=absent
+- name: delete old db file
+  file: path=/usr/local/pureftpd/etc/pureftpd.pdb state=absent
+- name: create ftp user
+  shell: /usr/local/pureftpd/bin/pure-pw useradd www -f /usr/local/pureftpd/etc/pureftpd.passwd -u www -g www -d /data/wwwroot/ -m < /usr/local/pureftpd/etc/passfile
+- name: change webfolder ownership
+  shell: chown -R www:www /data/wwwroot
+
+- name: modify rsyslog transfer config
+  lineinfile:
+    dest: /etc/rsyslog.conf
+    state: present
+    regexp: '^\*\.info;mail\.none;authpriv\.none;cron\.none'
+    backrefs: yes
+    line: '*.info;mail.none;authpriv.none;cron.none;ftp.none        /var/log/messages'
+- name: modify ftp log to standclone file
+  lineinfile:
+    dest: /etc/rsyslog.conf
+    line: 'ftp.*        /var/log/pureftpd.log'
+- name: create log file
+  file:
+    path: /var/log/pureftpd.log
+    state: touch
+    owner: root
+    mode: 774
+- name: reload rsyslog
+  service: name=rsyslog state=restarted
+- name: reload systemd
+  shell: systemctl daemon-reload
+- name: start ftp
+  service: name=pureftpd state=started enabled=yes
+- debug:
+    msg: "{{ result.stdout }}"

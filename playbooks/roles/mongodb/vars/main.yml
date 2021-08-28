@@ -1,0 +1,3 @@
+mongodb_install_dir: /usr/local/mongodb
+mongo_data_dir: /data/mongodb
+mongodb_ver: 4.4.0

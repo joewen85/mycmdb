@@ -1,0 +1,17 @@
+- name: judge a folder
+  shell: ls {{ webpath }}
+  ignore_errors: True
+  register: result
+- file: path={{ webpath }} owner=www group=www mode=770 recurse=yes state=directory
+  when: result is failed
+- name: download shop
+  # get_url: url=https://yun.yunzmall.com/framework-yun_shop_{{ download_vers }}.zip dest={{ webpath }} timeout=5
+  copy: src="framework-yun_shop_{{ download_vers }}.zip" dest={{ webpath }} force=yes owner=www group=www
+- name: unarchive framework_shop
+  unarchive: src="{{ webpath }}/framework-yun_shop_{{ download_vers }}.zip" dest={{ webpath }} copy=no mode=770 owner=www group=www
+- name: delete zip
+  file: path="{{ webpath }}/framework-yun_shop_{{ download_vers }}.zip" state=absent
+#- name: create artisan link
+#  file: path={{ webpath }}/addons/yun_shop/artisan state=link src={{ webpath }}/artisan
+- debug:
+    msg: "shop install success!"

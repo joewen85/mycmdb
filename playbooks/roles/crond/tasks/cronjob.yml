@@ -1,0 +1,18 @@
+- cron: name="{{ domain }}" minute='*' hour='*' user='www' state=present job="{{ phpbin }} {{ webpath }}/addons/yun_shop/artisan cron:run >> {{ webpath }}/addons/yun_shop/storage/logs/cronjob.log 2>&1"
+  when: shop_version=="1"
+- cron: name="{{ domain }}" minute='*' hour='*' user='www' state=present job="{{ phpbin }} {{ webpath }}/artisan cron:run >> {{ webpath }}/storage/logs/cronjob.log 2>&1"
+  when: shop_version=="0"
+- name: add user www with home folder
+  file: path='/home/www' state=directory owner='www' group='www' recurse=yes
+- name: add cronjob logrotate
+  template: src=framework_shop.j2 dest=/etc/logrotate.d/{{ domain }}
+  when: shop_version=="0"
+- name: add cronjob logrotate
+  template: src=weiqin_shop.j2 dest=/etc/logrotate.d/{{ domain }}
+  when: shop_version=="1"
+- name: modify weiqin_shop logfolder privileges
+  file: path={{ webpath }}/addons/yun_shop/storage/logs owner=www group=root mode=770 state=directory
+  when: shop_version=="1"
+- name: modify framework_shop logfolder privileges
+  file: path={{ webpath }}/storage/logs owner=www group=root mode=770 state=directory
+  when: shop_version=="0"

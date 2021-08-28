@@ -1,0 +1,62 @@
+version: '3'
+services:
+  mysql_db:
+      image: registry.yunzmall.com/yunzhong/shop:mysql
+      container_name: mysql_db
+      volumes:
+        - ./mysql:/var/lib/mysql:rw
+      environment:
+        MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      security_opt:
+        - seccomp:unconfined
+      restart: always
+      ports:
+        - "127.0.0.1:3306:3306"
+      # command: ["--character-set-server=utf8mb4","--explicit_defaults_for_timestamp=true", "--default-authentication-plugin=mysql_native_password","--collation-server=utf8mb4_unicode_ci","--binlog_expire_logs_seconds=86400","--lower_case_table_names=0"]
+      command: ["--character-set-server=utf8mb4","--explicit_defaults_for_timestamp=true", "--default-authentication-plugin=mysql_native_password","--collation-server=utf8mb4_unicode_ci","--lower_case_table_names=0"]
+
+  redis_db:
+      image: registry.yunzmall.com/yunzhong/shop:redis
+      container_name: redis_db
+      volumes:
+        - ./confs/redis/redis.conf:/usr/local/etc/redis/redis.conf
+        - ./redis:/data
+      restart: always
+      ports:
+        - "127.0.0.1:6379:6379"
+
+  php-fpm:
+    image: registry.yunzmall.com/yunzhong/shop:php-fpm
+    container_name: php-fpm
+    restart: always
+    volumes:
+      - ./wwwroot/${NGINX_HOST}:${NGINX_WEBPATH}
+
+  nginx:
+    image: registry.yunzmall.com/yunzhong/shop:nginx
+    container_name: nginx
+    restart: always
+    tty: true
+    depends_on:
+      - php-fpm
+    volumes:
+      - ./confs/nginx/ssl:/etc/nginx/ssl
+      - ./confs/nginx/templates:/etc/nginx/templates
+      - ./logs/nginx:/var/log/nginx
+      - ./wwwroot/${NGINX_HOST}:${NGINX_WEBPATH}
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - NGINX_HOST=${NGINX_HOST}
+      - NGINX_WEBPATH=${NGINX_WEBPATH}
+
+  queue:
+    image: registry.yunzmall.com/yunzhong/shop:queue
+    container_name: queue
+    command: "/usr/bin/supervisord -c /etc/supervisord.conf"
+    restart: always
+    volumes:
+      - ./confs/supervisord:/etc/supervisor.d
+      - ./logs/supervisor:/var/log/supervisor
+      - ./wwwroot/${NGINX_HOST}:${NGINX_WEBPATH}

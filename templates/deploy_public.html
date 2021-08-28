@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    部署页面
+{% endblock %}
+{% block content %}
+{% if messages %}
+    {% for msg in messages %}
+        <script>
+                alert('{{ msg.message }}');
+        </script>
+     {% endfor %}
+    {% endif %}
+    <img src="{% static  "images/LOGO.png" %}">
+    <form action="{% url 'deploy_public' %}" method="post" class="smart-green" enctype="multipart/form-data">
+        <span class="error-msg">使用一键部署请先确认服务器环境是否满足系统要求<a
+                href="https://bbs.yunzmall.com/forum.php?mod=viewthread&tid=24382&page=1&extra=#pid29601">点击这里查看</a>，如不满足请勿使用一键部署，部署后如重置服务器操作系统则无法二次部署，只能自行手动处理，免费版芸众官方不在提供手动部署支持。单台服务器只能部署免费版（独立框架、微擎框架）商城各一个</span>
+        <label>
+            <span>客户名称 :</span>
+            <input id="customer_name" type="text" value="" name="customer_name" placeholder="请输入客户名称" required/>
+            {% if verify_form %}
+                <div class="error-msg">{{ verify_form.customer_name.0 }}</div>
+            {% endif %}
+        </label>
+        <label>
+            <span>域名 :</span>
+            <input id="domain" type="text" name="domain" class="error" placeholder="请输入域名" required/>
+            {% if verify_form %}
+                <div class="error-msg">{{ verify_form.domain.0 }}</div>
+            {% endif %}
+        </label>
+
+        <label>
+            <span>IP地址 :</span>
+            <input id="ipaddress" type="text" value="" name="ipaddress" placeholder="请输入IP地址" required/>
+            {% if verify_form %}
+                <div class="error-msg">{{ verify_form.ipaddress.0 }}</div>
+            {% endif %}
+        </label>
+
+        <label>
+            <span>服务器连接端口 :</span>
+            <input id="port" type="text" value="22" name="port"/>
+            {% if verify_form %}
+                <div class="error-msg">{{ verify_form.port.0 }}</div>
+            {% endif %}
+        </label>
+
+        <label>
+            <span>服务器登录用户 :</span>
+            <input id="username" type="text" value="root" name="username" placeholder="请输入服务器登录用户" required/>
+            <div class="error-msg"></div>
+        </label>
+
+        <label>
+            <span>服务器登录密码 :</span>
+            <input id="password" type="password" value="" name="password" placeholder="请输入服务器登录密码" required/>
+            {% if verify_form %}
+                <div class="error-msg">{{ verify_form.password.0 }}</div>
+            {% endif %}
+        </label>
+        <label>
+            <span>网站位置 :</span>
+            <input id="position" type="text" value="" name="position" placeholder="/data/wwwroot/域名" required/>
+            {% if verify_form %}
+                <div class="error-msg">{{ verify_form.position.0 }}</div>
+            {% endif %}
+        </label>
+{#        <label>#}
+{#                <span>ftp用户名 :</span>#}
+{#                <input type="text" value=www name="ftpuser" required/>#}
+{#            </label>#}
+{#            <label>#}
+{#                <span>ftp密码 :</span>#}
+{#                <input type="text" value=None name="ftppassword"/>#}
+{#            </label>#}
+{#            <label>#}
+{#                <span>mysql地址 :</span>#}
+{#                <input type="text" value=127.0.0.1 name="mysqladdress" required/>#}
+{#            </label>#}
+{#            <label>#}
+{#                <span>mysql用户 :</span>#}
+{#                <input type="text" value=root name="mysqluser" required/>#}
+{#            </label>#}
+            <label>
+                <span>mysql密码 :</span>
+                <input type="text" value='' name="mysqlpassword" placeholder="自定义数据库root用户密码" required/>
+            </label>
+        <label>
+            <span>服务器环境 :</span>
+            <select name="select1">
+                {% for env_data in env_datas %}
+                    <option value={{ env_data.id }}>{{ env_data.describe }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            <span>服务器运营商 :</span>
+            <select name="select2">
+                {% for cloudips_data in cloudips_datas %}
+                    <option value={{ cloudips_data.id }}>{{ cloudips_data.describe }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <div class="form-group">
+            <label for="cert">证书cert(nginx)</label>
+            <input type="file" name="cert" id="certFile">
+            <label for="privateKey">证书key(nginx)</label>
+            <input type="file" name="privatekey" id="keyFile">
+        </div>
+
+        <div class="radio">
+                <div class="radio-inline">
+                    <label><input type="radio" name="shop_ver" value="0" checked>独立版</label>
+                </div>
+{#                <div class="radio-inline">#}
+{#                    <label><input type="radio" name="shop_ver" value="1">微擎版</label>#}
+{#                </div>#}
+        </div>
+        <span>任务 :</span>
+        <select name="select3" id="sel" onchange="Change(this)">
+            {% for job in jobs %}
+                <option value={{ job.jid }}>{{ job.name }}</option>
+            {% endfor %}
+        </select>
+        <input id="desc" type="text" value="" name="desc" placeholder="请输入部署原因，如首次部署。。。" style="display: none">
+        <div>
+            <span>其它 :</span>
+            <textarea id="others" name="others" placeholder="请输入"></textarea>
+            <div class="error-msg"></div>
+        </div>
+
+        {{ captcha_form }}
+        <input type="submit" class="button" value="部署"/>
+        <input type="hidden" value="{{ user }}" name="user">
+        {% csrf_token %}
+    </form>
+    <script>
+        $(function () {
+            $('.captcha').css({
+                'cursor': 'pointer'
+            })
+            // # ajax 刷新
+            $('.captcha').click(function () {
+                console.log('click');
+                $.getJSON("/captcha/refresh/",
+                    function (result) {
+                        $('.captcha').attr('src', result['image_url']);
+                        $('#id_captcha_0').val(result['key'])
+                    });
+            });
+            // # ajax动态验证
+            $('#id_captcha_1').blur(function () {
+                // #id_captcha_1为输入框的id，当该输入框失去焦点是触发函数
+                $('#captcha_status').remove();
+                json_data = {
+                    'response': $('#id_captcha_1').val(),  // 获取输入框和隐藏字段id_captcha_0的数值
+                    'hashkey': $('#id_captcha_0').val()
+                };
+                $.getJSON('/ajax_val', json_data, function (data) { //ajax发送            $('#captcha_status').remove()
+                    if (data['status']) { //status返回1为验证码正确， status返回0为验证码错误， 在输入框的后面写入提示信息
+                        $('#id_captcha_1').after('<span id="captcha_status">*验证码正确</span>')
+                        // $(".smart-green").submit();
+                    } else {
+                        $.getJSON("/captcha/refresh/",
+                            function (result) {
+                                $('.captcha').attr('src', result['image_url']);
+                                $('#id_captcha_0').val(result['key'])
+                            });
+                        $('#id_captcha_1').after('<span id="captcha_status" class="error-msg">*验证码错误</span>')
+                    }
+                });
+            });
+        })
+    </script>
+{% endblock %}
+

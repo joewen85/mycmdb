@@ -1,0 +1,13 @@
+[program:{{ domain }}]
+command={{ webpath }}/daemon.sh /usr/local/bin/php
+user=www-data
+numprocs=1
+autostart=true
+autorestart=true
+startsecs=3
+stopasgroup=true
+killasgroup=true
+redirect_stderr=true
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=5
+stdout_logfile={{ webpath }}/storage/logs/worker.log

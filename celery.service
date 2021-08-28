@@ -1,0 +1,22 @@
+[Unit]
+Description=celery_worker
+Documentation=celery process
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=forking
+ExecStart=/data/apps/mycmdb/celery_worker.sh start
+ExecStop=/data/apps/mycmdb/celery_worker.sh stop
+ExecReload=/data/apps/mycmdb/celery_worker.sh reload
+PrivateTmp=true
+PrivateTmp=True
+Restart=always
+RestartSec=10
+StartLimitInterval=30
+LimitNOFILE=1000000
+LimitNPROC=1000000
+LimitCORE=1000000
+
+[Install]
+WantedBy=multi-user.target

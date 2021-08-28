@@ -1,0 +1,80 @@
+- name: delete old yum repo
+  yum: name=yunzhong_repo state=absent
+#- name: delete yum repo key
+#  file: path=/etc/pki/rpm-gpg/RPM-GPG-KEY-yunzhong state=absent
+# - name: clean yum cache
+#   yum: update_cache=yes
+#   when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+# - name: delete yum cache
+#   file: path=/var/cache/yum state=absent
+#   when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+# - name: install epel-release
+#   yum: name=epel-release state=latest
+# - name: install yunzhong reop
+#   yum: name=https://downloads.yunzmall.com/yunzhong_repo-1-1.el7.x86_64.rpm state=present
+- name: install dependen
+  yum:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+     - gcc
+     - gcc-c++
+     - make
+     - epel-release
+     - wget
+     - zlib-devel
+     - glibc-devel
+     - git
+- name: touch library config file
+  file:
+    path: /etc/ld.so.conf.d/local.conf
+    state: touch
+- name: add library path 32
+  lineinfile:
+    dest: /etc/ld.so.conf.d/local.conf
+    state: present
+    regexp: '^/usr/local/lib$'
+    line: '/usr/local/lib'
+  #shell: "[ -z "`grep /usr/local/lib /etc/ld.so.conf.d/*.conf`" ] && echo '/usr/local/lib' >> /etc/ld.so.conf.d/local.conf"
+- name: add library path 64
+  lineinfile:
+    dest: /etc/ld.so.conf.d/local.conf
+    state: present
+    regexp: '^/usr/local/lib64$'
+    line: '/usr/local/lib64'
+  #shell: "[ -z "`grep /usr/local/lib64 /etc/ld.so.conf.d/*.conf`" ] && echo '/usr/local/lib64' >> /etc/ld.so.conf.d/local.conf"
+- name: apply library
+  shell: ldconfig
+- name: 修改日志记录条目
+  lineinfile:
+    dest: /etc/bashrc
+    state: present
+    regexp: '^export HISTSIZE=.*'
+    line: 'export HISTSIZE=4000'
+- name: 修改histor配置详细记录1
+  lineinfile:
+    dest: /etc/bashrc
+    insertafter: '^export HISTSIZE=.*'
+    line: "USER_IP=$(who -u am i 2>/dev/null| awk '{print $NF}'|sed -e 's/[()]//g')\n[ -z ${USER_IP} ] && USER_IP=$(hostname)"
+- name: 修改histor配置详细记录2
+  lineinfile:
+    dest: /etc/bashrc
+    state: present
+    regexp: '^export HISTTIMEFORMAT="%F %T.*'
+    line: 'export HISTTIMEFORMAT="%F %T ${USER_IP}:$(whoami) "'
+- name: 修改histor配置详细记录3
+  lineinfile:
+    dest: /etc/bashrc
+    state: present
+    regexp: '^export PROMPT_COMMAND=.*'
+    line: 'export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"'
+- name: 修改histor配置详细记录4
+  lineinfile:
+    dest: /etc/bashrc
+    state: present
+    regexp: '^unset HISTCONTROL'
+    line: 'unset HISTCONTROL'
+- name: 应用配置
+  shell: source /etc/bashrc
+

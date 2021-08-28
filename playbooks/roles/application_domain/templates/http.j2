@@ -1,0 +1,41 @@
+server {
+  listen 80;
+  server_name {{ domain }};
+  access_log /data/wwwlogs/{{ domain }}_nginx.log;
+  index index.html index.htm index.php;
+  root {{ webpath }};
+  
+  location / {
+        try_files $uri $uri/ /index.php?$query_string;
+        }
+
+  location ~ [^/]\.php(/|$) {
+    #fastcgi_pass remote_php_ip:9000;
+    fastcgi_pass unix:/dev/shm/php-cgi.sock;
+    fastcgi_index index.php;
+    include fastcgi.conf;
+  }
+  location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|flv|mp4|ico)$ {
+    expires 30d;
+    access_log off;
+  }
+  location ~ .*\.(js|css)?$ {
+    expires 7d;
+    access_log off;
+  }
+  location ~ /\.ht {
+    deny all;
+  }
+  location ~ .*\.(pem|crt|key|log)$
+  {
+	deny all;
+  }
+  location ~ /\.git
+  {
+	deny all;
+  }
+  location ~ ^/(\.user.ini|\.htaccess|\.git|\.svn|\.project|LICENSE|README.md)
+    {
+        return 404;
+    }
+}

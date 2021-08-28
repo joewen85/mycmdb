@@ -1,0 +1,12 @@
+/var/log/pureftpd.log {
+  daily
+  rotate 180
+  missingok
+  dateext
+  compress
+  notifempty
+  sharedscripts
+  postrotate
+        systemctl restart pureftpd
+  endscript
+}

@@ -1,0 +1,15 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  gather_facts: false
+  tasks:
+        - name: removed stream_socket
+          lineinfile:
+            dest: /usr/local/php/etc/php.ini
+            state: present
+            regexp: '^disable_functions =.*'
+            line: 'disable_functions = exec,system,chroot,chgrp,chown,shell_exec,ini_alter,ini_restore,dl,openlog,syslog,readlink,symlink,popepassthru,fsocket,popen,eval'
+        - name: reload php config
+          service:
+            name: php-fpm
+            enabled: yes
+            state: restarted

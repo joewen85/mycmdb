@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if ret.code == 0 %}
+        <h1>{{ ret.result }}</h1>
+    {% else %}
+        <h1>操作失败：</h1><br>
+        <h3>{{ ret.errmsg }}</h3>
+    {% endif %}
+{% endblock %}
+
+
+{% block extend_js %}
+
+<script>
+let status = {{ ret.code }};
+let next_url = "{{ ret.next_url|safe }}";
+let timejump = 5000;
+$(function(){
+    if (status != 0){
+        timejump = 5000
+    }
+    setTimeout(function(){
+        window.location.href = next_url;
+    }, timejump)
+})
+</script>
+
+{% endblock %}

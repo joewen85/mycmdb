@@ -1,0 +1,56 @@
+- name: remove cronjob
+  cron:
+    name: "{{ domain }}"
+    user: www
+    state: absent
+- name: remove oldest cronjob
+  cron:
+    name: "laravel cronjob"
+    user: www
+    state: absent
+
+#- name: fuck bt-env rewrite supervisord_conf
+#  file:
+#    path: "/usr/bin/echo_supervisord_conf"
+#    attributes: "-i"
+#  when: group == "bt-env"
+
+# delete bt-env yum install supervisor
+- name: delete bt-env install supervisor
+  yum:
+    name: supervisor
+    state: absent
+  when: group == "bt-env"
+
+# delete bt-env pip install supervisor
+- name: delete bt-env install supervisor
+  pip:
+    name: supervisor
+    state: absent
+    extra_args: "-y"
+    virtualenv_site_packages: yes
+  when: group == "bt-env"
+
+# delete {{ domain }} config
+- name: delete file
+  file:
+    path: /etc/supervisord.d/{{ domain }}.ini
+    state: absent
+    force: yes
+
+- name: delete old file
+  file:
+    path: /etc/supervisord.d/laravel-worker.ini
+    state: absent
+    force: yes
+
+- name: delete onboot run artisan queue work process old function
+  lineinfile:
+        state: absent
+        dest: /etc/crontab
+        regexp: ".*artisan cron:run"
+
+#- name: restart supervisord
+#  service:
+#    name: supervisord
+#    state: restarted

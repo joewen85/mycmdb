@@ -1,0 +1,13 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  roles:
+    - common
+    - jemalloc
+    - openresty
+    - vhosts
+    - openssl
+    - curl
+    - libiconv
+    - php72
+    - redis
+    - ftp

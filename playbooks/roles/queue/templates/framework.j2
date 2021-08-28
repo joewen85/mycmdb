@@ -1,0 +1,11 @@
+[program:{{ domain }}]
+process_name=%(program_name)s_%(process_num)02d
+command={{ webpath }}/daemon.sh {{ phpbin }}
+autostart=true
+autorestart=true
+user=www
+numprocs=1
+redirect_stderr=true
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=5
+stdout_logfile={{ webpath }}/storage/logs/worker.log

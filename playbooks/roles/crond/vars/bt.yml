@@ -1,0 +1,4 @@
+---
+phpbin: /www/server/php/56/bin/php
+nginxbin: /www/server/nginx/sbin/nginx
+mysqlbin: /www/server/mysql/bin/mysql

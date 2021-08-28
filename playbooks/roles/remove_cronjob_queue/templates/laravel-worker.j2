@@ -1,0 +1,9 @@
+[program:{{ domain }}]
+process_name=%(program_name)s_%(process_num)02d
+command={{ phpbin }} {{ webpath }}/addons/yun_shop/artisan queue:work --sleep=5 --tries=1
+autostart=true
+autorestart=true
+user=www
+numprocs=2
+redirect_stderr=true
+stdout_logfile={{ webpath }}/addons/yun_shop/storage/logs/worker.log

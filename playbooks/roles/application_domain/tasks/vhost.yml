@@ -1,0 +1,20 @@
+- name: add vhost
+  template: src=http.j2 dest=/usr/local/openresty/nginx/conf/vhost/{{ domain }}.conf
+#- name: add status
+#  copy: src=status.conf dest=/usr/local/openresty/nginx/conf/vhost/status.conf
+#- name: judge folder exist or not
+#  shell: ls {{ webpath }}
+#  ignore_errors: True
+#  register: result
+#- file: path={{ webpath }} owner=www group=www mode=770 recurse=yes state=directory
+#  when: result is failed
+#- shell: mv {{ webpath }} {{ webpath }}_bk && mkdir -p {{ webpath }}
+#  when: result is succeeded
+#- name: create webfolder
+#  file: path={{ webpath }} owner=www group=www mode=770 recurse=yes state=directory
+  #tags:
+  #- conf
+  #notify:
+  #- restart nginx
+- name: restart nginx
+  service: name=nginx state=restarted 

@@ -1,0 +1,48 @@
+- name: install supervisor software
+  yum: name=supervisor state=latest enablerepo=epel
+- name: change config
+  template: src=supervisord.j2 dest=/etc/supervisord.conf
+- name: change service
+  copy: src=supervisord.service dest=/lib/systemd/system/supervisord.service
+- name: create folder
+  file: path=/etc/supervisord.d state=directory
+# - name: jude artisan file exist or not
+#   stat: path={{ webpath }}/artisan
+#   register: artisan_result
+# - template: src=weiqing.j2 dest=/etc/supervisord.d/{{ domain }}.ini
+#   when: artisan_result.stat.exists == False
+# - template: src=framework.j2 dest=/etc/supervisord.d/{{ domain }}.ini
+#   when: artisan_result.stat.exists
+- name: weiqing config
+  template: src=weiqing.j2 dest=/etc/supervisord.d/{{ domain }}.ini
+  when: shop_version == "1"
+- name: yunzhong framework config
+  template: src=framework.j2 dest=/etc/supervisord.d/{{ domain }}.ini
+  when: shop_version == "0"
+- name: reload systemctl
+  systemd:
+    daemon_reload: yes
+- name: change daemon.sh privleges with yunzhong framework
+  file:
+    path: "{{ webpath }}/daemon.sh"
+    mode: 0770
+  when: shop_version == "0"
+- name: change daemon.sh privleges with weiqin
+  file:
+    path: "{{ webpath }}/addons/yun_shop/daemon.sh"
+    mode: 0770
+  when: shop_version == "1"
+- name: start supervisord
+#   service: name=supervisord state=restarted enabled=yes
+  systemd:
+    name: supervisord
+    enabled: yes
+    state: started
+
+- name: Check that you can connect (GET) to a page and it returns a status 200
+  uri:
+    url: http://127.0.0.1:9001
+  register: http_result
+- debug:
+    msg: "队列和计划任务部署成功"
+  when: http_result is success

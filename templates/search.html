@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}
+    客户管理系统 | 搜索
+{% endblock %}
+{% block content %}
+    {{ block.super }}
+    {#    <form name="{% url 'search' %}" method="post" class="smart-green">#}
+    {#        <div class="form-group">#}
+    {#            <span>搜索资产内容： </span>#}
+    {#            <input id="searchbar" type="text" name="searcher" value="" class="smart-green" placeholder="请输入域名或IP">#}
+    {#        </div>#}
+    {#        <button type="submit" class="btn btn-primary block full-width m-b">搜索</button>#}
+    {#        <input type='hidden' name='csrfmiddlewaretoken' value='SfHkbL4feo1G00sJQtbO7TtLN4c2BUwa'/>#}
+    {##}
+    {#        {% if msg %}#}
+    {#            <span style="color: red;">{{ msg }}</span>#}
+    {#        {% endif %}#}
+    {#        {% csrf_token %}#}
+    {#    </form>#}
+    {{ msg }}
+    <table class="smart-green" border="1px" width="500">
+        <thead>
+        <tr>
+            <th>序号</th>
+            <th>客户名称</th>
+            <th>域名</th>
+            <th>ip地址</th>
+            <th>创建时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for result in search_results %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ result.customer_name }}</td>
+                <td><a href="{% url 'assetdetail' asset_id=result.id %}">{{ result.hostname }}</a></td>
+                <td>{{ all_asset.ipaddress }}</td>
+                <td>{{ all_asset.created_at }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}
+    客户管理系统 | 登录
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="header-group">
+            {{ block.super }}
+        </div>
+        <div class="main-group">
+            <form class="smart-green" role="form" action="{% url 'login' %}" method="POST">
+                <input type="hidden" name="next" value="{{ next }}">
+                <div class="form-group">
+                    <input type="text" name="username" class="form-control" placeholder="用户名" required="">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="userpassword" class="form-control" placeholder="密码" required="">
+                </div>
+                <div>
+                    {{ form.captcha }}
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary block full-width m-b">登录</button>
+                </div>
+
+
+                {% csrf_token %}
+            </form>
+            <div class="message">
+                <div>
+                    {% if msg %}
+                        <span class="error-msg">{{ msg }}<br></span>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {% if login_form %}
+                        <div class="error-msg">{{ login_form.userpassword }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,14 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  gather_facts: false
+  tasks:
+        - name: find php extension dir
+          shell: "{{ phpbin }} -i|grep ^extension_dir|awk '{print $3}'"
+          register: result
+        - get_url: dest={{ result.stdout}}/ixed.7.2.lin url=https://downloads.yunzmall.com/ixed.7.2.lin force=yes
+        - name: add config to php.ini
+          lineinfile:
+             dest: /usr/local/php/etc/php.ini
+             line: 'extension = ixed.7.2.lin'
+        - name: reload php service
+          service: name=php-fpm state=restarted

@@ -1,0 +1,12 @@
+- name: create folder
+  file: path={{ webpath }}/addons state=directory owner=www group=www mode=777
+- name: download shop
+  get_url: url=https://yun.yunzmall.com/yun_shop_{{ download_vers }}.zip dest={{ webpath }}/addons timeout=5
+- name: unarchive weiqing
+  unarchive: src={{ webpath }}/addons/yun_shop_{{ download_vers }}.zip dest={{ webpath }}/addons copy=no mode=777 owner=www group=www
+- name: delete zip
+  file: path={{ webpath }}/addons/yun_shop_{{ download_vers }}.zip state=absent
+- name: delete weiqing version file
+  file: path={{ webpath }}/addons/yun_shop/manifest.xml state=absent
+- debug:
+    msg: "shop install success!"

@@ -1,0 +1,54 @@
+- name: create vhost folder
+  file:
+    path: /usr/local/openresty/nginx/conf/vhost
+    state: directory
+- name: add vhost
+  template:
+    src: https.j2
+    dest: /usr/local/openresty/nginx/conf/vhost/{{ domain }}.conf
+
+- name: add status
+  copy:
+    src: status.conf
+    dest: /usr/local/openresty/nginx/conf/vhost/status.conf
+#- name: judge folder exist or not
+#  shell: ls {{ webpath }}
+#  ignore_errors: True
+#  register: result
+#- file: path={{ webpath }} owner=www group=www mode=770 recurse=yes state=directory
+#  when: result is failed
+#- shell: mv {{ webpath }} {{ webpath }}_bk && mkdir -p {{ webpath }}
+#  when: result is succeeded
+- name: check webfolder exist
+  stat:
+    path: "{{ webpath }}"
+  register: webfolder_status
+- name: create webfolder
+  file:
+    path: "{{ webpath }}"
+    owner: www
+    group: www
+    mode: '0770'
+    recurse: yes
+    state: directory
+  when: webfolder_status.stat.exists == False
+  #tags:
+  #- conf
+  #notify:
+  #- restart nginx
+
+- name: create ssl folder
+  file:
+    path: /usr/local/openresty/nginx/conf/ssl
+    state: directory
+
+- name: create nginx ssl cert
+  shell: echo "{{ cert_var }}" > /usr/local/openresty/nginx/conf/ssl/{{ domain }}.pem
+
+- name: create nginx ssl private key
+  shell: echo "{{ privatekey_var }}" > /usr/local/openresty/nginx/conf/ssl/{{ domain }}.key
+
+- name: restart nginx
+  service: name=nginx state=restarted
+- debug:
+    msg: "{{ domain }}配置成功，服务器路径: {{ webpath }}"

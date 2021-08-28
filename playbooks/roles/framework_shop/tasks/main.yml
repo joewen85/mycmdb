@@ -1,0 +1,2 @@
+#---
+- include_tasks: framework_shop.yml

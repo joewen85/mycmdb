@@ -1,0 +1,36 @@
+- name: yunzhong framework shop change db_connect
+  shell: sed -i "s#.*master'\]\['host.*;#\$config['db']['master']['host'] = '{{ mysql_address }}';#" {{ webpath }}/database/config.php && sed -i "s#.*master'\]\['username.*;#\$config['db']['master']['username'] = '{{ mysql_user }}';#" {{ webpath }}/database/config.php && sed -i "s#.*master'\]\['password.*;#\$config['db']['master']['password'] = '{{ mysql_password }}';#" {{ webpath }}/database/config.php
+  when: shop_version == "0"
+- name: weiqing framework shop change db_connect
+  shell: sed -i "s#.*master'\]\['host.*;#\$config['db']['master']['host'] = '{{ mysql_address }}';#" {{ webpath }}/data/config.php && sed -i "s#.*master'\]\['username.*;#\$config['db']['master']['username'] = '{{ mysql_user }}';#" {{ webpath }}/data/config.php && sed -i "s#.*master'\]\['password.*;#\$config['db']['master']['password'] = '{{ mysql_password }}';#" {{ webpath }}/data/config.php
+  when: shop_version == "1"
+- name: delete yunzhong framework cache file
+  file:
+    path: "{{ webpath }}/bootstrap/cache/config.php"
+    state: absent
+    force: yes
+  when: shop_version == "0"
+- name: delete weiqing framework cache file
+  file:
+    path: "{{ webpath }}/addons/yun_shop/bootstrap/cache/config.php"
+    state: absent
+    force: yes
+  when: shop_version == "1"
+- name: judge curl
+  shell: ls /usr/local/curl
+  ignore_errors: True
+  register: result
+- name: get curl binary
+  unarchive:
+    src: "https://downloads.yunzmall.com/playbook_source/curl/curl-7.71.0.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: result is failed
+- name: reload php-fpm
+  service:
+    name: php-fpm
+    state: restarted
+- name: reload supervisord
+  service:
+    name: supervisord
+    state: restarted

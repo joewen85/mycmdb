@@ -1,0 +1,59 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div>
+    <table border="1">
+    <thead>
+        <tr>
+            <td>domain</td>
+            <td>ipaddr</td>
+            <td>ips</td>
+            <td>sshuser</td>
+            <td>group</td>
+            <td>php_env</td>
+        </tr>
+    </thead>
+    <tbody>
+    {% for ad in all_datas %}
+        <tr>
+        <td>{{ ad.hostname }}</td>
+        <td>{{ ad.ipaddress }}</td>
+        <td>{{ ad.cloudips }}</td>
+        <td>{{ ad.sshuser }}</td>
+        <td>{{ ad.envirment }}</td>
+        <td>{{ phpbin }}</td>
+        </tr>
+    {% endfor %}
+
+
+
+    <!--{% for foo in search_field %}
+        <tr>
+        <td>{{ foo.customer_name }}</td>
+        <td>{{ foo.hostname }}</td>
+        <td>{{ foo.ipaddress }}</td>
+            <td>{{ foo.sshport }}</td>
+        <td>{{ foo.cloudips }}</td>
+        <td>{{ foo.sshuser }}</td>
+            <td>{{ foo.sshpassword }}</td>
+        <td>{{ foo.envirment }}</td>
+        <td>{{ foo.created_at }}</td>
+        <td>{{ foo.updated_at }}</td>
+        <td>{{ foo.is_maintenance }}</td>
+        <td>{{ foo.deploy_times }}</td>
+        <td>{{ foo.others }}</td>
+        </tr>
+    {% endfor %}-->
+
+    </tbody>
+    </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+/usr/local/php/var/log/*.log {
+  daily
+  rotate 5
+  missingok
+  dateext
+  compress
+  notifempty
+  sharedscripts
+  postrotate
+    [ -e /usr/local/php/var/run/php-fpm.pid ] && systemctl reload php-fpm
+  endscript
+}

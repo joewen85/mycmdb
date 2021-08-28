@@ -1,0 +1,37 @@
+[[source]]
+name = "pypi"
+url = "https://mirrors.aliyun.com/pypi/simple"
+verify_ssl = true
+allow_prereleases = false
+
+[dev-packages]
+pysnooper = "*"
+ipython = "*"
+
+[packages]
+incremental = "*"
+django = "==2.2.24"
+mysqlclient = "*"
+channels = "*"
+coreapi = "*"
+djangorestframework = "*"
+django-redis = "*"
+django-simple-captcha = "*"
+django-crispy-forms = "*"
+redis = "*"
+channels-redis = "*"
+future = "*"
+django-formtools = "*"
+httplib2 = "*"
+django-import-export = "*"
+paramiko = "*"
+uwsgi = "*"
+celery = "*"
+pycryptodomex = "*"
+qrcode = "*"
+cryptography = "*"
+pillow = "*"
+ansible = "*"
+
+[requires]
+python_version = "3.9"

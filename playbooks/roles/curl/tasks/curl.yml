@@ -1,0 +1,55 @@
+- name: centos7 install deploy package
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+     - libssh-devel
+     - libssh2-devel
+     - openldap
+     - libidn-devel
+     - libidn2-devel
+     - libnghttp2-devel
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: centos8 install deploy package
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+     - libssh-devel
+     - openldap
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+- name: centos7 unarchive curl
+  unarchive:
+#    src: curl-{{ curl_ver }}.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/curl/curl-7.73.0.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: centos8 unarchive curl
+  unarchive:
+#    src: curl-{{ curl_ver }}_centos8.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/curl/curl-{{ curl_ver }}_centos8.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+#- name: mv curl binary
+#  shell: mv /usr/bin/curl{,_bak} removes=/usr/bin/curl
+#  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+#- name: curl binary
+#  file:
+#    src: /usr/local/curl/bin/curl
+#    dest: /usr/bin/curl
+#    state: link
+#  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+#- name: jude artisan file exist or not
+#  shell: ls /usr/bin/curl-config
+#  ignore_errors: True
+#  register: lib_result
+- name: curl-config binary
+  file:
+    src: /usr/local/curl/bin/curl-config
+    dest: /usr/bin/curl-config
+    state: link
+#  when: lib_result.failed == true

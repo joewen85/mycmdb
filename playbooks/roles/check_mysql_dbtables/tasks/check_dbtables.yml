@@ -1,0 +1,14 @@
+- name: push to check dbtables script
+  template:
+    src: check_dbtables.j2
+    dest: /tmp/check_dbtables.sh
+    mode: 775
+- name: run check script
+  shell: sh /tmp/check_dbtables.sh
+  register: result
+- name: delete check script
+  file:
+    path: /tmp/check_dbtables.sh
+    state: absent
+- debug:
+    msg: "{{ result.stdout }}"

@@ -1,0 +1,22 @@
+{
+  "registry-mirrors": [
+    "https://hub-mirror.c.163.com"
+  ],
+  "oom-score-adjust": -1000,
+  "storage-driver": "overlay2",
+  "storage-opts": [
+    "overlay2.override_kernel_check=true"
+  ],
+  "live-restore": true,
+  "default-ulimits": {
+    "nofile": {
+      "Name": "nofile",
+      "Hard": 65535,
+      "Soft": 65535
+    }
+  },
+  "log-opts": {
+    "max-size": "100m",
+    "max-file": "10"
+  }
+}

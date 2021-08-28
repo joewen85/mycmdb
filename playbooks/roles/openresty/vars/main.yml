@@ -1,0 +1,4 @@
+openresty_ver: 1.19.3.1
+openresty_install_dir: /usr/local/openresty
+wwwlogs_dir: /data/wwwlogs
+nginx_user: www

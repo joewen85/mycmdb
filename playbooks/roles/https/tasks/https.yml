@@ -1,0 +1,21 @@
+- name: 判断acme是否已安装
+  shell: ls ~/.acme.sh
+  ignore_errors: True
+  register: acme_exist
+
+- name: 不存在则安装
+  #shell: "[ ! -d ~/.acme.sh ] && git clone http://git.yunzmall.com/apps/acme.git /root/acme && cd /root/acme && ./acme.sh --install && rm -rf /root/acme/"
+  shell: "git clone --depth=1 https://git.yunzmall.com/apps/acme.git && cd acme && ./acme.sh --install && rm -rf /root/acme"
+  when: acme_exist.failed == true
+- name: Check that you can connect (GET) to a page and it returns a status 200
+  uri:
+    url: http://{{ domain }}
+  register: http_result
+- shell: ~/.acme.sh/acme.sh --issue -d {{ domain }} -w {{ webpath }} --force
+  when: http_result is success
+- name: copy nginx config
+  template: src=https.j2 dest=/usr/local/openresty/nginx/conf/vhost/{{ domain }}.conf
+- name: general_key
+  shell: ~/.acme.sh/acme.sh --install-cert -d {{ domain }} --key-file /usr/local/openresty/nginx/conf/ssl/{{ domain }}.key --fullchain-file /usr/local/openresty/nginx/conf/ssl/{{ domain }}.pem --reloadcmd "systemctl restart nginx"
+- debug:
+    msg: "{{ domain }}配置https成功!"

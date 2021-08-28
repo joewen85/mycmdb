@@ -1,0 +1,7 @@
+- name: unlock authorized_keys file
+  shell: chattr -i /root/.ssh/authorized_keys removes=/root/.ssh/authorized_keys
+- name: ssh-copy
+  authorized_key: 
+    user: root
+    state: present
+    key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"

@@ -1,0 +1,135 @@
+#- name: check user exist
+#  shell: id -u zabbix
+#  ignore_errors: True
+#  register: user_exists
+- name: add zabbix user
+  user:
+    name: "zabbix"
+    state: present
+    shell: /sbin/nologin
+    uid: 8899
+#  when: user_exists.failed == true
+- name: install dependen
+  yum:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+     - pcre-devel
+     - pcre2-devel
+     - mtr
+- name: unarchive zabbix
+  unarchive:
+    src: "https://downloads.yunzmall.com/playbook_source/zabbix_agentd/zabbix-{{ zabbix_agent_ver }}_agentd.tgz"
+    dest: /usr/local/
+    remote_src: yes
+- name: cp systemd config
+  copy:
+    src: zabbix_agentd.service
+    dest: /lib/systemd/system/zabbix_agentd.service
+- name: cp zabbix config
+  copy:
+    src: zabbix_agentd.conf
+    dest: /usr/local/zabbix/etc/zabbix_agentd.conf
+    force: yes
+- name: cp getport
+  copy:
+    src: getport.sh
+    dest: /usr/local/zabbix/etc/getport.sh
+    mode: u+rwx
+    owner: zabbix
+- name: cp disk.sh
+  copy:
+    src: mount_disk_discovery.sh
+    dest: /usr/local/zabbix/etc/mount_disk_discovery.sh
+    mode: u+rwx
+    owner: zabbix
+- name: cp mtr
+  copy:
+    src: mtr_check.sh
+    dest: /usr/local/zabbix/etc/mtr_check.sh
+    mode: u+rwx
+    owner: zabbix
+- name: cp nginx
+  copy:
+    src: nginx_status.sh
+    dest: /usr/local/zabbix/etc/nginx_status.sh
+    mode: u+rwx
+    owner: zabbix
+- name: cp php
+  copy:
+    src: php-fpm_status.sh
+    dest: /usr/local/zabbix/etc/php-fpm_status.sh
+    mode: u+rwx
+    owner: zabbix
+- name: status file
+  copy:
+    src: status.conf
+    dest: /usr/local/openresty/nginx/conf/vhost/status.conf
+- name: cp tcp
+  copy:
+    src: tcp_connections.sh
+    dest: /usr/local/zabbix/etc/tcp_connections.sh
+    mode: u+rwx
+    owner: zabbix
+- name: check mysql
+  copy:
+    src: userparameter_percona_mysql.conf
+    dest: /usr/local/zabbix/etc/zabbix_agentd.conf.d/userparameter_percona_mysql.conf
+- name: check redis
+  copy:
+    src: userparameter_redis.conf
+    dest: /usr/local/zabbix/etc/zabbix_agentd.conf.d/userparameter_redis.conf
+- name: set check mysql
+  template:
+    src: chk_mysql.j2
+    dest: /usr/local/zabbix/etc/chk_mysql.sh
+    mode: u+rwx
+    owner: zabbix
+- name: get_mysql
+  template:
+    src: get_mysql_stats_wrapper.j2
+    dest: /usr/local/zabbix/etc/get_mysql_stats_wrapper.sh
+    mode: u+rwx
+    owner: zabbix
+- name: ss_get_mysql
+  copy:
+    src: ss_get_mysql_stats.php
+    dest: /usr/local/zabbix/etc/ss_get_mysql_stats.php
+    mode: u+rwx
+    owner: zabbix
+- name: set disk monitor
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    backrefs: no
+    regexp: '^zabbix '
+    line: 'zabbix ALL=(ALL)       NOPASSWD: /sbin/blockdev'
+- name: change mysql user
+  lineinfile:
+    dest: /usr/local/zabbix/etc/ss_get_mysql_stats.php
+    state: present
+    backrefs: yes
+    regexp: '^\$mysql_user = "";'
+    line: '$mysql_user = "{{ mysql_user }}";'
+- name: change mysql password
+  lineinfile:
+    dest: /usr/local/zabbix/etc/ss_get_mysql_stats.php
+    state: present
+    backrefs: yes
+    regexp: '^\$mysql_pass = "";'
+    line: '$mysql_pass = "{{ mysql_password }}";'
+- name: add zabbix user to redis group
+  shell: usermod -G redis zabbix
+- name: change hostname
+  hostname: name="{{ domain }}"
+- name: reload systemd
+  shell: systemctl daemon-reload
+- name: set zabbix_agentd onboot
+  service: name=zabbix_agentd enabled=yes state=started
+- name: restart zabbix_agentd
+  service:
+    name: zabbix_agentd
+    state: restarted
+- debug:
+    msg: "部署监控服务成功"

@@ -1,0 +1,217 @@
+- name: install jdk dependen
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+     - java-1.8.0-openjdk
+     - java-1.8.0-openjdk-devel
+     - supervisor
+  when: group == "bt-env" or group == "yunzhong-env"
+
+- name: cp reverse config with yunzhong-env framework
+  template:
+    src: yz-framework-reverse.j2
+    dest: "/usr/local/openresty/nginx/conf/vhost/{{ subdomain }}.conf"
+  when: shop_version == "0" and group == "yunzhong-env"
+
+- name: cp reverse config with bt-env framework
+  template:
+    src: yz-framework-reverse.j2
+    dest: "/www/server/panel/vhost/nginx/{{ subdomain }}.conf"
+  when: shop_version == "0" and group == "bt-env"
+
+- name: cp reverse config with yunzhong-env weiqin
+  template:
+    src: weiqin-reverse.j2
+    dest: "/usr/local/openresty/nginx/conf/vhost/{{ subdomain }}.conf"
+  when: shop_version == "1" and group == "yunzhong-env"
+
+- name: cp reverse config with bt-env weiqin
+  template:
+    src: weiqin-reverse.j2
+    dest: "/www/server/panel/vhost/nginx/{{ subdomain }}.conf"
+  when: shop_version == "1" and group == "bt-env"
+
+- name: docker-env nginx reverse
+  copy:
+    src: docker-reverse.conf.template
+    dest: /data/confs/nginx/templates/{{ subdomain }}.conf.template
+  when: group == "docker-env"
+
+- name: create folder for bt-env
+  file:
+    path: /usr/local/openresty/nginx/conf/ssl
+    state: directory
+  when: group == "bt-env"
+
+- name: create log folder for bt-env
+  file:
+    path: /data/wwwlogs
+    state: directory
+  when: group == "bt-env"
+
+- name: create nginx ssl cert
+  shell: echo "{{ cert_var }}" > /usr/local/openresty/nginx/conf/ssl/{{ subdomain }}.pem
+  when: group == "yunzhong-env" or group == "bt-env"
+
+- name: create nginx ssl private key
+  shell: echo "{{ privatekey_var }}" > /usr/local/openresty/nginx/conf/ssl/{{ subdomain }}.key
+  when: group == "yunzhong-env" or group == "bt-env"
+
+- name: docker nginx ssl cert
+  shell: echo "{{ cert_var }}" > /data/confs/nginx/ssl/{{ subdomain }}.pem
+  when: group == "docker-env"
+
+- name: docker nginx ssl private key
+  shell: echo "{{ privatekey_var }}" > /data/confs/nginx/ssl/{{ subdomain }}.key
+  when: group == "docker-env"
+
+- name: vhost config modify reverse proxy with yunzhong-env
+  lineinfile:
+    dest: /usr/local/openresty/nginx/conf/vhost/{{ subdomain }}.conf
+    insertbefore: '.*location .*php.*\{'
+    line:
+      "{{ item }}"
+  with_items:
+    - '  location ^~ /addons/yun_shop/ {'
+    - "    proxy_pass   https://{{ domain }}/addons/yun_shop/;}"
+    - '  location ^~ /s/ {'
+    - "    proxy_pass https://{{ domain }}/addons/yun_shop/api.php?uuid=0&type=5&route=plugin.yun-sign.frontend.short-url.index&url_code=;}"
+  when: group == "yunzhong-env"
+
+- name: vhost config modify reverse proxy with bt-env
+  lineinfile:
+    dest: /www/server/panel/vhost/nginx/{{ subdomain }}.conf
+    insertbefore: '.*location .*php.*\{'
+    line:
+      "{{ item }}"
+  with_items:
+    - '  location ^~ /addons/yun_shop/ {'
+    - "    proxy_pass   https://{{ domain }}/addons/yun_shop/;}"
+    - '  location ^~ /s/ {'
+    - "    proxy_pass https://{{ domain }}/addons/yun_shop/api.php?uuid=0&type=5&route=plugin.yun-sign.frontend.short-url.index&url_code=;}"
+  when: group == "bt-env"
+
+- name: vhost config modify reverse proxy with docker
+  lineinfile:
+    dest: /data/confs/nginx/templates/{{ subdomain }}.conf.template
+    insertbefore: '.*location .*php.*\{'
+    line:
+      "{{ item }}"
+  with_items:
+    - '  location ^~ /addons/yun_shop/ {'
+    - "    proxy_pass   https://{{ domain }}/addons/yun_shop/;}"
+    - '  location ^~ /s/ {'
+    - "    proxy_pass https://{{ domain }}/addons/yun_shop/api.php?uuid=0&type=5&route=plugin.yun-sign.frontend.short-url.index&url_code=;}"
+  when: group == "docker-env"
+
+- name: restart nginx with yunzhong-env
+  service:
+    name: nginx
+    state: restarted
+  when: group == "yunzhong-env"
+
+- name: restart nginx with bt-env
+  shell: /etc/init.d/nginx restart
+  when: group == "bt-env"
+
+- name: restart nginx whit yunzhong-env
+  community.docker.docker_container:
+    name: nginx
+    image: registry.yunzmall.com/yunzhong/shop:nginx
+    detach: yes
+    restart: yes
+    restart_policy: always
+    networks:
+      - name: yzshop
+    network_mode: yzshop
+    env:
+      NGINX_HOST: "{{ domain }}"
+      NGINX_WEBPATH: "{{ webpath }}"
+      ESIGN_DOMAIN: "{{ subdomain }}"
+#    command: ['nginx', '-g', 'daemon off;']
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /data/confs/nginx/ssl:/etc/nginx/ssl:rw
+      - /data/logs/nginx:/var/log/nginx:rw
+      - /data/wwwroot/{{ domain }}:{{ webpath }}:rw
+      - /data/confs/nginx/templates:/etc/nginx/templates:rw
+  when: group == "docker-env"
+
+- name: create folder
+  file: path=/etc/supervisord.d state=directory
+
+- name: weiqing config
+  template: src=weiqin-start.j2 dest=/etc/supervisord.d/{{ subdomain }}.ini
+  when: shop_version == "1" and group == "yunzhong-env" or group == "bt-env"
+
+
+- name: yunzhong framework
+  template: src=yz-framework-start.j2 dest=/etc/supervisord.d/{{ subdomain }}.ini
+  when: shop_version == "0" and group == "yunzhong-env" or group == "bt-env"
+
+- name: create log folder with yunzhong framework
+  file:
+    path: "{{ webpath }}/storage/logs/yun_sign_server"
+    state: directory
+    owner: www
+    group: www
+    mode: '0770'
+  when: shop_version == "0" and group == "yunzhong-env" or group == "bt-env"
+
+- name: create log folder with weiqin
+  file:
+    path: "{{ webpath }}/addons/yun_shop/storage/logs/yun_sign_server"
+    state: directory
+    owner: www
+    group: www
+    mode: '0755'
+  when: shop_version == "1" and group == "yunzhong-env" or group == "bt-env"
+
+- name: create log folder with docker-env
+  file:
+    path: "{{ webpath }}/storage/logs/yun_sign_server"
+    state: directory
+    owner: 33
+    group: 33
+    mode: '0775'
+  when: group == "docker-env"
+
+- name: create log file with yunzhong framework
+  shell: touch "{{ webpath }}/storage/logs/yun_sign_server/all_signserver.log" &&  chown www:www "{{ webpath }}/storage/logs/yun_sign_server/all_signserver.log"
+  when: shop_version == "0" and group == "yunzhong-env" or group == "bt-env"
+- name: create log file with weiqin
+  shell: touch "{{ webpath }}/addons/yun_shop/storage/logs/yun_sign_server/all_signserver.log" && chown www:www "{{ webpath }}/addons/yun_shop/storage/logs/yun_sign_server/all_signserver.log"
+  when: shop_version == "1" and group == "yunzhong-env" or group == "bt-env"
+- name: create log file with docker-env
+  file:
+    path: "{{ webpath }}/storage/logs/yun_sign_server/all_signserver.log"
+    state: touch
+    owner: 33
+    group: 33
+    mode: '0775'
+  when: group == "docker-env"
+
+- name: restart supervisord
+  service:
+    name: supervisord
+    state: restarted
+  when: group == "yunzhong-env" or group == "bt-env"
+
+- name: openjdk docker
+  community.docker.docker_container:
+    name: esign
+    image: registry.yunzmall.com/yunzhong/shop:esign
+    detach: yes
+    restart: yes
+    restart_policy: always
+    networks:
+      - name: yzshop
+    network_mode: yzshop
+    volumes:
+      - "{{ webpath }}/plugins/yun-sign:/usr/src/app"
+      - "{{ webpath }}:{{ webpath }}"
+  when: group == "docker-env"

@@ -1,0 +1,58 @@
+- name: centos7 unarchive redis-server
+  unarchive:
+    src: "https://downloads.yunzmall.com/playbook_source/redis_server/redis_server-5.0.8.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: centos8 unarchive redis-server
+  unarchive:
+    src: "https://downloads.yunzmall.com/playbook_source/redis_server/redis_server-{{ redis_ver }}.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+- name: copy config
+  template:
+    src: redis.j2
+    dest: "{{ redis_install_dir }}/etc/redis.conf"
+- name: add redis user
+  user:
+    name: redis
+    state: present
+    shell: /sbin/nologin
+- name: set redis privilege
+  file:
+    path: "{{ redis_install_dir }}"
+    owner: redis
+    group: redis
+    recurse: yes
+- name: add data folder
+  file:
+    path: /data/redis
+    owner: redis
+    group: redis
+    recurse: yes
+- name: cp redis-server.service file to os
+  copy:
+    src: redis-server.service
+    dest: /lib/systemd/system/redis-server.service
+- name: reload systemd
+  shell: systemctl daemon-reload
+- name: add redis-server binary
+  lineinfile:
+    dest: /etc/profile
+    state: present
+    regexp: "^export PATH=$PATH:{{ redis_install_dir }}/bin"
+    line: "export PATH=$PATH:{{ redis_install_dir }}/bin"
+- name: add kernel options
+  lineinfile:
+    dest: /etc/sysctl.conf
+    state: present
+    regexp: "vm.overcommit_memory=1"
+    line: "vm.overcommit_memory=1"
+- name: apply kernel options
+  shell: sysctl -p
+- name: set redis-server onboot
+  service:
+    name: redis-server
+    enabled: yes
+    state: started

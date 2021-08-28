@@ -1,0 +1,6 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  #gather_facts: false
+  roles:
+#    - common
+    - zabbix_client

@@ -1,0 +1,10 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  tasks:
+    - name: "restrict api"
+      lineinfile:
+        dest: "/usr/local/openresty/nginx/conf/vhost/{{ domain }}.conf"
+        regexp: '  location\s~\s\[\^/\]\\.php\(\/\|\$\)\s{'
+        line: '  location ~ ^/(index|api|shop|addons/yun_shop/api)\.php(/|$) {'
+    - name: "reload nginx"
+      service: name=nginx state=restarted

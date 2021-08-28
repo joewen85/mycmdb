@@ -1,0 +1,6 @@
+---
+# Variable configuration
+#
+# # config tasks
+- include_tasks: common.yml
+- include_tasks: services.yml

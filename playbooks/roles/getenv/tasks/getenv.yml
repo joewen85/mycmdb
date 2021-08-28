@@ -1,0 +1,6 @@
+- name: cp checkphp file to client
+  copy: src=check.php dest={{ webpath }}/check.php
+#- name: get os version
+#  shell: cat /etc/redhat-release && {{ phpbin }} /tmp/check.php
+- debug:
+    msg: "操作系统: {{ansible_distribution}}-{{ansible_distribution_version}}； CPU核数: {{ansible_processor_vcpus}}； 内存大小: {{ansible_memtotal_mb}}M； php模块: <a href=http://{{ domain }}/check.php>访问此链接查看站点支持情况</a>"

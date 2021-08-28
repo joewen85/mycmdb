@@ -1,0 +1,143 @@
+#- name: stop php-fpm services
+#  shell: systemctl stop php-fpm
+#- name: stop supervisor services
+#  shell: systemctl stop supervisord
+- name: remove mysql-devel
+  yum:
+    name: mysql-*
+    state: absent
+- name: centos7 install deploy package
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+     - libmcrypt-devel
+     - freetype-devel
+     - mhash-devel
+     - mcrypt
+     - mariadb-devel
+     - libevent-devel
+     - libjpeg-devel
+     - libjpeg-turbo-devel
+     - libpng-devel
+     - zlib-devel
+     - libxml2-devel
+     - xmlrpc-c
+     - xmlrpc-client
+     - libxslt-devel
+     - gettext-libs
+     - gettext
+     - libtool-ltdl-devel
+     - libicu-devel
+     - bison
+     - re2c
+     - gd-devel
+     - ncurses-devel
+     - glib2-devel
+     - libc-client
+     - bzip2-devel
+     - autoconf
+     - libnghttp2-devel
+     - libidn-devel
+     - libidn2-devel
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: centos8 install deploy package
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+     - libmcrypt-devel
+     - freetype-devel
+     - mhash-devel
+     - mariadb-devel
+     - libevent-devel
+     - libjpeg-devel
+     - libjpeg-turbo-devel
+     - libpng-devel
+     - zlib-devel
+     - libxml2-devel
+     - xmlrpc-c
+     - libxslt-devel
+     - gettext-libs
+     - gettext
+     - libtool-ltdl-devel
+     - libicu-devel
+     - bison
+     - gd-devel
+     - ncurses-devel
+     - glib2-devel
+     - libc-client
+     - bzip2-devel
+     - autoconf
+     - sqlite-devel
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+- name: check user exist
+  shell: id -u www
+  ignore_errors: True
+  register: user_exists
+- name: add web running user
+  user:
+    name: "www"
+    state: present
+    shell: /sbin/nologin
+    home: /data/wwwroot
+    uid: 1000
+  when: user_exists.failed == true
+- name: centos7 unarchive php72
+  unarchive:
+#    src: php-{{ php_ver }}_openssl{{ openssl_ver }}.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/php72/php-{{ php_ver }}.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: centos8 unarchive php72
+  unarchive:
+#    src: php-{{ php_ver }}_centos8.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/php72/php-{{ php_ver }}_centos8.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+- name: create php config subfolder
+  file:
+    path: /usr/local/php/etc/php.d
+    state: directory
+- name: set ext-opcache config
+  copy:
+    src: ext-opcache.bak
+    dest: /usr/local/php/etc/php.d/ext-opcache.ini
+- name: set ext-redis config
+  copy:
+    src: ext-redis.ini
+    dest: /usr/local/php/etc/php.d/
+- name: set ext-mongo config
+  copy:
+    src: ext-mongo.ini
+    dest: /usr/local/php/etc/php.d/
+- name: set logrotate config
+  copy:
+    src: php-fpm.logrotate
+    dest: /etc/logrotate.d/php-fpm
+- name: set systemd config
+  copy:
+    src: php-fpm.service
+    dest: /lib/systemd/system/
+- name: set php.ini file
+  copy:
+    src: php.ini
+    dest: /usr/local/php/etc/
+- name: set php-fpm config
+  template:
+    src: php-fpm.j2
+    dest: /usr/local/php/etc/php-fpm.conf
+- name: add php72 binary
+  lineinfile:
+    dest: /etc/profile
+    state: present
+    regexp: "^export PATH=$PATH:/usr/local/php/bin"
+    line: "export PATH=$PATH:/usr/local/php/bin"
+- name: reload systemd
+  shell: systemctl daemon-reload
+- name: set php72 onboot
+  service: name=php-fpm enabled=yes state=restarted

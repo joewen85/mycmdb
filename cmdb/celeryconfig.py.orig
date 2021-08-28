@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+# @Time     : 2020/3/16 11:32 PM
+# @Author   : Joe
+# @Site     :
+# @File     : celeryconfig.py
+# @Software : PyCharm
+# @function :
+
+
+# Import project config setting
+try:
+    from config import Config as CONFIG
+except ImportError:
+    msg = """
+
+    Error: No config file found.
+
+    You can run `cp config_example.py config.py`, and edit it.
+    """
+    raise ImportError(msg)
+
+# celery settings
+BROKER_URL = CONFIG.CELERY_BROKER_URL
+CELERY_RESULT_BACKEND = CONFIG.CELERY_BACKEND
+CELERY_WORKER_CONCURRENCY = 5
+CELERYD_PREFETCH_MULTIPLIER = 20
+CELERYD_FORCE_EXECV = True
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 100
+CELERY_DISABLE_RATE_LIMITS = True
+CELERY_TIMEZONE = 'Asia/Shanghai'

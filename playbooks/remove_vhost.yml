@@ -1,0 +1,13 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  gather_facts: false
+  tasks:
+        - name: delete nginx config file
+          file:
+            path: /usr/local/openresty/nginx/conf/vhost/{{ domain }}.conf
+            state: absent
+            force: yes
+        - name: reload nginx
+          service:
+            name: nginx
+            state: restarted

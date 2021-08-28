@@ -1,0 +1,12 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  gather_facts: false
+  tasks:
+    - name: judge folder exist or not
+      shell: ls {{ webpath }}
+      ignore_errors: True
+      register: result
+    - file: path={{ webpath }} owner=www group=www mode=770 recurse=yes state=directory
+      when: result is failed
+    - shell: mv {{ webpath }} {{ webpath }}_bk && mkdir -p {{ webpath }}
+      when: result is succeeded

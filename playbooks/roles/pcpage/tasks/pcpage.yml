@@ -1,0 +1,210 @@
+- name: centos7 install dependen
+  yum:
+    name: wget
+    state: present
+  when: state == "start"
+
+- name: download nodejs
+  get_url: url=https://npm.taobao.org/mirrors/node/{{ nodejs_ver }}/node-{{ nodejs_ver }}-linux-x64.tar.gz dest=/usr/local/ timeout=5
+  when: state == "start"
+
+- name: unarchive nodejs
+  unarchive: src=/usr/local/node-{{ nodejs_ver }}-linux-x64.tar.gz dest=/usr/local/ copy=no
+  when: state == "start"
+
+- name: modify name
+#  shell: mv /usr/local/node-"{{ nodejs_ver }}"-linux-x64 /usr/local/node
+  file:
+    src: "/usr/local/node-{{ nodejs_ver }}-linux-x64"
+    dest: /usr/local/node
+    state: link
+  when: state == "start"
+
+- name: delete tar file
+  file:
+    path: "/usr/local/node-{{ nodejs_ver }}-linux-x64.tar.gz"
+    state: absent
+  when: state == "start"
+
+- name: ln binary node
+  file:
+    src: /usr/local/node/bin/node
+    dest: /usr/bin/node
+    state: link
+  when: state == "start"
+
+#- name: modify host.json
+#  lineinfile:
+#    dest: "{{ webpath }}/plugins/shop_server/host.json"
+#    regexp: '"baseURL":.*'
+#    line: "  \"baseURL\": \"https://{{ domain }}\""
+- name: create host.json for yz-framework
+  template:
+    src: host.j2
+    dest: "{{ webpath }}/plugins/shop_server/host.json"
+  when: shop_version == "0"
+
+- name: create host.json for weiqing
+  template:
+    src: host.j2
+    dest: "{{ webpath }}/addons/yun_shop/plugins/shop_server/host.json"
+  when: shop_version == "1"
+
+- name: set node environment
+  lineinfile:
+    dest: /root/.bashrc
+    state: present
+    regexp: 'export PATH=$PATH:/usr/local/node/bin'
+    line: 'export PATH=$PATH:/usr/local/node/bin'
+  when: state == "start"
+
+- name: apply environment
+  shell: source /root/.bashrc
+  when: state == "start"
+
+- name: install cnpm
+  npm:
+    name: cnpm
+    registry: 'https://registry.npm.taobao.org'
+    executable: /usr/local/node/bin/npm
+    global: yes
+  when: state == "start"
+
+- name: install package
+  npm:
+    path: "{{ webpath }}/plugins/shop_server"
+#    registry: 'https://registry.npm.taobao.org'
+    executable: /usr/local/node/bin/cnpm
+    state: present
+  when: state == "start"
+
+- name: install "pm2" node.js package globally.
+  npm:
+    name: pm2
+    registry: 'https://registry.npm.taobao.org'
+    global: yes
+  when: state == "start"
+
+- name: build pcpage project for yz-framework
+  shell: cd {{ webpath }}/plugins/shop_server && /usr/local/node/bin/npm run build
+  when: shop_version == '0'
+
+- name: build pcpage project for weiqing
+  shell: cd {{ webpath }}/addons/yun_shop/plugins/shop_server && /usr/local/node/bin/npm run build
+  when: shop_version == '1'
+
+- name: delete old files for yz-framework
+  shell: rm -rf {{ webpath }}/plugins/shop_server/plugins/shop_server/*
+  when: shop_version == '0'
+
+- name: delete old files for weiqing
+  shell: rm -rf {{ webpath }}/addons/yun_shop/plugins/shop_server/plugins/shop_server/*
+  when: shop_version == '1'
+
+- name: cp staticfile for yz-framework
+  shell: cp -a {{ webpath }}/plugins/shop_server/.nuxt/dist/client/* {{ webpath }}/plugins/shop_server/plugins/shop_server/
+  when: shop_version == '0'
+
+- name: cp staticfile for weiqing
+  shell: cp -a {{ webpath }}/addons/yun_shop/plugins/shop_server/.nuxt/dist/client/* {{ webpath }}/addons/yun_shop/plugins/shop_server/plugins/shop_server/
+  when: shop_version == '1'
+
+- name: start server for yz-framework
+  shell: cd {{ webpath }}/plugins/shop_server && /usr/local/node/bin/pm2 start npm --name "{{ domain }}" -- run start
+  when: state == "start" and shop_version == '0'
+
+- name: start server for weiqing
+  shell: cd {{ webpath }}/addons/yun_shop/plugins/shop_server && /usr/local/node/bin/pm2 start npm --name "{{ domain }}" -- run start
+  when: state == "start" and shop_version == '1'
+
+- name: restart server for yz-framework
+  shell: cd {{ webpath }}/plugins/shop_server && /usr/local/node/bin/pm2 restart "{{ domain }}"
+  when: state == "restart" and shop_version == '0'
+
+- name: restart server for weiqing
+  shell: cd {{ webpath }}/addons/yun_shop/plugins/shop_server && /usr/local/node/bin/pm2 restart "{{ domain }}"
+  when: state == "restart" and shop_version == '1'
+
+- name: vhost config modify reverse proxy for yunzhong-env
+  lineinfile:
+    dest: /usr/local/openresty/nginx/conf/vhost/{{ domain }}.conf
+    insertbefore: '.*location .*php.*\{'
+    line:
+      "{{ item }}"
+  with_items:
+    - '  location /plugins/shop_server/ {'
+    - '    include proxy.conf;'
+    - "    proxy_pass   http://127.0.0.1:82;}"
+  when: group == "yunzhong-env" and state == "start"
+
+- name: vhost config modify reverse proxy for docker-env
+  lineinfile:
+    dest: /data/confs/nginx/templates/{{ domain }}.conf.template
+    insertbefore: '.*location .*php.*\{'
+    line:
+      "{{ item }}"
+  with_items:
+    - '  location /plugins/shop_server/ {'
+    - '    include proxy.conf;'
+    - "    proxy_pass   http://{{ backendip }}:82;}"
+  when: group == "docker-env" and state == "start"
+
+- name: vhost config modify reverse proxy for bt-env
+  lineinfile:
+    dest: /www/server/panel/vhost/nginx/{{ domain }}.conf
+    insertbefore: '.*include enable-php-.*'
+    line:
+      "{{ item }}"
+  with_items:
+    - '  location /plugins/shop_server/ {'
+    - '    #include proxy.conf;'
+    - "    proxy_pass   http://127.0.0.1:82;}"
+  when: group == "bt-env" and state == "start"
+
+- name: reload nginx for yunzhong-env
+  service:
+    name: nginx
+    state: restarted
+  when: group == "yunzhong-env"
+
+- name: reload nginx for bt-env
+  shell: /etc/init.d/nginx restart
+  when: group == "bt-env"
+
+- name: reload nginx for docker-env
+  community.docker.docker_container:
+    name: nginx
+    state: started
+    restart: yes
+    networks:
+      - name: yzshop
+    network_mode: yzshop
+    env:
+      NGINX_HOST: "{{ domain }}"
+      NGINX_WEBPATH: "{{ webpath }}"
+#    command: ['nginx', '-g', 'daemon off;']
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /data/confs/nginx/ssl:/etc/nginx/ssl:rw
+      - /data/logs/nginx:/var/log/nginx:rw
+      - "{{ webpath }}:{{ webpath }}:rw"
+      - /data/confs/nginx/templates:/etc/nginx/templates:rw
+  when: group == "docker-env"
+
+- name: set boot start pm2 for yz-framework
+  shell: cd {{ webpath }}/plugins/shop_server && /usr/local/node/bin/pm2 startup && pm2 save
+  when: shop_version == '0'
+
+- name: set boot start pm2 for weiqing
+  shell: cd {{ webpath }}/addons/yun_shop/plugins/shop_server && /usr/local/node/bin/pm2 startup && pm2 save
+  when: shop_version == '1'
+
+- name: check pm2 service exist
+  wait_for:
+    port: 82
+    delay: 3
+
+- debug:
+    msg: "{{ state }} pcpage ok"

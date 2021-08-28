@@ -1,0 +1,4 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  roles:
+    - pcpage

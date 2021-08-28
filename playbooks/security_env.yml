@@ -1,0 +1,18 @@
+- hosts: "{{ domain }}"
+  remote_user: root
+  tasks:
+    - name: "vhost security"
+      lineinfile:
+        dest: "/usr/local/openresty/nginx/conf/vhost/{{ domain }}.conf"
+        regexp: '  location ~* ^/(attachment|static/upload)/.*\.(php|php5)$ {'
+        insertafter: "#if"
+        line: '  location ~* ^/(attachment|static/upload)/.*\.(php|php5)$ {deny all;}'
+    - name: "reload nginx"
+      service: name=nginx state=restarted
+    - name: "php config disable_function security"
+      lineinfile:
+        dest: /usr/local/php/etc/php.ini
+        regexp: 'disable_functions = exec,system,chroot,chgrp,chown,shell_exec,ini_alter,ini_restore,dl,openlog,syslog,readlink,symlink,popepassthru,stream_socket_server,fsocket,popen'
+        line: 'disable_functions = exec,system,chroot,chgrp,chown,shell_exec,ini_alter,ini_restore,dl,openlog,syslog,readlink,symlink,popepassthru,stream_socket_server,fsocket,popen,eval'
+    - name: "reload php-fpm"
+      service: name=php-fpm state=restarted

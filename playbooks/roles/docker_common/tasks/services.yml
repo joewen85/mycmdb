@@ -1,0 +1,190 @@
+- name: create environment file .env
+  template:
+    src: env.j2
+    dest: /data/.env
+
+#- name: cp docker-compose file
+#  copy:
+#    src: docker-compose.yml
+#    dest: /data/docker-compose.yml
+
+- name: create project folder
+  shell: mkdir -p /data/{confs,logs,mongodb,mysql,redis,wwwroot}
+
+- name: create project configs subfolder
+  shell: mkdir -p /data/confs/{mongodb,mysql,nginx,php,redis,supervisord}
+
+- name: create project logs subfolder
+  shell: mkdir -p /data/logs/{nginx,php,redis,supervisor}
+
+- name: modify web path owner
+  file:
+    path: /data/wwwroot
+    owner: "33"
+    group: "33"
+
+# nginx
+- name: create nginx config sub folder
+  shell: mkdir -p /data/confs/nginx/{ssl,templates}
+
+- name: cp nginx template config to client
+  copy:
+    src: default.conf.template
+    dest: /data/confs/nginx/templates/{{ domain }}.conf.template
+
+- name: ssl cert create
+  shell: echo "{{ cert_var }}" > /data/confs/nginx/ssl/{{ domain }}.pem
+
+- name: ssl priviate key create
+  shell: echo "{{ privatekey_var }}" > /data/confs/nginx/ssl/{{ domain }}.key
+
+# supervisor
+- name: cp supervisor config to sub folder
+  template:
+    src: queue.j2
+    dest: /data/confs/supervisord/{{ domain }}.ini
+
+# redis
+- name: cp redis config to sub folder
+  template:
+    src: redis.j2
+    dest: /data/confs/redis/redis.conf
+
+# shop
+- name: create webpath
+  file:
+    path: /data/wwwroot/{{ domain }}
+    state: directory
+    owner: "33"
+    group: "33"
+    mode: 0755
+
+- name: deploy shop
+  copy:
+    src: framework-yun_shop_{{ download_vers }}.zip
+    dest: "{{ webpath }}"
+    force: yes
+
+- name: unarchive framework_shop
+  ansible.builtin.unarchive:
+    src: "{{ webpath }}/framework-yun_shop_{{ download_vers }}.zip"
+    dest: "{{ webpath }}"
+    remote_src: yes
+    owner: "33"
+    group: "33"
+    mode: 0755
+
+- name: delete zip
+  file:
+    path: "{{ webpath }}/framework-yun_shop_{{ download_vers }}.zip"
+    state: absent
+
+- name: create supervisor log
+  file:
+    path: "{{ webpath }}/storage/logs/worker.log"
+    state: touch
+    owner: "33"
+    group: "33"
+    mode: 0755
+
+#- name: run service
+##  shell: cd /data/ && docker-compose up -d && docker-compose ps
+#  community.docker.docker_compose:
+#    files: /data/docker-compose.yml
+#    project_src: ['mysql_db', 'redis_db', 'php-fpm', 'nginx', 'queue']
+#  register: result
+- name: create docker network
+  community.docker.docker_network:
+    name: yzshop
+
+- name: run mysql service
+  community.docker.docker_container:
+    name: mysql_db
+    image: registry.yunzmall.com/yunzhong/shop:mysql
+    detach: yes
+    restart_policy: always
+    networks:
+      - name: yzshop
+    network_mode: yzshop
+    command: ["--character-set-server=utf8mb4","--explicit_defaults_for_timestamp=true","--default-authentication-plugin=mysql_native_password","--collation-server=utf8mb4_unicode_ci"]
+    ports:
+      - "127.0.0.1:3306:3306"
+    env:
+      MYSQL_ROOT_PASSWORD: "{{ mysql_password }}"
+      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /data/mysql:/var/lib/mysql:rw
+
+- name: run redis service
+  community.docker.docker_container:
+    name: redis_db
+    image: registry.yunzmall.com/yunzhong/shop:redis
+    detach: yes
+    restart_policy: always
+    networks:
+      - name: yzshop
+    network_mode: yzshop
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /data/confs/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - /data/redis:/data
+
+- name: run php-fpm service
+  community.docker.docker_container:
+    name: php-fpm
+    image: registry.yunzmall.com/yunzhong/shop:php-fpm
+    detach: yes
+    restart_policy: always
+    networks:
+      - name: yzshop
+    network_mode: yzshop
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /data/wwwroot/{{ domain }}:{{ webpath }}
+
+- name: run nginx service
+  community.docker.docker_container:
+    name: nginx
+    image: registry.yunzmall.com/yunzhong/shop:nginx
+    detach: yes
+    restart_policy: always
+    networks:
+      - name: yzshop
+    network_mode: yzshop
+    env:
+      NGINX_HOST: "{{ domain }}"
+      NGINX_WEBPATH: "{{ webpath }}"
+#    command: ['nginx', '-g', 'daemon off;']
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /data/confs/nginx/ssl:/etc/nginx/ssl:rw
+      - /data/logs/nginx:/var/log/nginx:rw
+      - /data/wwwroot/{{ domain }}:{{ webpath }}:rw
+      - /data/confs/nginx/templates:/etc/nginx/templates:rw
+
+- name: run queue service
+  community.docker.docker_container:
+    name: queue
+    image: registry.yunzmall.com/yunzhong/shop:queue
+    detach: yes
+    restart_policy: always
+    networks:
+      - name: yzshop
+    network_mode: yzshop
+    command: ['/usr/bin/supervisord', '-c', '/etc/supervisord.conf']
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /data/confs/supervisord:/etc/supervisor.d
+      - /data/logs/supervisor:/var/log/supervisor
+      - /data/wwwroot/{{ domain }}:{{ webpath }}
+
+- debug:
+#    msg: "运行状态: {{ result.stdout }}"
+    msg: "打开 https://{{ domain }}/admin.html#/install 进行进一步安装商场"

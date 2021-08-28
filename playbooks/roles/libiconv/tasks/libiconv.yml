@@ -1,0 +1,37 @@
+- name: centos7 unarchive libiconv
+  unarchive:
+#    src: libiconv-{{ libiconv_ver }}.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/libiconv/libiconv-{{ libiconv_ver }}.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int < 8
+- name: centos8 unarchive libiconv
+  unarchive:
+#    src: libiconv-{{ libiconv_ver }}_centos8.tgz
+    src: "https://downloads.yunzmall.com/playbook_source/libiconv/libiconv-{{ libiconv_ver }}_centos8.tgz"
+    dest: /usr/local/
+    remote_src: yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "8"
+# - name: touch library file
+#   file:
+#     path: /etc/ld.so.conf.d/libiconv.conf
+#     state: touch
+#- name: jude lib file exist or not
+#  shell: ls /usr/local/lib/libiconv.so.2
+#  ignore_errors: True
+#  register: lib_result
+- name: create library configure
+#   lineinfile:
+#     dest: /etc/ld.so.conf.d/libiconv.conf
+#     state: present
+#     regexp: '^/usr/local/libiconv/lib$'
+#     line: '/usr/local/libiconv/lib'
+  file:
+    src: /usr/local/libiconv/lib/libiconv.so.2
+    dest: /usr/local/lib/libiconv.so.2
+    state: link
+#  shell: ln -s /usr/local/libiconv/lib/libiconv.so.2 /usr/local/lib/libiconv.so.2
+#  when: lib_result.failed == true
+- name: apply library
+  shell: ldconfig
+
