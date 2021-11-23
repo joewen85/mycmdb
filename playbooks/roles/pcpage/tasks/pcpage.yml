@@ -76,7 +76,7 @@
 #    registry: 'https://registry.npm.taobao.org'
     executable: /usr/local/node/bin/cnpm
     state: present
-  when: state == "start"
+  # when: state == "start"
 
 - name: install "pm2" node.js package globally.
   npm:
