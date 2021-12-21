@@ -144,7 +144,7 @@
     network_mode: yzshop
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /data/wwwroot/{{ domain }}:{{ webpath }}
+      - "{{ webpath }}:/data/wwwroot/yzshop:rw"
 
 - name: run nginx service
   community.docker.docker_container:
@@ -152,6 +152,7 @@
     image: registry.yunzmall.com/yunzhong/shop:nginx
     detach: yes
     restart_policy: always
+    links: php-fpm:php-fpm
     networks:
       - name: yzshop
     network_mode: yzshop
@@ -166,25 +167,8 @@
       - /etc/localtime:/etc/localtime:ro
       - /data/confs/nginx/ssl:/etc/nginx/ssl:rw
       - /data/logs/nginx:/var/log/nginx:rw
-      - /data/wwwroot/{{ domain }}:{{ webpath }}:rw
+      - "{{ webpath }}:/data/wwwroot/yzshop:rw"
       - /data/confs/nginx/templates:/etc/nginx/templates:rw
-
-- name: run queue service
-  community.docker.docker_container:
-    name: queue
-    image: registry.yunzmall.com/yunzhong/shop:queue
-    detach: yes
-    restart_policy: always
-    networks:
-      - name: yzshop
-    network_mode: yzshop
-    command: ['/usr/bin/supervisord', '-c', '/etc/supervisord.conf']
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /data/confs/supervisord:/etc/supervisor.d
-      - /data/logs/supervisor:/var/log/supervisor
-      - /data/wwwroot/{{ domain }}:{{ webpath }}
-
 - debug:
 #    msg: "运行状态: {{ result.stdout }}"
     msg: "打开 https://{{ domain }}/admin.html#/install 进行进一步安装商场"
