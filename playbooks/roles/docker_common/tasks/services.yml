@@ -183,6 +183,20 @@
       - /data/logs/nginx:/var/log/nginx:rw
       - "{{ webpath }}:/data/wwwroot/yzshop:rw"
       - /data/confs/nginx/templates:/etc/nginx/templates:rw
+
+- name: create supervisord service
+  community.docker.docker_container:
+    name: queue
+    image: registry.yunzmall.com/yunzhong/shop:queue
+    detach: yes
+    restart_policy: always
+    networks:
+      - name: yzshop
+    network_mode: yzshop
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /data/logs/supervisor:/var/log/supervisor
+      - "{{ webpath }}:/data/wwwroot/yzshop:rw"
 - debug:
 #    msg: "运行状态: {{ result.stdout }}"
     msg: "打开 https://{{ domain }}/admin.html#/install 进行进一步安装商场"
