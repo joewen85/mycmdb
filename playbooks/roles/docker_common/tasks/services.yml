@@ -1,3 +1,17 @@
+- name: add group
+  group:
+    name: www
+    gid: 9999
+
+- name: add user
+  user:
+    name: www
+    uid: 9999
+    group: www
+    shell: /sbin/nologin
+    create_home: False
+    home: /data/wwwroot
+
 - name: create environment file .env
   template:
     src: env.j2
@@ -20,8 +34,8 @@
 - name: modify web path owner
   file:
     path: /data/wwwroot
-    owner: "33"
-    group: "33"
+    owner: "9999"
+    group: "9999"
 
 # nginx
 - name: create nginx config sub folder
@@ -55,8 +69,8 @@
   file:
     path: /data/wwwroot/{{ domain }}
     state: directory
-    owner: "33"
-    group: "33"
+    owner: "9999"
+    group: "9999"
     mode: 0755
 
 - name: deploy shop
@@ -70,8 +84,8 @@
     src: "{{ webpath }}/framework-yun_shop_{{ download_vers }}.zip"
     dest: "{{ webpath }}"
     remote_src: yes
-    owner: "33"
-    group: "33"
+    owner: "9999"
+    group: "9999"
     mode: 0755
 
 - name: delete zip
@@ -83,8 +97,8 @@
   file:
     path: "{{ webpath }}/storage/logs/worker.log"
     state: touch
-    owner: "33"
-    group: "33"
+    owner: "9999"
+    group: "9999"
     mode: 0755
 
 #- name: run service
