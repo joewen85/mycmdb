@@ -172,7 +172,7 @@
     network_mode: yzshop
     env:
       NGINX_HOST: "{{ domain }}"
-      NGINX_WEBPATH: "{{ webpath }}"
+      # NGINX_WEBPATH: "{{ webpath }}"
 #    command: ['nginx', '-g', 'daemon off;']
     ports:
       - "80:80"
@@ -182,7 +182,7 @@
       - /data/confs/nginx/ssl:/etc/nginx/ssl:rw
       - /data/logs/nginx:/var/log/nginx:rw
       - "{{ webpath }}:/data/wwwroot/yzshop:rw"
-      - /data/confs/nginx/templates:/etc/nginx/templates:rw
+      # - /data/confs/nginx/templates:/etc/nginx/templates:rw
 
 - name: create supervisord service
   community.docker.docker_container:
