@@ -27,7 +27,7 @@ urlpatterns = [
     path('', index, name='index'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('deploy_public/', AnsibleViewPublic.as_view(), name='deploy_public'),
+    # path('deploy_public/', AnsibleViewPublic.as_view(), name='deploy_public'),
     path('captcha/', include('captcha.urls')),
     path('ajax_val/', ajax_val, name='ajax_val'),
     path('refresh/', captcha_refresh, name='captcha-refresh'),
