@@ -777,13 +777,6 @@ class TaskView(APIView):
     """
 
     def post(self, request, *args, **kwargs):
-        # 暂停更新操作,更新到node12有bug
-        res  = {
-            'code': 401,
-            'msg': '维护期间暂停更新操作!'
-        }
-        return JsonResponse(res)
-        
         res = {
             "code": 200,
             "msg": "成功",
