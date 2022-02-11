@@ -139,3 +139,4 @@ config.py
 *.pid
 *.tgz
 *.zip
+Pipfile.lock
