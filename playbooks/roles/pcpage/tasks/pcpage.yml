@@ -189,7 +189,7 @@
     volumes:
       - /data/confs/nginx/ssl:/etc/nginx/ssl:rw
       - /data/logs/nginx:/var/log/nginx:rw
-      - "{{ webpath }}:{{ webpath }}:rw"
+      - "{{ webpath }}:/data/wwwroot/yzshop:rw"
       - /data/confs/nginx/templates:/etc/nginx/templates:rw
   when: group == "docker-env"
 

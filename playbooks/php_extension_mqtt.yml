@@ -2,10 +2,20 @@
   remote_user: root
   gather_facts: false
   tasks:
+    - name: install python3
+      yum:
+        name: python3
+        state: present
     - name: install mosquitto-devel
       yum:
         name: mosquitto-devel
         state: present
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int == 7
+    - name: install mosquitto-devel
+      dnf:
+        name: mosquitto-devel
+        state: present
+      when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int != 7
     - name: find php extension dir
       shell: "{{ phpbin }} -i|grep ^extension_dir|awk '{print $3}'"
       register: result
