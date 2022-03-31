@@ -33,7 +33,6 @@ class WebSSH(WebsocketConsumer):
     def connect(self):
         self.accept()
         query_string = self.scope.get('query_string')
-        # print(query_string)
         ssh_args = QueryDict(query_string=query_string, encoding='utf-8')
 
         width = int(ssh_args.get('width'))

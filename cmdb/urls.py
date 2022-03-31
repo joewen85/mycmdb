@@ -39,7 +39,7 @@ urlpatterns = [
     path('asset_update/', AssetFuncsView.as_view(), name='assetupdate'),
     path('shop/', shop_download, name='shop_download'),
     path('domain/', include('domain.urls')),
-    # path('webssh/', include('webssh.urls')),
+    path('webssh/', include('webssh.urls')),
     # path('md/', migrate_data),
     path('decryption/', decryption, name='decryption'),
     path('task/', TaskView.as_view(), name='taskview')
