@@ -890,5 +890,4 @@ class TaskView(APIView):
             res['code'] = 400
             res['msg'] = "域名不存在"
             print(e)
-        # print(res)
         return JsonResponse(res)
