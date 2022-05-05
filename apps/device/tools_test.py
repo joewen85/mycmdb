@@ -7,3 +7,4 @@
 # @function : xxxx
 
 import django
+from django.test import runner
