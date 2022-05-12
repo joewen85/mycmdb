@@ -8,4 +8,4 @@
 
 import django
 from django.test import runner
-import django.test
+
