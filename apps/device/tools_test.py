@@ -7,5 +7,5 @@
 # @function : xxxx
 
 import django
-from django.test import runner
+# from django.test import runner
 
