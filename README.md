@@ -136,3 +136,8 @@ systemctl stop celery
 ```
 
 完成开启自启动
+
+# IDE
+```使用
+Jetbrains IDE 感谢Jetbrains支持
+```
