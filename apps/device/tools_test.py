@@ -10,3 +10,4 @@ import django
 from django.contrib.auth.models import User
 from django.utils.timezone import settings
 from django.contrib.auth.backends import RemoteUserBackend
+from django.db.models import Field
