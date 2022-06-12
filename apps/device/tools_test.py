@@ -6,8 +6,12 @@
 # @Software : PyCharm
 # @function : xxxx
 
-import django
-from django.contrib.auth.models import User
-from django.utils.timezone import settings
-from django.contrib.auth.backends import RemoteUserBackend
-from django.db.models import Field
+
+from collections import defaultdict
+
+
+a = defaultdict(lambda: 10)
+
+
+print(a[1],a[5])
+
