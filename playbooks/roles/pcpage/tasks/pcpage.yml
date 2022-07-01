@@ -62,21 +62,22 @@
   shell: source /root/.bashrc
   when: state == "start"
 
-- name: install cnpm
-  npm:
-    name: cnpm
-    registry: 'https://registry.npm.taobao.org'
-    executable: /usr/local/node/bin/npm
-    global: yes
-  when: state == "start"
+#- name: install cnpm
+#  npm:
+#    name: cnpm
+#    registry: 'https://registry.npm.taobao.org'
+#    executable: /usr/local/node/bin/npm
+#    global: yes
+#  when: state == "start"
 
 - name: install package
   npm:
     path: "{{ webpath }}/plugins/shop_server"
-#    registry: 'https://registry.npm.taobao.org'
-    executable: /usr/local/node/bin/cnpm
+    registry: 'http://registry.npmmirror.com'
+    executable: /usr/local/node/bin/npm
+    unsafe_perm: yes
     state: present
-  # when: state == "start"
+#   when: state == "start"
 
 - name: install "pm2" node.js package globally.
   npm:
