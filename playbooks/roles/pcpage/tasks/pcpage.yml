@@ -65,7 +65,7 @@
 #- name: install cnpm
 #  npm:
 #    name: cnpm
-#    registry: 'https://registry.npm.taobao.org'
+#    registry: 'http://registry.npmmirror.com'
 #    executable: /usr/local/node/bin/npm
 #    global: yes
 #  when: state == "start"
@@ -82,7 +82,7 @@
 - name: install "pm2" node.js package globally.
   npm:
     name: pm2
-    registry: 'https://registry.npm.taobao.org'
+    registry: 'http://registry.npmmirror.com'
     global: yes
   when: state == "start"
 
