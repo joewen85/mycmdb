@@ -62,19 +62,20 @@
   shell: source /root/.bashrc
   when: state == "start"
 
-#- name: install cnpm
-#  npm:
-#    name: cnpm
-#    registry: 'http://registry.npmmirror.com'
-#    executable: /usr/local/node/bin/npm
-#    global: yes
-#  when: state == "start"
+- name: install cnpm
+  npm:
+    name: cnpm
+    registry: 'http://registry.npmmirror.com'
+    executable: /usr/local/node/bin/npm
+    global: yes
+    version: '7.1.1'
+  when: state == "start"
 
 - name: install package
   npm:
     path: "{{ webpath }}/plugins/shop_server"
     registry: 'http://registry.npmmirror.com'
-    executable: /usr/local/node/bin/npm
+    executable: /usr/local/node/bin/cnpm
     unsafe_perm: yes
     state: present
 #   when: state == "start"
