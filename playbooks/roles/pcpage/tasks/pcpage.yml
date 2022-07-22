@@ -69,6 +69,7 @@
     executable: /usr/local/node/bin/npm
     global: yes
     version: '7.1.1'
+    state: present
 
 - name: install package
   npm:
