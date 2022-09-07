@@ -183,7 +183,7 @@
     network_mode: yzshop
     env:
       NGINX_HOST: "{{ domain }}"
-      NGINX_WEBPATH: "{{ webpath }}"
+#      NGINX_WEBPATH: "{{ webpath }}"
 #    command: ['nginx', '-g', 'daemon off;']
     ports:
       - "80:80"
