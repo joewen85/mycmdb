@@ -356,6 +356,8 @@ class AssetFuncsView(View):
         else:
             remote_ip = request.META['REMOTE_ADDR']
 
+        print(f"remote_ip: {remote_ip}")
+
         # operator_id = User.objects.get(username=operator).id
 
         if 'assetdelete' in request.POST:
