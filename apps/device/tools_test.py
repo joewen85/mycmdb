@@ -13,5 +13,5 @@ a = defaultdict(lambda: 10)
 
 print(a[1], a[5])
 print(os.env)
-# print(os.path)
+print(os.path)
 print(defaultdict())
